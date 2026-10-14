@@ -1,0 +1,11 @@
+{
+  "name": "dash-idh",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dados": ".venv/bin/python scripts/preparar_dados.py"
+  },
+  "devDependencies": {
+    "mapshaper": "0.7.86"
+  }
+}

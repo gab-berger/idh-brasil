@@ -1,0 +1,42 @@
+Relatório de checagem — 2026-10-14
+39 linhas, 0 falha(s)
+
+OK  Atlas: 27 UFs + Brasil (28 territórios)
+OK  Atlas: anos 1991, 2000, 2010 e 2012-2024 (16 anos)
+OK  Atlas: uma linha por território e ano (448 linhas)
+OK  Atlas: nenhum valor faltando
+OK  Atlas: todos os valores entre 0 e 1
+OK  Atlas: IDHM = média geométrica dos subíndices (diferença máx. 0.0005, arredondamento)
+OK  Atlas: BR 2012 = 0.744 (pesquisas: 0.744)
+OK  Atlas: BR 2024 = 0.805 (pesquisas: 0.805)
+OK  Atlas: PR 1991 = 0.507 (pesquisas: 0.507)
+OK  Atlas: PR 2010 = 0.749 (pesquisas: 0.749)
+OK  Atlas: DF 2024 = 0.866 (pesquisas: 0.866)
+OK  Atlas: SP 2024 = 0.838 (pesquisas: 0.838)
+OK  Atlas: MA 2024 = 0.745 (pesquisas: 0.745)
+OK  Atlas: PA 2024 = 0.758 (pesquisas: 0.758)
+OK  Atlas: PB 2024 = 0.760 (pesquisas: 0.760)
+OK  Atlas: 10 UFs em 'muito alto' em 2024 (pesquisas: 10)
+OK  HDR: 195 países
+OK  HDR: Brasil 2023 = 0.786, posição 84 (pesquisas: 0,786 e 84º)
+OK  HDR: BRA com série completa 1990-2023 (0 anos faltando)
+OK  HDR: RUS com série completa 1990-2023 (0 anos faltando)
+OK  HDR: IND com série completa 1990-2023 (0 anos faltando)
+OK  HDR: CHN com série completa 1990-2023 (0 anos faltando)
+OK  HDR: ZAF com série completa 1990-2023 (0 anos faltando)
+OK  HDR: USA com série completa 1990-2023 (0 anos faltando)
+OK  HDR: ARG com série completa 1990-2023 (0 anos faltando)
+OK  M49: região encontrada para 195 de 195 países
+OK  Nomes em português: 195 de 195 (sem tradução: nenhum)
+OK  Médias: 170 países no painel 2000-2023
+     média mundo 2023 = 0.752 (170 países)
+     média africa 2023 = 0.592 (45 países)
+     média america_latina_caribe 2023 = 0.764 (29 países)
+     média asia 2023 = 0.767 (44 países)
+     média europa 2023 = 0.903 (40 países)
+     média oceania 2023 = 0.735 (10 países)
+     média brics 2023 = 0.768 (5 países)
+OK  Malha: 27 UFs (27 geometrias)
+OK  Malha: siglas iguais às do Atlas
+OK  Malha: códigos de UF com 2 dígitos
+OK  Malha: 115 KB (limite 150 KB)

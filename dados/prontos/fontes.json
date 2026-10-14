@@ -1,0 +1,34 @@
+[
+ {
+  "id": "atlas",
+  "nome": "Atlas do Desenvolvimento Humano no Brasil (PNUD, Ipea e FJP)",
+  "edicao": "Censos 1991-2010 e PNAD Contínua 2012-2024",
+  "url": "https://www.atlasbrasil.org.br/",
+  "licenca": "uso confirmado em 14/10/2026; citar o Atlas",
+  "data_acesso": "2026-10-14"
+ },
+ {
+  "id": "hdr",
+  "nome": "Human Development Report 2025 (PNUD)",
+  "edicao": "Série composta 1990-2023",
+  "url": "https://hdr.undp.org/data-center/documentation-and-downloads",
+  "licenca": "CC BY 3.0 IGO",
+  "data_acesso": "2026-10-14"
+ },
+ {
+  "id": "m49",
+  "nome": "Classificação M49 (Divisão de Estatística da ONU)",
+  "edicao": "versão baixada em 2026-10-14",
+  "url": "https://unstats.un.org/unsd/methodology/m49/overview/",
+  "licenca": "sem restrição; citar a UNSD",
+  "data_acesso": "2026-10-14"
+ },
+ {
+  "id": "ibge",
+  "nome": "Malha territorial das UFs (IBGE)",
+  "edicao": "2024, simplificada",
+  "url": "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/",
+  "licenca": "arquivo público; citar o IBGE",
+  "data_acesso": "2026-10-14"
+ }
+]
