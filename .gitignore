@@ -1,7 +1,16 @@
 node_modules/
 .svelte-kit/
 build/
+.output/
+test-results/
+playwright-report/
 static/dados/
 .venv/
 __pycache__/
 .DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+!.env.test
+vite.config.js.timestamp-*

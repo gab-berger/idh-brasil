@@ -1,11 +1,41 @@
 {
-  "name": "dash-idh",
-  "private": true,
-  "version": "0.0.0",
-  "scripts": {
-    "dados": ".venv/bin/python scripts/preparar_dados.py"
-  },
-  "devDependencies": {
-    "mapshaper": "0.7.86"
-  }
+	"name": "dash-idh",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"dados": ".venv/bin/python scripts/preparar_dados.py",
+		"copiar-dados": "node scripts/copiar_dados.mjs",
+		"predev": "npm run copiar-dados",
+		"prebuild": "npm run copiar-dados",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
+		"test:unit": "vitest",
+		"test": "npm run test:unit -- --run && npm run test:e2e",
+		"test:e2e": "playwright install && playwright test"
+	},
+	"dependencies": {
+		"d3": "7.9.0",
+		"topojson-client": "3.1.0"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.60.0",
+		"@sveltejs/adapter-static": "4.0.0",
+		"@sveltejs/kit": "3.1.0",
+		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"mapshaper": "0.7.86",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.0",
+		"vitest": "^4.1.8"
+	},
+	"imports": {
+		"#lib": "./src/lib/index.js",
+		"#lib/*": "./src/lib/*"
+	}
 }
