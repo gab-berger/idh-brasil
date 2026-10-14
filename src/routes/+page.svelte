@@ -1,6 +1,7 @@
 <script>
 	import Menu from '#lib/Menu.svelte';
 	import Secao from '#lib/Secao.svelte';
+	import Estados from '#lib/blocos/Estados.svelte';
 	import { BLOCOS } from '#lib/navegacao.js';
 	import { t } from '#lib/textos.js';
 </script>
@@ -17,7 +18,11 @@
 
 	{#each BLOCOS as bloco (bloco.id)}
 		<Secao id={bloco.id} titulo={t(bloco.chave)}>
-			<p>{t('placeholder.em_construcao')}</p>
+			{#if bloco.id === 'estados'}
+				<Estados />
+			{:else}
+				<p>{t('placeholder.em_construcao')}</p>
+			{/if}
 		</Secao>
 	{/each}
 </main>

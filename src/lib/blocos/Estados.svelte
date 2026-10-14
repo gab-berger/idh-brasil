@@ -1,0 +1,85 @@
+<script>
+	import { onMount } from 'svelte';
+	import Nota from '#lib/Nota.svelte';
+	import { carregar } from '#lib/dados.js';
+	import { estado } from '#lib/estado.svelte.js';
+	import { linhaUf, ufsDoAno } from '#lib/series.js';
+	import { t } from '#lib/textos.js';
+	import ControleTempo from './estados/ControleTempo.svelte';
+	import Gaveta from './estados/Gaveta.svelte';
+	import Legenda from './estados/Legenda.svelte';
+	import Mapa from './estados/Mapa.svelte';
+	import Ranking from './estados/Ranking.svelte';
+	import SeletorMedida from './estados/SeletorMedida.svelte';
+
+	/** @type {any[] | null} */
+	let uf = $state.raw(null);
+	/** @type {any | null} */
+	let topo = $state.raw(null);
+	let erro = $state(false);
+
+	// Os dados só são lidos no navegador: durante o build, a página sai sem eles.
+	onMount(() => {
+		Promise.all([carregar('idhm_uf.json'), carregar('br_uf.topojson')])
+			.then(([dadosUf, mapa]) => {
+				uf = dadosUf;
+				topo = mapa;
+			})
+			.catch(() => (erro = true));
+	});
+
+	const linhasAno = $derived(uf ? ufsDoAno(uf, estado.ano) : []);
+	const linhaBrasil = $derived(uf ? linhaUf(uf, 'BR', estado.ano) : undefined);
+</script>
+
+{#if erro}
+	<p role="alert">{t('erro.carregar')}</p>
+{:else if !uf || !topo}
+	<p>{t('carregando')}</p>
+{:else}
+	<SeletorMedida />
+
+	<div class="vista" role="group" aria-label={t('vista.rotulo')}>
+		<button type="button" aria-pressed={estado.vista === 'mapa'} onclick={() => (estado.vista = 'mapa')}>
+			{t('vista.mapa')}
+		</button>
+		<button type="button" aria-pressed={estado.vista === 'ranking'} onclick={() => (estado.vista = 'ranking')}>
+			{t('vista.ranking')}
+		</button>
+	</div>
+
+	{#if estado.vista === 'mapa'}
+		<Mapa {topo} linhas={linhasAno} />
+		<Legenda />
+	{:else}
+		<Ranking linhas={linhasAno} brasil={linhaBrasil} />
+	{/if}
+
+	<Gaveta linhas={linhasAno} />
+	<ControleTempo />
+
+	<Nota chave="nota.troca_pesquisa" />
+{/if}
+
+<style>
+	.vista {
+		display: flex;
+		gap: 8px;
+		margin: 16px 0;
+	}
+
+	.vista button {
+		flex: 1;
+		min-height: 44px;
+		border: 1px solid var(--linha);
+		border-radius: 6px;
+		background: var(--fundo);
+		color: var(--texto);
+		font: inherit;
+	}
+
+	.vista button[aria-pressed='true'] {
+		border-color: var(--texto);
+		font-weight: 600;
+	}
+</style>
