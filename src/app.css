@@ -1,0 +1,66 @@
+/* Cores em variáveis desde já, para o tema escuro entrar depois sem reescrever os componentes. */
+:root {
+	--fundo: #ffffff;
+	--texto: #1d1d1b;
+	--texto-suave: #55575a;
+	--linha: #d9dadc;
+	--superficie: #f5f6f7;
+	--destaque: #0072b2;
+	--brasil: #d55e00;
+	--altura-menu: 48px;
+	--gutter: 16px;
+	--largura-texto: 720px;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--fundo);
+	color: var(--texto);
+	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	line-height: 1.5;
+}
+
+main {
+	box-sizing: border-box;
+	max-width: var(--largura-texto);
+	margin: 0 auto;
+	padding: calc(var(--altura-menu) + 16px) var(--gutter) 48px;
+}
+
+h1 {
+	font-size: 1.75rem;
+	line-height: 1.2;
+	margin: 0 0 8px;
+}
+
+h2 {
+	font-size: 1.375rem;
+	margin: 48px 0 12px;
+}
+
+/* Alvos de toque com pelo menos 44 px. */
+button,
+[role='button'],
+a {
+	min-height: 44px;
+	min-width: 44px;
+}
+
+:focus-visible {
+	outline: 3px solid var(--destaque);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition: none !important;
+		animation: none !important;
+		scroll-behavior: auto !important;
+	}
+}
