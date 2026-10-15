@@ -7,7 +7,7 @@ import { faixaIdh } from './escalas';
 import { juntar, num, posicao } from './formato';
 import { obrigatorio } from './obrigatorio';
 import { t, type ChaveTexto } from './textos';
-import type { EstiloLinha, LinhaMedia, LinhaPais, LinhaRanking, Pais } from './tipos';
+import type { EstiloLinha, LinhaMedia, LinhaPais, LinhaRanking, Pais, RankingAnos } from './tipos';
 
 /** Grupos de comparação (médias de países), na ordem da lista de linhas. */
 export const GRUPOS = ['mundo', 'africa', 'america_latina_caribe', 'asia', 'europa', 'oceania', 'brics'];
@@ -90,8 +90,6 @@ function temRanking(pais: Pais): pais is ComRanking {
 	return pais.posicao_2023 !== null && pais.idh_2023 !== null;
 }
 
-const porNome = (a: Pais, b: Pais): number => a.nome_pt.localeCompare(b.nome_pt, 'pt-BR');
-
 /** Linha de destaque da aba Mundo, no mesmo formato da aba Estado: "IDH global do Brasil em 2023: 0,786 – alto | 84º / 193 países". */
 export function destaqueDoBrasil(paises: Pais[]): string {
 	const brasil = obrigatorio(
@@ -109,30 +107,19 @@ export function destaqueDoBrasil(paises: Pais[]): string {
 }
 
 
-/** Países perto do Brasil no ranking de 2023: os 3 logo acima, o Brasil com os empatados, os 3 logo abaixo. */
-export function vizinhosDoBrasil(paises: Pais[]): LinhaRanking[] {
-	const brasil = obrigatorio(
-		paises.find((pais) => pais.iso3 === 'BRA'),
-		'Brasil no HDR'
-	);
-	const pos = obrigatorio(brasil.posicao_2023, 'posição do Brasil em 2023');
-	const comRanking = paises.filter(temRanking);
-	const acima = comRanking
-		.filter((p) => p.posicao_2023 < pos)
-		.sort((a, b) => b.posicao_2023 - a.posicao_2023 || porNome(a, b))
-		.slice(0, 3)
-		.sort((a, b) => a.posicao_2023 - b.posicao_2023 || porNome(a, b));
-	const empatados = comRanking.filter((p) => p.posicao_2023 === pos).sort(porNome);
-	const abaixo = comRanking
-		.filter((p) => p.posicao_2023 > pos)
-		.sort((a, b) => a.posicao_2023 - b.posicao_2023 || porNome(a, b))
-		.slice(0, 3);
-	return [...acima, ...empatados, ...abaixo].map((p) => ({
-		iso3: p.iso3,
-		posicao: p.posicao_2023,
-		nome: p.nome_pt,
-		idh: p.idh_2023,
-		brasil: p.iso3 === 'BRA',
-		empate: empatados.length > 1 && p.posicao_2023 === pos
-	}));
+/** Ranking de um ano: os países com dado nele, na ordem da posição. Quem empata aparece marcado. */
+export function rankingDoAno(dados: RankingAnos, ano: number): LinhaRanking[] {
+	const i = dados.anos.indexOf(ano);
+	if (i < 0) return [];
+	const linhas = dados.paises.flatMap((pais): LinhaRanking[] => {
+		const pos = pais.posicao[i];
+		const idh = pais.idh[i];
+		if (pos === null || idh === null) return [];
+		return [{ iso3: pais.iso3, posicao: pos, nome: pais.nome, idh, brasil: pais.iso3 === 'BRA', empate: false }];
+	});
+	const vezes = new Map<number, number>();
+	for (const linha of linhas) vezes.set(linha.posicao, (vezes.get(linha.posicao) ?? 0) + 1);
+	return linhas
+		.map((linha) => ({ ...linha, empate: (vezes.get(linha.posicao) ?? 0) > 1 }))
+		.sort((a, b) => a.posicao - b.posicao || a.nome.localeCompare(b.nome, 'pt-BR'));
 }

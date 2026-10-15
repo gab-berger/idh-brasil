@@ -155,6 +155,33 @@ for g in ['mundo', 'africa', 'america_latina_caribe', 'asia', 'europa', 'oceania
     r = [x for x in medias if x['grupo'] == g and x['ano'] == 2023][0]
     log.append(f"     média {g} 2023 = {r['idh']:.3f} ({r['n_paises']} países)")
 
+# ---------- 4b. Ranking de todos os países em cada ano ----------
+# A posição de cada ano sai do IDH bruto daquele ano, entre os países com dado (empatados dividem a posição: 1224).
+ANOS_RANK = list(range(1990, 2024))
+def posicoes_do_ano(a):
+    valores = sorted(((r[f'hdi_{a}'], r.iso3) for _, r in paises.iterrows() if pd.notna(r[f'hdi_{a}'])), reverse=True)
+    pos, res = 0, {}
+    for i, (v, iso) in enumerate(valores):
+        if i == 0 or v < valores[i - 1][0]: pos = i + 1
+        res[iso] = pos
+    return res
+pos_por_ano = {a: posicoes_do_ano(a) for a in ANOS_RANK}
+nome_de = dict(zip(p.iso3, p.nome_pt))
+ranking_paises = []
+for _, r in paises.iterrows():
+    idh = [None if pd.isna(r[f'hdi_{a}']) else round(float(r[f'hdi_{a}']), 3) for a in ANOS_RANK]
+    if all(v is None for v in idh): continue
+    ranking_paises.append({'iso3': r.iso3, 'nome': nome_de[r.iso3], 'idh': idh,
+                           'posicao': [pos_por_ano[a].get(r.iso3) for a in ANOS_RANK]})
+grava_json('ranking_anos.json', {'anos': ANOS_RANK, 'paises': ranking_paises}, separators=(',', ':'))
+oficial = {r.iso3: int(r.hdi_rank_2023) for _, r in paises.iterrows() if pd.notna(r.hdi_rank_2023)}
+calc = pos_por_ano[2023]
+divergentes = [iso for iso, pos in oficial.items() if calc.get(iso) != pos]
+checa(set(calc) == set(oficial) and not divergentes,
+      f"Ranking 2023 recalculado = posições oficiais do HDR ({len(oficial)} países; divergentes: {divergentes or 'nenhum'})")
+checa(len(oficial) == 193, f"HDR: {len(oficial)} países com posição em 2023 (esperados 193)")
+log.append(f"     ranking por ano: {len(pos_por_ano[1990])} países em 1990, {len(calc)} em 2023")
+
 # ---------- 5. Fontes ----------
 fontes = [
  {'id': 'atlas', 'nome': 'Atlas do Desenvolvimento Humano no Brasil (PNUD, Ipea e FJP)', 'edicao': 'Censos 1991-2010 e PNAD Contínua 2012-2024',

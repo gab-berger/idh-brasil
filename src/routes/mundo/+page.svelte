@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import Analises from '#lib/Analises.svelte';
 	import Mundo from '#lib/blocos/Mundo.svelte';
 	import RankingMundo from '#lib/blocos/mundo/RankingMundo.svelte';
 	import SubAbas from '#lib/SubAbas.svelte';
 	import TituloSite from '#lib/TituloSite.svelte';
 	import { t } from '#lib/textos';
+	import type { Analise } from '#lib/tipos';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -17,6 +19,13 @@
 		{ chave: 'evolucao', rotulo: t('mundo.vista.evolucao') },
 		{ chave: 'ranking', rotulo: t('subabas.ranking') }
 	];
+
+	// As notas sobre os dados, no formato do rotativo da aba Brasil (um item só). Um parágrafo por linha.
+	const observacao: Analise = {
+		id: 'sobre-os-dados',
+		titulo: t('mundo.sobre.resumo'),
+		texto: [t('mundo.subtitulo'), t('nota.medias'), t('nota.brics'), t('nota.idhm_vs_idh')].join('\n')
+	};
 </script>
 
 <svelte:head>
@@ -33,38 +42,15 @@
 	<Mundo />
 	<p class="resposta">{data.evolucao}</p>
 {:else}
-	<section aria-labelledby="ranking-titulo">
-		<h2 id="ranking-titulo">{t('mundo.ranking.titulo')}</h2>
-		<RankingMundo linhas={data.vizinhos} />
-		<p class="nota-linha">{t('nota.ranking')}</p>
-	</section>
+	<RankingMundo />
 {/if}
 
-<!-- Como os números foram calculados, recolhido; por último, o link de volta ao Brasil. -->
-<details class="notas">
-	<summary>{t('mundo.sobre.resumo')}</summary>
-	<p>{t('mundo.subtitulo')}</p>
-	<p>{t('nota.medias')}</p>
-	<p>{t('nota.brics')}</p>
-	<p>{t('nota.idhm_vs_idh')}</p>
-</details>
+<Analises titulo={t('mundo.observacoes.titulo')} itens={[observacao]} />
 
 <p class="seguir"><a href={resolve('/')}>{t('mundo.ir_brasil')}</a></p>
 
 <style>
-	h2 {
-		margin: 16px 0 8px;
-	}
-
-	.resposta,
-	.notas,
-	section {
+	.resposta {
 		max-width: var(--largura-texto);
-	}
-
-	.nota-linha {
-		margin: 8px 0 0;
-		font-size: 0.9rem;
-		color: var(--texto-suave);
 	}
 </style>

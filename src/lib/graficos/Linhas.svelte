@@ -35,10 +35,8 @@
 	// A largura é medida no navegador; a altura acompanha, dentro de limites, para o gráfico não achatar.
 	let largura = $state(0);
 	const altura = $derived(Math.round(Math.min(340, Math.max(240, largura * 0.55))));
-	// À direita fica o espaço dos rótulos no fim das linhas.
-	const MARGEM = { topo: 12, direita: 124, base: 28, esquerda: 40 };
-	// Um rótulo tem uma linha (15 px) ou duas (28 px); quebra quando passa de 14 caracteres.
-	const LARGURA_ROTULO = 14;
+	// Sem rótulos ao lado das linhas: a legenda fica embaixo, e o gráfico usa a largura toda.
+	const MARGEM = { topo: 12, direita: 16, base: 28, esquerda: 40 };
 
 	const x = $derived(
 		scaleLinear()
@@ -87,55 +85,9 @@
 			(trecho) => trecho.length > 0
 		);
 	}
-
-	/** Quebra um rótulo em duas linhas, no espaço que deixa a linha mais comprida o mais curta possível. */
-	function quebrar(texto: string): string[] {
-		if (texto.length <= LARGURA_ROTULO) return [texto];
-		let melhor = [texto];
-		let comprimento = Infinity;
-		for (let i = 0; i < texto.length; i++) {
-			if (texto[i] !== ' ') continue;
-			const partes = [texto.slice(0, i), texto.slice(i + 1)];
-			const maior = Math.max(...partes.map((parte) => parte.length));
-			if (maior < comprimento) {
-				comprimento = maior;
-				melhor = partes;
-			}
-		}
-		return melhor;
-	}
-
-	/** Rótulos no fim das linhas, afastados quando se encostam (D8). */
-	const rotulos = $derived.by(() => {
-		const itens = series
-			.filter((serie) => serie.pontos.length > 0)
-			.map((serie) => {
-				const partes = quebrar(serie.rotulo);
-				return {
-					serie,
-					partes,
-					altura: partes.length > 1 ? 28 : 15,
-					y: y(serie.pontos[serie.pontos.length - 1].valor)
-				};
-			})
-			.sort((a, b) => a.y - b.y);
-		for (let i = 1; i < itens.length; i++) {
-			itens[i].y = Math.max(itens[i].y, itens[i - 1].y + (itens[i - 1].altura + itens[i].altura) / 2);
-		}
-		// Se o de baixo passou da base, empurra os de cima de volta.
-		const base = altura - MARGEM.base;
-		for (let i = itens.length - 1; i >= 0; i--) {
-			const limite =
-				i === itens.length - 1 ? base : itens[i + 1].y - (itens[i].altura + itens[i + 1].altura) / 2;
-			itens[i].y = Math.min(itens[i].y, limite);
-		}
-		return itens;
-	});
 </script>
 
 <figure class="grafico">
-	<p class="leitura" aria-hidden="true">{t('grafico.leitura', { ano: anoLeitura, valores: leitura })}</p>
-
 	<div class="area" bind:clientWidth={largura}>
 		{#if largura > 0}
 			<svg
@@ -181,26 +133,31 @@
 						{/if}
 					{/each}
 				{/if}
-				<!-- Rótulo em cor de texto, com uma amostra da linha: algumas cores não têm contraste para texto pequeno. -->
-				{#each rotulos as rotulo (rotulo.serie.chave)}
-					<g transform={`translate(${largura - MARGEM.direita + 8}, ${rotulo.y})`}>
-						<line
-							x1="0"
-							x2="16"
-							y1="0"
-							y2="0"
-							stroke={rotulo.serie.cor}
-							stroke-width={rotulo.serie.espessura ?? 2}
-							stroke-dasharray={rotulo.serie.traco}
-						/>
-						{#each rotulo.partes as parte, i (i)}
-							<text class="rotulo" x="20" y={rotulo.partes.length > 1 ? (i === 0 ? -7 : 8) : 0} dy="0.32em">{parte}</text>
-						{/each}
-					</g>
-				{/each}
 			</svg>
 		{/if}
 	</div>
+
+	<!-- A legenda das linhas fica embaixo do gráfico, e a leitura dos valores embaixo dela. -->
+	<ul class="legenda">
+		{#each series as serie (serie.chave)}
+			<li>
+				<svg width="22" height="8" aria-hidden="true">
+					<line
+						x1="1"
+						x2="21"
+						y1="4"
+						y2="4"
+						stroke={serie.cor}
+						stroke-width={serie.espessura ?? 2}
+						stroke-dasharray={serie.traco}
+					/>
+				</svg>
+				{serie.rotulo}
+			</li>
+		{/each}
+	</ul>
+
+	<p class="leitura" aria-hidden="true">{t('grafico.leitura', { ano: anoLeitura, valores: leitura })}</p>
 
 	<table class="sr-only">
 		<caption>{legendaTabela}</caption>
@@ -231,19 +188,39 @@
 		margin: 0;
 	}
 
-	.leitura {
-		min-height: 1.5em;
-		margin: 0 0 6px;
-		font-size: 0.9rem;
-		color: var(--texto-suave);
-		font-variant-numeric: tabular-nums;
-	}
-
-	svg {
+	.area svg {
 		display: block;
 		overflow: visible;
 		/* O dedo rola a página na vertical; na horizontal, percorre os anos. */
 		touch-action: pan-y;
+	}
+
+	.legenda {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px 16px;
+		margin: 8px 0 0;
+		padding: 0;
+		list-style: none;
+		font-size: 0.9rem;
+	}
+
+	.legenda li {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.legenda svg {
+		flex: none;
+	}
+
+	.leitura {
+		min-height: 1.5em;
+		margin: 6px 0 0;
+		font-size: 0.9rem;
+		color: var(--texto-suave);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.grade {
@@ -279,10 +256,5 @@
 	.ponto {
 		stroke: var(--fundo);
 		stroke-width: 1.5;
-	}
-
-	.rotulo {
-		fill: var(--texto);
-		font-size: 12px;
 	}
 </style>

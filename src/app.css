@@ -31,7 +31,7 @@ main {
 	box-sizing: border-box;
 	max-width: var(--largura-visual);
 	margin: 0 auto;
-	padding: calc(var(--altura-menu) + 16px) var(--gutter) 48px;
+	padding: var(--altura-menu) var(--gutter) 48px;
 }
 
 /* Cabeçalhos discretos: o mapa e os gráficos é que chamam a atenção. */

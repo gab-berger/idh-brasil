@@ -135,3 +135,9 @@ export interface PropsUf {
 
 /** Malha das UFs: um objeto "estados" com uma geometria por UF. */
 export type MapaTopo = Topology<{ estados: GeometryCollection<PropsUf> }>;
+
+/** Ranking de todos os países em cada ano (ranking_anos.json). Posição e IDH são null quando o país não tem dado no ano. */
+export interface RankingAnos {
+	anos: number[];
+	paises: { iso3: string; nome: string; idh: (number | null)[]; posicao: (number | null)[] }[];
+}

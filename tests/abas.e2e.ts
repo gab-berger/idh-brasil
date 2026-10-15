@@ -1,9 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
 
 // Critérios de aceite que dá para checar no navegador: as três páginas, o mapa na primeira tela, o cabeçalho e as
-// sub-abas que somem ao descer, a ordem dos controles (sub-abas, título, medidas, tempo), o destaque do Brasil, o
-// detalhe do estado na sua aba, o carrossel, o Tocar, a aba Mundo (destaque, vistas e limite de linhas), as perguntas
-// em Informações e a ordem do fim da aba Brasil.
+// sub-abas que somem ao descer, a seleção de gráfico colada ao cabeçalho, a ordem dos controles (sub-abas, título,
+// medidas, tempo), o destaque do Brasil, o detalhe do estado na sua aba, o carrossel, o Tocar, a legenda embaixo dos
+// gráficos, a aba Mundo (destaque, evolução, ranking com o Brasil preso à borda, ano, observações e limite de linhas),
+// as perguntas em Informações e a ordem do fim da aba Brasil.
 
 // Altura do cabeçalho, como a folha de estilos a define (em px).
 const alturaMenu = (page: Page) =>
@@ -35,6 +36,15 @@ test('o cabeçalho tem a altura de --altura-menu, 40 px', async ({ page }) => {
 	const cabecalho = await page.locator('header.cabecalho').boundingBox();
 	expect(altura).toBe(40);
 	expect(Math.round(cabecalho!.height)).toBe(altura);
+});
+
+test('a seleção de gráfico fica colada ao cabeçalho, sem espaço em branco', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/');
+	await page.waitForSelector('.mapa svg path');
+	const menu = await alturaMenu(page);
+	const subabas = await page.locator('.subabas').boundingBox();
+	expect(Math.round(subabas!.y)).toBe(menu);
 });
 
 test('ao descer a página, o cabeçalho e as sub-abas somem; ao subir, voltam', async ({ page }) => {
@@ -105,6 +115,16 @@ test('as sub-abas trocam a vista: ranking, regiões, estado e volta ao mapa', as
 	await expect(page.locator('.mapa svg')).toBeVisible();
 });
 
+test('a legenda das linhas fica embaixo do gráfico, e a leitura embaixo da legenda', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Regiões', exact: true }).click();
+	const grafico = await page.locator('.area svg').boundingBox();
+	const legenda = await page.locator('ul.legenda').boundingBox();
+	const leitura = await page.locator('.leitura').boundingBox();
+	expect(legenda!.y).toBeGreaterThan(grafico!.y + grafico!.height);
+	expect(leitura!.y).toBeGreaterThan(legenda!.y);
+});
+
 test('as análises giram à mão: uma por vez, em ordem', async ({ page }) => {
 	await page.goto('/');
 	const atual = page.locator('section.analises .analise:not([hidden])');
@@ -153,6 +173,54 @@ test('a aba Mundo troca a evolução pelo ranking, e volta', async ({ page }) =>
 	await expect(page.locator('section[aria-labelledby="ranking-titulo"] li.brasil')).toContainText('Brasil');
 	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
 	await expect(page.locator('#comparacao svg path.linha').first()).toBeVisible();
+});
+
+test('o ranking mundial lista todos os países, com o Brasil no meio da lista', async ({ page }) => {
+	await page.goto('/mundo');
+	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
+	await expect(page.locator('.caixa li')).toHaveCount(193);
+	const caixa = await page.locator('.caixa').boundingBox();
+	const brasil = await page.locator('.caixa li.brasil').boundingBox();
+	expect(Math.abs(brasil!.y + brasil!.height / 2 - (caixa!.y + caixa!.height / 2))).toBeLessThan(40);
+});
+
+test('o Brasil fica preso à borda da lista: embaixo antes de chegar a ele, em cima depois de passar', async ({ page }) => {
+	await page.goto('/mundo');
+	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
+	const caixa = page.locator('.caixa');
+	const brasil = page.locator('.caixa li.brasil');
+	// No topo da lista, o Brasil ainda não chegou: fica preso à borda de baixo da caixa.
+	await caixa.evaluate((el) => (el.scrollTop = 0));
+	await expect
+		.poll(async () => {
+			const c = await caixa.boundingBox();
+			const b = await brasil.boundingBox();
+			return Math.abs(c!.y + c!.height - (b!.y + b!.height));
+		})
+		.toBeLessThanOrEqual(3);
+	// No fim da lista, o Brasil já ficou para trás: fica preso à borda de cima.
+	await caixa.evaluate((el) => (el.scrollTop = el.scrollHeight));
+	await expect
+		.poll(async () => {
+			const c = await caixa.boundingBox();
+			const b = await brasil.boundingBox();
+			return Math.abs(b!.y - c!.y - 1);
+		})
+		.toBeLessThanOrEqual(3);
+});
+
+test('a seleção de ano troca a lista e o título', async ({ page }) => {
+	await page.goto('/mundo');
+	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
+	await page.getByLabel('Ano').selectOption('2010');
+	await expect(page.getByRole('heading', { name: 'Posição no ranking de 2010' })).toBeVisible();
+	await expect(page.getByText('países com dado em 2010')).toBeVisible();
+});
+
+test('a observação do final da aba Mundo é um bloco do rotativo, mesmo com um item só', async ({ page }) => {
+	await page.goto('/mundo');
+	await expect(page.locator('section.analises h3')).toHaveText('Sobre os dados e as médias');
+	await expect(page.locator('section.analises .controles')).toHaveCount(0);
 });
 
 test('Informações: as perguntas abrem e fecham', async ({ page }) => {

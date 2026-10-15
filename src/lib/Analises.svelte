@@ -4,7 +4,7 @@
 	import { t } from '#lib/textos';
 	import type { Analise } from '#lib/tipos';
 
-	let { itens }: { itens: Analise[] } = $props();
+	let { itens, titulo = t('analises.titulo') }: { itens: Analise[]; titulo?: string } = $props();
 
 	// Uma análise por vez, girando sozinha. Para quando o mouse ou o foco estão dentro, quando a pessoa
 	// pausa, e não gira para quem pediu menos movimento no sistema (WCAG 2.2.2).
@@ -56,7 +56,7 @@
 	onfocusin={() => (dentro = true)}
 	onfocusout={sairDoFoco}
 >
-	<h2 id="analises-titulo">{t('analises.titulo')}</h2>
+	<h2 id="analises-titulo">{titulo}</h2>
 
 	<!-- Sem JavaScript, as análises aparecem uma embaixo da outra; os controles só existem depois de montar. -->
 	{#if montado && itens.length > 1}
@@ -82,7 +82,9 @@
 				hidden={montado && i !== atual}
 			>
 				<h3>{item.titulo}</h3>
-				<p>{item.texto}</p>
+				{#each item.texto.split('\n') as paragrafo}
+					<p>{paragrafo}</p>
+				{/each}
 				{#if montado && item.acao}
 					<button type="button" class="ver" onclick={() => ver(item)}>{item.acao.rotulo}</button>
 				{/if}

@@ -1,5 +1,5 @@
 Relatório de checagem — 2026-10-14
-48 linhas, 0 falha(s)
+51 linhas, 0 falha(s)
 
 OK  Atlas: 27 UFs + Brasil (28 territórios)
 OK  Atlas: anos 1991, 2000, 2010 e 2012-2024 (16 anos)
@@ -44,6 +44,9 @@ OK  Médias: 170 países no painel 2000-2023
      média europa 2023 = 0.903 (40 países)
      média oceania 2023 = 0.735 (10 países)
      média brics 2023 = 0.768 (5 países)
+OK  Ranking 2023 recalculado = posições oficiais do HDR (193 países; divergentes: nenhum)
+OK  HDR: 193 países com posição em 2023 (esperados 193)
+     ranking por ano: 141 países em 1990, 193 em 2023
 OK  Malha: 27 UFs (27 geometrias)
 OK  Malha: siglas iguais às do Atlas
 OK  Malha: códigos de UF com 2 dígitos
