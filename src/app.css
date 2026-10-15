@@ -70,7 +70,7 @@ h2 {
 
 /* Quem rola até um id (#estados) para abaixo do cabeçalho fixo. */
 [id] {
-	scroll-margin-top: calc(var(--altura-menu) + 8px);
+	scroll-margin-top: calc(var(--altura-menu) + var(--altura-titulo, 0px) + 8px);
 }
 
 /* Alvos de toque com pelo menos 44 px. */

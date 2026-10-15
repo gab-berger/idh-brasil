@@ -94,8 +94,8 @@
 	/* As sub-abas ficam fixas abaixo do cabeçalho. Ao descer, somem junto com ele; ao subir, voltam. */
 	.subabas {
 		position: sticky;
-		top: var(--altura-menu);
-		z-index: 9;
+		top: calc(var(--altura-menu) + var(--altura-titulo));
+		z-index: 8;
 		display: flex;
 		gap: 6px;
 		margin: 0 calc(-1 * var(--gutter)) 12px;
@@ -106,7 +106,7 @@
 	}
 
 	.subabas.oculto {
-		transform: translateY(calc(-100% - var(--altura-menu)));
+		transform: translateY(calc(-100% - var(--altura-menu) - var(--altura-titulo)));
 	}
 
 	.subabas.oculto:focus-within {
@@ -115,7 +115,8 @@
 
 	.subabas button {
 		flex: 1 1 auto;
-		min-height: 44px;
+		position: relative;
+		min-height: 34px;
 		padding: 0 8px;
 		border: 1px solid var(--linha);
 		border-radius: 6px;
@@ -123,6 +124,12 @@
 		color: var(--texto);
 		font: inherit;
 		font-size: 0.9rem;
+	}
+
+	.subabas button::after {
+		content: '';
+		position: absolute;
+		inset: -5px 0;
 	}
 
 	.subabas button[aria-pressed='true'] {

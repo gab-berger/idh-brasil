@@ -30,9 +30,23 @@ test('ao descer a página, o cabeçalho e as sub-abas somem; ao subir, voltam', 
 	await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
 	await expect(page.locator('header.cabecalho')).toHaveClass(/oculto/);
 	await expect(page.locator('.subabas')).toHaveClass(/oculto/);
+	await expect(page.locator('.titulo-site')).toHaveClass(/oculto/);
 	await page.evaluate(() => window.scrollBy(0, -400));
 	await expect(page.locator('header.cabecalho')).not.toHaveClass(/oculto/);
 	await expect(page.locator('.subabas')).not.toHaveClass(/oculto/);
+});
+
+test('o título e a seleção de gráfico ficam fixos abaixo do cabeçalho ao subir', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/');
+	await page.waitForSelector('.mapa svg path');
+	await page.evaluate(() => window.scrollTo(0, 600));
+	await page.evaluate(() => window.scrollBy(0, -200));
+	await expect(page.locator('.titulo-site')).not.toHaveClass(/oculto/);
+	const titulo = await page.locator('.titulo-site').boundingBox();
+	const subabas = await page.locator('.subabas').boundingBox();
+	expect(Math.round(titulo!.y)).toBe(48);
+	expect(Math.round(subabas!.y)).toBe(48 + Math.round(titulo!.height));
 });
 
 test('a ordem da aba Brasil: sub-abas, seleção de medida e depois o tempo', async ({ page }) => {
