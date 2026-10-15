@@ -33,6 +33,8 @@
 	"mapa.rotulo": "Mapa do Brasil: {medida}, {ano}",
 	"mapa.estado": "{nome}, {medida} {valor}, {posicao}",
 	"legenda.rotulo": "Escala de cor",
+	"paleta.daltonismo": "Cores para daltônicos",
+	"paleta.daltonismo.ajuda": "No mapa e no ranking, usa amarelo, verde e azul em vez de vermelho, amarelo e azul.",
 	"tempo.rotulo": "Ano",
 	"tempo.anterior": "◀ Anterior",
 	"tempo.proximo": "Próximo ▶",

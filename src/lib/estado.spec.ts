@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { CORES_LINHAS } from './escalas';
-import { alternarLinha, alternarUf, estado, irParaAno } from './estado.svelte';
+import { alternarLinha, alternarUf, definirDaltonismo, estado, irParaAno } from './estado.svelte';
 
 test('abre com mundo, BRICS, EUA e China, nessa ordem, e sem UF selecionada', () => {
 	expect(Object.keys(estado.linhas)).toEqual(['mundo', 'brics', 'USA', 'CHN']);
@@ -34,4 +34,12 @@ test('alternarUf marca e desmarca a mesma UF', () => {
 	expect(estado.ufSelecionada).toBe('DF');
 	alternarUf('DF');
 	expect(estado.ufSelecionada).toBeNull();
+});
+
+test('a paleta para daltônicos vem desligada, e liga e desliga', () => {
+	expect(estado.daltonismo).toBe(false);
+	definirDaltonismo(true);
+	expect(estado.daltonismo).toBe(true);
+	definirDaltonismo(false);
+	expect(estado.daltonismo).toBe(false);
 });

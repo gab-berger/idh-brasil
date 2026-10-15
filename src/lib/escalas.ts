@@ -2,7 +2,7 @@
  * Escalas, faixas e cores da interface. Os valores vêm da especificação (Design visual e Regras de dados);
  * nada aqui é lido dos dados.
  */
-import { interpolateYlGnBu, scaleSequential } from 'd3';
+import { interpolateRdYlBu, interpolateYlGnBu, scaleSequential } from 'd3';
 import type { Dimensao, FaixaIdh, FaixaIdhm, Medida } from './tipos';
 
 /** Anos com dado: Censo em 1991, 2000 e 2010; PNAD Contínua de 2012 a 2024. Não há 2011. */
@@ -41,9 +41,15 @@ export function faixaIdh(valor: number): FaixaIdh {
 	return 'muito_alto';
 }
 
-/** Escala de cor de uma medida: contínua e igual em todos os anos (YlGnBu, segura para daltônicos). */
-export function corMapa(medida: Medida) {
-	return scaleSequential(DOMINIOS[medida], interpolateYlGnBu).clamp(true);
+/** Paleta padrão do mapa e do ranking: vermelho para o menor valor, amarelo no meio, azul para o maior. */
+const PALETA_PADRAO = interpolateRdYlBu;
+
+/** Paleta para daltônicos (opção do leitor): amarelo, verde e azul, do tom mais claro ao mais escuro. */
+const PALETA_DALTONISMO = interpolateYlGnBu;
+
+/** Escala de cor de uma medida: contínua e igual em todos os anos. */
+export function corMapa(medida: Medida, daltonismo = false) {
+	return scaleSequential(DOMINIOS[medida], daltonismo ? PALETA_DALTONISMO : PALETA_PADRAO).clamp(true);
 }
 
 /**

@@ -6,7 +6,7 @@
 
 	let { abertura }: { abertura: Abertura } = $props();
 
-	/** Leva o mapa ao ano escolhido e rola até o bloco 3. */
+	/** Leva o mapa ao ano escolhido e rola até ele. */
 	function verNoMapa(ano: number): void {
 		estado.medida = 'idhm';
 		estado.vista = 'mapa';

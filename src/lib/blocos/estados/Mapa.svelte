@@ -20,7 +20,7 @@
 	const larguraCaixa = $derived(caixa[1][0] - caixa[0][0]);
 	const alturaCaixa = $derived(caixa[1][1] - caixa[0][1]);
 
-	const cor = $derived(corMapa(estado.medida));
+	const cor = $derived(corMapa(estado.medida, estado.daltonismo));
 	const porUf = $derived(new Map(linhas.map((linha) => [linha.uf, linha] as const)));
 	const pos = $derived(posicoes(linhas, estado.medida));
 	const formas = $derived(

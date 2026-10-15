@@ -8,7 +8,7 @@
 	const CORTES_IDHM: number[] = [0.5, 0.6, 0.7, 0.8];
 
 	const dominio = $derived(DOMINIOS[estado.medida]);
-	const cor = $derived(corMapa(estado.medida));
+	const cor = $derived(corMapa(estado.medida, estado.daltonismo));
 	const gradiente = $derived.by(() => {
 		const [minimo, maximo] = dominio;
 		const degraus = Array.from({ length: 11 }, (_, i) => minimo + ((maximo - minimo) * i) / 10);

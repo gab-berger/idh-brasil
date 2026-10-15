@@ -10,7 +10,7 @@
 
 	// Barras na escala fixa da medida (a mesma do mapa): a distância entre estados aparece no comprimento.
 	const dominio = $derived(DOMINIOS[estado.medida]);
-	const cor = $derived(corMapa(estado.medida));
+	const cor = $derived(corMapa(estado.medida, estado.daltonismo));
 	const pos = $derived(posicoes(linhas, estado.medida));
 	const ordenadas = $derived([...linhas].sort((a, b) => b[estado.medida] - a[estado.medida]));
 	const valorBrasil = $derived(brasil?.[estado.medida]);

@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import Nota from '#lib/Nota.svelte';
 	import { carregar } from '#lib/dados';
-	import { estado } from '#lib/estado.svelte';
+	import { definirDaltonismo, estado } from '#lib/estado.svelte';
 	import { linhaUf, ufsDoAno } from '#lib/series';
 	import { t } from '#lib/textos';
 	import type { LinhaUf, MapaTopo } from '#lib/tipos';
@@ -54,6 +54,19 @@
 		<Ranking linhas={linhasAno} brasil={linhaBrasil} />
 	{/if}
 
+	<div class="daltonismo">
+		<label>
+			<input
+				type="checkbox"
+				checked={estado.daltonismo}
+				aria-describedby="ajuda-daltonismo"
+				onchange={(evento) => definirDaltonismo(evento.currentTarget.checked)}
+			/>
+			{t('paleta.daltonismo')}
+		</label>
+		<p id="ajuda-daltonismo">{t('paleta.daltonismo.ajuda')}</p>
+	</div>
+
 	<Gaveta linhas={linhasAno} />
 	<ControleTempo />
 
@@ -61,6 +74,31 @@
 {/if}
 
 <style>
+	.daltonismo {
+		margin: 0 0 12px;
+	}
+
+	.daltonismo label {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		min-height: 44px;
+		cursor: pointer;
+	}
+
+	.daltonismo input {
+		width: 1.25rem;
+		height: 1.25rem;
+		margin: 0;
+		accent-color: var(--destaque);
+	}
+
+	.daltonismo p {
+		margin: 0 0 4px;
+		font-size: 0.85rem;
+		color: var(--texto-suave);
+	}
+
 	.vista {
 		display: flex;
 		gap: 8px;

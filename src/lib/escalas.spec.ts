@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { interpolateYlGnBu } from 'd3';
+import { interpolateRdYlBu, interpolateYlGnBu, rgb } from 'd3';
 import { expect, test } from 'vitest';
 import {
 	ANOS,
@@ -69,10 +69,20 @@ test('os domínios fixos cobrem todos os valores da série', () => {
 	}
 });
 
-test('a escala de cor vai do claro ao escuro e fica presa nas bordas', () => {
-	expect(corMapa('idhm')(0.35)).toBe(interpolateYlGnBu(0));
-	expect(corMapa('idhm')(0.9)).toBe(interpolateYlGnBu(1));
-	expect(corMapa('idhm')(0.2)).toBe(interpolateYlGnBu(0));
+test('a paleta padrão vai do vermelho (menor valor) ao azul (maior valor), e fica presa nas bordas', () => {
+	expect(corMapa('idhm')(0.35)).toBe(interpolateRdYlBu(0));
+	expect(corMapa('idhm')(0.9)).toBe(interpolateRdYlBu(1));
+	expect(corMapa('idhm')(0.2)).toBe(interpolateRdYlBu(0));
+	const baixo = rgb(corMapa('idhm')(0.35));
+	const alto = rgb(corMapa('idhm')(0.9));
+	expect(baixo.r).toBeGreaterThan(baixo.b);
+	expect(alto.b).toBeGreaterThan(alto.r);
+});
+
+test('a paleta para daltônicos é amarelo, verde e azul, e troca a cor do mapa', () => {
+	expect(corMapa('idhm', true)(0.35)).toBe(interpolateYlGnBu(0));
+	expect(corMapa('idhm', true)(0.9)).toBe(interpolateYlGnBu(1));
+	expect(corMapa('idhm', true)(0.9)).not.toBe(corMapa('idhm')(0.9));
 });
 
 test('cada cor de linha e de dimensão tem contraste de 3:1 ou mais sobre branco', () => {
