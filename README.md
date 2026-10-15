@@ -2,7 +2,13 @@
 
 Site com o IDH e o IDHM do Brasil: os 27 estados de 1991 a 2024 e a evolução do Brasil no IDH global de 1990 a 2023, comparada com as médias dos continentes, o BRICS e alguns países. O texto do site está em português; o código, em inglês.
 
+Endereço: https://gab-berger.github.io/idh-brasil/
+
 A especificação e o plano de implementação ficam em um repositório privado de apoio, fora deste.
+
+## Publicação
+
+O site é publicado no GitHub Pages pelo workflow `.github/workflows/deploy.yml`. A cada push no `main`, ele roda a checagem de tipos e os testes, gera o site com `BASE_PATH=/idh-brasil` (o nome do repositório) e publica. Em pull requests, só roda os testes.
 
 ## Como rodar
 

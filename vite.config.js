@@ -11,8 +11,9 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			// Static site: the build writes ready HTML to build/ (GitHub Pages).
-			adapter: adapter(),
+			// Static site: the build writes ready HTML to build/ (GitHub Pages). GitHub Pages shows 404.html for an
+			// address that does not exist; it starts the app, which shows the error page in Portuguese.
+			adapter: adapter({ fallback: '404.html' }),
 			// BASE_PATH is set in CI (e.g. /idh-brasil); in development it is empty.
 			paths: { base: /** @type {`/${string}` | ''} */ (process.env.BASE_PATH ?? ''), relative: false },
 			prerender: { entries: ['*'] }
