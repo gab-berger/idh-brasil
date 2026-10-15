@@ -1,6 +1,6 @@
-<script>
-	import { BLOCOS } from '#lib/navegacao.js';
-	import { t } from '#lib/textos.js';
+<script lang="ts">
+	import { BLOCOS } from '#lib/navegacao';
+	import { t } from '#lib/textos';
 </script>
 
 <nav class="menu" aria-label={t('navegacao.rotulo')}>

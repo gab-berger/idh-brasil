@@ -1,6 +1,7 @@
-<script>
-	/** @type {{ id: string, titulo: string, children?: import('svelte').Snippet }} */
-	let { id, titulo, children } = $props();
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	let { id, titulo, children }: { id: string; titulo: string; children?: Snippet } = $props();
 </script>
 
 <section {id} class="secao" aria-labelledby={`${id}-titulo`}>

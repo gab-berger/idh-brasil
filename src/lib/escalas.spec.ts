@@ -11,17 +11,15 @@ import {
 	faixaIdh,
 	faixaIdhm,
 	posicaoNoDominio
-} from './escalas.js';
+} from './escalas';
+import type { LinhaUf, Medida } from './tipos';
 
-const dadosUf = /** @type {any[]} */ (
-	JSON.parse(readFileSync(new URL('../../dados/prontos/idhm_uf.json', import.meta.url), 'utf-8'))
-);
+const dadosUf = JSON.parse(
+	readFileSync(new URL('../../dados/prontos/idhm_uf.json', import.meta.url), 'utf-8')
+) as LinhaUf[];
 
-/**
- * Contraste WCAG de uma cor #RRGGBB sobre fundo branco.
- * @param {string} hex
- */
-function contrasteNoBranco(hex) {
+/** Contraste WCAG de uma cor #RRGGBB sobre fundo branco. */
+function contrasteNoBranco(hex: string): number {
 	const canais = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
 	const [r, g, b] = canais.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
 	const luminancia = 0.2126 * r + 0.7152 * g + 0.0722 * b;
@@ -60,11 +58,11 @@ test('16 anos com dado: sem 2011, com 2010 e 2012', () => {
 	expect(ANOS).toContain(2010);
 	expect(ANOS).toContain(2012);
 	expect(ANOS[0]).toBe(1991);
-	expect(ANOS.at(-1)).toBe(2024);
+	expect(ANOS[ANOS.length - 1]).toBe(2024);
 });
 
 test('os domínios fixos cobrem todos os valores da série', () => {
-	for (const [medida, [minimo, maximo]] of Object.entries(DOMINIOS)) {
+	for (const [medida, [minimo, maximo]] of Object.entries(DOMINIOS) as [Medida, [number, number]][]) {
 		const valores = dadosUf.map((linha) => linha[medida]);
 		expect(Math.min(...valores)).toBeGreaterThanOrEqual(minimo);
 		expect(Math.max(...valores)).toBeLessThanOrEqual(maximo);

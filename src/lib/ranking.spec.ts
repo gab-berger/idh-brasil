@@ -1,15 +1,12 @@
 import { expect, test } from 'vitest';
-import { posicoes } from './ranking.js';
-import { indiceMaisProximo, percentualDoAno } from './tempo.js';
+import { posicoes } from './ranking';
+import { indiceMaisProximo, percentualDoAno } from './tempo';
+
+/** Uma linha com as quatro medidas, que é o que `posicoes` exige. */
+const linha = (uf: string, idhm: number) => ({ uf, idhm, educacao: 0, longevidade: 0, renda: 0 });
 
 test('posição: 1 é o maior, e empates dividem a posição', () => {
-	const linhas = [
-		{ uf: 'A', idhm: 0.8 },
-		{ uf: 'B', idhm: 0.7 },
-		{ uf: 'C', idhm: 0.7 },
-		{ uf: 'D', idhm: 0.6 }
-	];
-	const pos = posicoes(linhas, 'idhm');
+	const pos = posicoes([linha('A', 0.8), linha('B', 0.7), linha('C', 0.7), linha('D', 0.6)], 'idhm');
 	expect([pos.get('A'), pos.get('B'), pos.get('C'), pos.get('D')]).toEqual([1, 2, 2, 4]);
 });
 

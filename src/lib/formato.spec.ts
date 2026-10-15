@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { delta, num, posicao } from './formato.js';
+import { delta, num, posicao } from './formato';
 
 test('valores com três casas decimais e vírgula', () => {
 	expect(num(0.805)).toBe('0,805');

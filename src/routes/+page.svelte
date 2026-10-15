@@ -1,9 +1,9 @@
-<script>
+<script lang="ts">
 	import Menu from '#lib/Menu.svelte';
 	import Secao from '#lib/Secao.svelte';
 	import Estados from '#lib/blocos/Estados.svelte';
-	import { BLOCOS } from '#lib/navegacao.js';
-	import { t } from '#lib/textos.js';
+	import { BLOCOS } from '#lib/navegacao';
+	import { t } from '#lib/textos';
 </script>
 
 <svelte:head>

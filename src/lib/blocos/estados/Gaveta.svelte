@@ -1,23 +1,22 @@
-<script>
-	import { alternarUf, estado } from '#lib/estado.svelte.js';
-	import { CORES_DIMENSAO, DOMINIOS, faixaIdhm, posicaoNoDominio } from '#lib/escalas.js';
-	import { num, posicao } from '#lib/formato.js';
-	import { posicoes } from '#lib/ranking.js';
-	import { t } from '#lib/textos.js';
+<script lang="ts">
+	import { alternarUf, estado } from '#lib/estado.svelte';
+	import { CORES_DIMENSAO, DOMINIOS, faixaIdhm, posicaoNoDominio } from '#lib/escalas';
+	import { num, posicao } from '#lib/formato';
+	import { posicoes } from '#lib/ranking';
+	import { t } from '#lib/textos';
+	import type { Dimensao, LinhaUf } from '#lib/tipos';
 
-	/** @type {{ linhas: any[] }} */
-	let { linhas } = $props();
+	let { linhas }: { linhas: LinhaUf[] } = $props();
 
-	const DIMENSOES = /** @type {const} */ (['longevidade', 'educacao', 'renda']);
+	const DIMENSOES: Dimensao[] = ['longevidade', 'educacao', 'renda'];
 	const linha = $derived(linhas.find((l) => l.uf === estado.ufSelecionada));
 	const pos = $derived(posicoes(linhas, 'idhm'));
 
-	function fechar() {
+	function fechar(): void {
 		if (estado.ufSelecionada) alternarUf(estado.ufSelecionada);
 	}
 
-	/** @param {KeyboardEvent} evento */
-	function teclar(evento) {
+	function teclar(evento: KeyboardEvent): void {
 		if (evento.key === 'Escape') fechar();
 	}
 </script>

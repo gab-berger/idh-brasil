@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { linhaUf, serie, ufsDoAno } from './series.js';
+import { linhaUf, serie, ufsDoAno } from './series';
 
 const linhas = [
 	{ uf: 'DF', ano: 2024, idhm: 0.866 },

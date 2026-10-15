@@ -1,7 +1,7 @@
-<script>
-	import { MEDIDAS } from '#lib/escalas.js';
-	import { estado } from '#lib/estado.svelte.js';
-	import { t } from '#lib/textos.js';
+<script lang="ts">
+	import { MEDIDAS } from '#lib/escalas';
+	import { estado } from '#lib/estado.svelte';
+	import { t } from '#lib/textos';
 </script>
 
 <div class="seletor" role="group" aria-label={t('medida.rotulo')}>

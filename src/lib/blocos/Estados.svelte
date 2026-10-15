@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import Nota from '#lib/Nota.svelte';
-	import { carregar } from '#lib/dados.js';
-	import { estado } from '#lib/estado.svelte.js';
-	import { linhaUf, ufsDoAno } from '#lib/series.js';
-	import { t } from '#lib/textos.js';
+	import { carregar } from '#lib/dados';
+	import { estado } from '#lib/estado.svelte';
+	import { linhaUf, ufsDoAno } from '#lib/series';
+	import { t } from '#lib/textos';
+	import type { LinhaUf, MapaTopo } from '#lib/tipos';
 	import ControleTempo from './estados/ControleTempo.svelte';
 	import Gaveta from './estados/Gaveta.svelte';
 	import Legenda from './estados/Legenda.svelte';
@@ -12,15 +13,13 @@
 	import Ranking from './estados/Ranking.svelte';
 	import SeletorMedida from './estados/SeletorMedida.svelte';
 
-	/** @type {any[] | null} */
-	let uf = $state.raw(null);
-	/** @type {any | null} */
-	let topo = $state.raw(null);
+	let uf: LinhaUf[] | null = $state.raw(null);
+	let topo: MapaTopo | null = $state.raw(null);
 	let erro = $state(false);
 
 	// Os dados só são lidos no navegador: durante o build, a página sai sem eles.
 	onMount(() => {
-		Promise.all([carregar('idhm_uf.json'), carregar('br_uf.topojson')])
+		Promise.all([carregar<LinhaUf[]>('idhm_uf.json'), carregar<MapaTopo>('br_uf.topojson')])
 			.then(([dadosUf, mapa]) => {
 				uf = dadosUf;
 				topo = mapa;
@@ -28,8 +27,8 @@
 			.catch(() => (erro = true));
 	});
 
-	const linhasAno = $derived(uf ? ufsDoAno(uf, estado.ano) : []);
-	const linhaBrasil = $derived(uf ? linhaUf(uf, 'BR', estado.ano) : undefined);
+	const linhasAno = $derived<LinhaUf[]>(uf ? ufsDoAno<LinhaUf>(uf, estado.ano) : []);
+	const linhaBrasil = $derived<LinhaUf | undefined>(uf ? linhaUf<LinhaUf>(uf, 'BR', estado.ano) : undefined);
 </script>
 
 {#if erro}

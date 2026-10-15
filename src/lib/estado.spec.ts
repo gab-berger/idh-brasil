@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { CORES_LINHAS } from './escalas.js';
-import { alternarLinha, alternarUf, estado, irParaAno } from './estado.svelte.js';
+import { CORES_LINHAS } from './escalas';
+import { alternarLinha, alternarUf, estado, irParaAno } from './estado.svelte';
 
 test('abre com mundo, BRICS, EUA e China, nessa ordem, e sem UF selecionada', () => {
 	expect(Object.keys(estado.linhas)).toEqual(['mundo', 'brics', 'USA', 'CHN']);

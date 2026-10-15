@@ -1,21 +1,16 @@
-<script>
-	import { ANOS } from '#lib/escalas.js';
-	import { estado, irParaAno } from '#lib/estado.svelte.js';
-	import { indiceMaisProximo, percentualDoAno } from '#lib/tempo.js';
-	import { t } from '#lib/textos.js';
+<script lang="ts">
+	import { ANOS } from '#lib/escalas';
+	import { estado, irParaAno } from '#lib/estado.svelte';
+	import { indiceMaisProximo, percentualDoAno } from '#lib/tempo';
+	import { t } from '#lib/textos';
 
 	const PASSO_MS = 800;
 	const ULTIMO = ANOS.length - 1;
 	const indice = $derived(ANOS.indexOf(estado.ano));
-	const PASSOS = /** @type {Record<string, number>} */ ({
-		ArrowRight: 1,
-		ArrowUp: 1,
-		ArrowLeft: -1,
-		ArrowDown: -1
-	});
+	const PASSOS: Record<string, number> = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 };
 
 	// Rótulos da régua: o lado diz em que direção o texto cresce a partir do traço.
-	const ROTULOS = [
+	const ROTULOS: { ano: number; lado: 'esq' | 'meio' | 'dir' }[] = [
 		{ ano: 1991, lado: 'esq' },
 		{ ano: 2000, lado: 'meio' },
 		{ ano: 2010, lado: 'dir' },
@@ -23,16 +18,15 @@
 		{ ano: 2024, lado: 'dir' }
 	];
 	// Vãos entre os Censos: 9 anos (1991-2000) e 10 anos (2000-2010).
-	const VAOS = [
+	const VAOS: { de: number; ate: number }[] = [
 		{ de: 1991, ate: 2000 },
 		{ de: 2000, ate: 2010 }
 	];
 
-	/** @type {HTMLElement | undefined} */
-	let trilho = $state();
+	let trilho: HTMLElement | undefined = $state();
 	let arrastando = false;
 
-	const fonteDo = (/** @type {number} */ ano) => (ano <= 2010 ? t('fonte.censo') : t('fonte.pnad'));
+	const fonteDo = (ano: number): string => (ano <= 2010 ? t('fonte.censo') : t('fonte.pnad'));
 
 	// Um ano a cada PASSO_MS. Se já estiver em 2024, recomeça em 1991. Para ao chegar em 2024.
 	$effect(() => {
@@ -48,7 +42,7 @@
 		return () => clearInterval(id);
 	});
 
-	function tocarOuPausar() {
+	function tocarOuPausar(): void {
 		if (estado.tocando) {
 			estado.tocando = false;
 			return;
@@ -57,13 +51,11 @@
 		estado.tocando = true;
 	}
 
-	/** @param {number} passo */
-	function andar(passo) {
+	function andar(passo: number): void {
 		irParaAno(ANOS[Math.min(ULTIMO, Math.max(0, indice + passo))]);
 	}
 
-	/** @param {number} clientX */
-	function irParaPonto(clientX) {
+	function irParaPonto(clientX: number): void {
 		if (!trilho) return;
 		const { left, width } = trilho.getBoundingClientRect();
 		const fracao = Math.min(1, Math.max(0, (clientX - left) / width));
@@ -71,25 +63,22 @@
 		if (novo !== estado.ano) irParaAno(novo);
 	}
 
-	/** @param {PointerEvent} evento */
-	function apontar(evento) {
+	function apontar(evento: PointerEvent): void {
 		estado.tocando = false;
 		arrastando = true;
-		/** @type {HTMLElement} */ (evento.currentTarget).setPointerCapture(evento.pointerId);
+		(evento.currentTarget as HTMLElement).setPointerCapture(evento.pointerId);
 		irParaPonto(evento.clientX);
 	}
 
-	/** @param {PointerEvent} evento */
-	function arrastar(evento) {
+	function arrastar(evento: PointerEvent): void {
 		if (arrastando) irParaPonto(evento.clientX);
 	}
 
-	function soltar() {
+	function soltar(): void {
 		arrastando = false;
 	}
 
-	/** @param {KeyboardEvent} evento */
-	function teclar(evento) {
+	function teclar(evento: KeyboardEvent): void {
 		const passo = PASSOS[evento.key];
 		if (passo) {
 			evento.preventDefault();

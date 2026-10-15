@@ -1,11 +1,11 @@
-<script>
-	import { corMapa, DOMINIOS } from '#lib/escalas.js';
-	import { estado } from '#lib/estado.svelte.js';
-	import { num } from '#lib/formato.js';
-	import { t } from '#lib/textos.js';
+<script lang="ts">
+	import { corMapa, DOMINIOS } from '#lib/escalas';
+	import { estado } from '#lib/estado.svelte';
+	import { num } from '#lib/formato';
+	import { t } from '#lib/textos';
 
 	// Cortes do IDHM, marcados na escala (as faixas em si ficam na gaveta de cada estado).
-	const CORTES_IDHM = [0.5, 0.6, 0.7, 0.8];
+	const CORTES_IDHM: number[] = [0.5, 0.6, 0.7, 0.8];
 
 	const dominio = $derived(DOMINIOS[estado.medida]);
 	const cor = $derived(corMapa(estado.medida));
@@ -15,8 +15,7 @@
 		return `linear-gradient(to right, ${degraus.map((v) => cor(v)).join(', ')})`;
 	});
 
-	/** @param {number} valor */
-	function posicaoNaEscala(valor) {
+	function posicaoNaEscala(valor: number): string {
 		const [minimo, maximo] = dominio;
 		return `${((valor - minimo) / (maximo - minimo)) * 100}%`;
 	}

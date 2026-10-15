@@ -1,7 +1,6 @@
-<script>
+<script lang="ts">
 	/** Aviso curto que some sozinho. Um objeto novo a cada aviso faz ele aparecer de novo. */
-	/** @type {{ aviso?: { texto: string } | null }} */
-	let { aviso = null } = $props();
+	let { aviso = null }: { aviso?: { texto: string } | null } = $props();
 
 	let visivel = $state(false);
 

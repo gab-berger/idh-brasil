@@ -1,12 +1,12 @@
-<script>
-	import { alternarUf, estado } from '#lib/estado.svelte.js';
-	import { corMapa, DOMINIOS, posicaoNoDominio } from '#lib/escalas.js';
-	import { num, posicao } from '#lib/formato.js';
-	import { posicoes } from '#lib/ranking.js';
-	import { t } from '#lib/textos.js';
+<script lang="ts">
+	import { alternarUf, estado } from '#lib/estado.svelte';
+	import { corMapa, DOMINIOS, posicaoNoDominio } from '#lib/escalas';
+	import { num, posicao } from '#lib/formato';
+	import { posicoes } from '#lib/ranking';
+	import { t } from '#lib/textos';
+	import type { LinhaUf } from '#lib/tipos';
 
-	/** @type {{ linhas: any[], brasil?: any }} */
-	let { linhas, brasil } = $props();
+	let { linhas, brasil }: { linhas: LinhaUf[]; brasil?: LinhaUf } = $props();
 
 	// Barras na escala fixa da medida (a mesma do mapa): a distância entre estados aparece no comprimento.
 	const dominio = $derived(DOMINIOS[estado.medida]);
@@ -15,8 +15,9 @@
 	const ordenadas = $derived([...linhas].sort((a, b) => b[estado.medida] - a[estado.medida]));
 	const valorBrasil = $derived(brasil?.[estado.medida]);
 
-	/** @param {number} valor */
-	const fracao = (valor) => posicaoNoDominio(valor, dominio);
+	function fracao(valor: number): number {
+		return posicaoNoDominio(valor, dominio);
+	}
 </script>
 
 <div class="eixo" aria-hidden="true">

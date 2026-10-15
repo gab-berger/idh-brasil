@@ -1,8 +1,7 @@
-<script>
-	import { t } from '#lib/textos.js';
+<script lang="ts">
+	import { t, type ChaveTexto } from '#lib/textos';
 
-	/** @type {{ chave: string }} */
-	let { chave } = $props();
+	let { chave }: { chave: ChaveTexto } = $props();
 </script>
 
 <aside class="nota">{t(chave)}</aside>

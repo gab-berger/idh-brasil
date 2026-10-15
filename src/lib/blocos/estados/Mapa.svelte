@@ -1,38 +1,36 @@
-<script>
+<script lang="ts">
 	import { geoMercator, geoPath } from 'd3';
+	import type { FeatureCollection, Geometry } from 'geojson';
 	import { feature } from 'topojson-client';
-	import { alternarUf, estado } from '#lib/estado.svelte.js';
-	import { corMapa } from '#lib/escalas.js';
-	import { num, posicao } from '#lib/formato.js';
-	import { posicoes } from '#lib/ranking.js';
-	import { t } from '#lib/textos.js';
+	import { alternarUf, estado } from '#lib/estado.svelte';
+	import { corMapa } from '#lib/escalas';
+	import { num, posicao } from '#lib/formato';
+	import { posicoes } from '#lib/ranking';
+	import { t } from '#lib/textos';
+	import type { LinhaUf, MapaTopo, PropsUf } from '#lib/tipos';
 
-	/** @type {{ topo: any, linhas: any[] }} */
-	let { topo, linhas } = $props();
+	let { topo, linhas }: { topo: MapaTopo; linhas: LinhaUf[] } = $props();
 
 	// Projeção calculada numa largura fixa; o SVG escala para a tela, então nada precisa de medir a janela.
 	const LARGURA = 1000;
-	const colecao = $derived(/** @type {any} */ (feature(topo, topo.objects.estados)));
+	// topojson-client tipa o retorno de forma genérica; a malha é sempre uma coleção de UFs (ver tipos.ts).
+	const colecao = $derived(feature(topo, topo.objects.estados) as unknown as FeatureCollection<Geometry, PropsUf>);
 	const caminho = $derived(geoPath(geoMercator().fitWidth(LARGURA, colecao)));
 	const caixa = $derived(caminho.bounds(colecao));
 	const larguraCaixa = $derived(caixa[1][0] - caixa[0][0]);
 	const alturaCaixa = $derived(caixa[1][1] - caixa[0][1]);
 
 	const cor = $derived(corMapa(estado.medida));
-	const porUf = $derived(new Map(linhas.map((linha) => [linha.uf, linha])));
+	const porUf = $derived(new Map(linhas.map((linha) => [linha.uf, linha] as const)));
 	const pos = $derived(posicoes(linhas, estado.medida));
 	const formas = $derived(
-		colecao.features.map(
-			/** @param {any} f */ (f) => ({ uf: f.properties.uf, nome: f.properties.nome, d: caminho(f) })
-		)
+		colecao.features.map((f) => ({ uf: f.properties.uf, nome: f.properties.nome, d: caminho(f) ?? '' }))
 	);
-	const nomeDf = $derived(
-		formas.find(/** @param {any} forma */ (forma) => forma.uf === 'DF')?.nome ?? 'DF'
-	);
+	const nomeDf = $derived(formas.find((forma) => forma.uf === 'DF')?.nome ?? 'DF');
 
 	/** Pino do DF, que é pequeno demais para tocar no mapa do celular. */
 	const pinoDf = $derived.by(() => {
-		const df = colecao.features.find(/** @param {any} f */ (f) => f.properties.uf === 'DF');
+		const df = colecao.features.find((f) => f.properties.uf === 'DF');
 		if (!df) return null;
 		const [x, y] = caminho.centroid(df);
 		return {
@@ -41,16 +39,11 @@
 		};
 	});
 
-	/** @param {string} uf */
-	function valorDe(uf) {
+	function valorDe(uf: string): number | undefined {
 		return porUf.get(uf)?.[estado.medida];
 	}
 
-	/**
-	 * @param {string} uf
-	 * @param {string} nome
-	 */
-	function rotulo(uf, nome) {
+	function rotulo(uf: string, nome: string): string {
 		const valor = valorDe(uf);
 		if (valor === undefined) return nome;
 		return t('mapa.estado', {
@@ -61,11 +54,7 @@
 		});
 	}
 
-	/**
-	 * @param {KeyboardEvent} evento
-	 * @param {string} uf
-	 */
-	function teclar(evento, uf) {
+	function teclar(evento: KeyboardEvent, uf: string): void {
 		if (evento.key === 'Enter' || evento.key === ' ') {
 			evento.preventDefault();
 			alternarUf(uf);
