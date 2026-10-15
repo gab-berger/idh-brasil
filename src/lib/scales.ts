@@ -10,13 +10,11 @@ export const YEARS: number[] = [1991, 2000, 2010, ...Array.from({ length: 13 }, 
 
 export const MEASURES: Measure[] = ['idhm', 'longevity', 'education', 'income'];
 
-/** Fixed domain of each measure: from the lowest to the highest value of the whole series (1991 to 2024). */
-export const DOMAINS: Record<Measure, [number, number]> = {
-	idhm: [0.35, 0.9],
-	education: [0.15, 0.9],
-	longevity: [0.55, 0.95],
-	income: [0.45, 0.9]
-};
+/**
+ * The scale of every chart and of the map, for the four measures. It is the same whatever the measure, so a height
+ * or a color means the same value in each of them. It covers the whole series (the lowest value is 0.155, the highest 0.913).
+ */
+export const VALUE_DOMAIN: [number, number] = [0.15, 0.95];
 
 /**
  * IDHM bands: very low (0 to 0.499), low (0.500 to 0.599), medium (0.600 to 0.699),
@@ -47,13 +45,13 @@ const DEFAULT_PALETTE = interpolateRdYlBu;
 /** Palette for colorblind readers (a reader's option): yellow, green and blue, from the lightest to the darkest. */
 const COLORBLIND_PALETTE = interpolateYlGnBu;
 
-/** Color scale of a measure: continuous, and the same in every year. */
-export function mapColor(measure: Measure, colorblind = false) {
-	return scaleSequential(DOMAINS[measure], colorblind ? COLORBLIND_PALETTE : DEFAULT_PALETTE).clamp(true);
+/** Color scale of the map and of the bars: continuous, the same in every year and for every measure. */
+export function mapColor(colorblind = false) {
+	return scaleSequential(VALUE_DOMAIN, colorblind ? COLORBLIND_PALETTE : DEFAULT_PALETTE).clamp(true);
 }
 
 /**
- * Position of a value inside the domain of a measure: 0 at the minimum, 1 at the maximum.
+ * Position of a value inside a scale: 0 at the minimum, 1 at the maximum.
  * Used for bar lengths, so the difference between states stays visible.
  */
 export function positionInDomain(value: number, domain: [number, number]): number {

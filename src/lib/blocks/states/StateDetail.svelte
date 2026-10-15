@@ -1,6 +1,6 @@
 <script lang="ts">
 	import LineChart from '#lib/charts/LineChart.svelte';
-	import { DIMENSION_COLORS, idhmBand } from '#lib/scales';
+	import { DIMENSION_COLORS, idhmBand, VALUE_DOMAIN } from '#lib/scales';
 	import { num, position } from '#lib/format';
 	import { positions } from '#lib/ranking';
 	import { seriesOf } from '#lib/series';
@@ -19,7 +19,7 @@
 		education: DIMENSION_COLORS.education,
 		income: DIMENSION_COLORS.income
 	};
-	const DOMAIN_Y: [number, number] = [0.1, 1];
+	const DOMAIN_Y = VALUE_DOMAIN;
 	const YEAR_RANGE: [number, number] = [1991, 2024];
 	const X_LABELS = [1991, 2000, 2010, 2024];
 
@@ -50,7 +50,7 @@
 
 {#if row}
 	<section class="detail" aria-labelledby="detail-title">
-		<h3 id="detail-title">{row.name}</h3>
+		<h2 id="detail-title">{row.name}</h2>
 		<p class="highlight">{highlightText}</p>
 		<LineChart
 			{series}
@@ -69,8 +69,15 @@
 {/if}
 
 <style>
-	h3 {
+	/* The same block as the chooser above: a title, the content, and a line below. */
+	.detail {
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--line);
+	}
+
+	h2 {
 		margin: 0;
+		padding: 10px 0;
 		font-size: 1.1rem;
 	}
 

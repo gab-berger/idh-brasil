@@ -21,6 +21,8 @@ test('ranking for 2023: 193 countries, 63 of them tied; Brazil and Palau share 8
 	expect(rows.filter((r) => r.position === 84).map((r) => r.name)).toEqual(['Brasil', 'Palau']);
 	expect(rows.filter((r) => r.tie)).toHaveLength(63);
 	expect(rows.find((r) => r.isBrazil)).toMatchObject({ position: 84, hdi: 0.786, tie: true });
+	// The tie skips the next position: the country after Brazil and Palau is 86º (cited on the Informações page).
+	expect(rows.find((r) => r.position > 84)?.position).toBe(86);
 });
 
 test('the 2023 ranking recalculated from the raw values matches the official HDR positions', () => {

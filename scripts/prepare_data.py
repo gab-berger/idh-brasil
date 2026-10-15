@@ -215,17 +215,19 @@ check(len(official) == 193, f"HDR: {len(official)} countries with a 2023 positio
 log.append(f"     ranking by year: {len(positions_by_year[1990])} countries in 1990, {len(calc)} in 2023")
 
 # ---------- 5. Sources ----------
+# Shown to the public on the Informações page: the edition says what the site uses, the license is in plain words.
 sources = [
     {'id': 'atlas', 'name': 'Atlas do Desenvolvimento Humano no Brasil (PNUD, Ipea e FJP)',
-     'edition': 'Censos 1991, 2000 e 2010; PNAD Contínua de 2012 a 2024, na série revisada do Radar IDHM (maio de 2026)',
-     'url': 'https://www.atlasbrasil.org.br/', 'license': 'uso confirmado em 14/10/2026; citar o Atlas', 'access_date': ACCESS_DATE},
-    {'id': 'hdr', 'name': 'Human Development Report 2025 (PNUD)', 'edition': 'Série composta 1990-2023',
-     'url': 'https://hdr.undp.org/data-center/documentation-and-downloads', 'license': 'CC BY 3.0 IGO', 'access_date': ACCESS_DATE},
-    {'id': 'm49', 'name': 'Classificação M49 (Divisão de Estatística da ONU)', 'edition': 'versão baixada em ' + ACCESS_DATE,
-     'url': 'https://unstats.un.org/unsd/methodology/m49/overview/', 'license': 'sem restrição; citar a UNSD', 'access_date': ACCESS_DATE},
-    {'id': 'ibge', 'name': 'Malha territorial das UFs (IBGE)', 'edition': '2024, simplificada',
+     'edition': 'IDHM dos estados e do Brasil: Censos de 1991, 2000 e 2010 e PNAD Contínua de 2012 a 2024, na série revisada do Radar IDHM (maio de 2026)',
+     'url': 'https://www.atlasbrasil.org.br/', 'license': 'uso permitido, com citação da fonte', 'access_date': ACCESS_DATE},
+    {'id': 'hdr', 'name': 'Relatório de Desenvolvimento Humano 2025 (PNUD)', 'edition': 'IDH global dos países, série histórica de 1990 a 2023',
+     'url': 'https://hdr.undp.org/data-center/documentation-and-downloads',
+     'license': 'CC BY 3.0 IGO; dados alterados: médias e posições calculadas por este site', 'access_date': ACCESS_DATE},
+    {'id': 'm49', 'name': 'Classificação M49 (Divisão de Estatística da ONU)', 'edition': 'Regiões dos países, usadas nas médias dos continentes',
+     'url': 'https://unstats.un.org/unsd/methodology/m49/overview/', 'license': 'sem restrição, com citação da fonte', 'access_date': ACCESS_DATE},
+    {'id': 'ibge', 'name': 'Malha territorial das UFs (IBGE)', 'edition': 'Mapa dos estados de 2024, simplificado',
      'url': 'https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/',
-     'license': 'arquivo público; citar o IBGE', 'access_date': ACCESS_DATE},
+     'license': 'arquivo público, com citação da fonte', 'access_date': ACCESS_DATE},
 ]
 write_json('sources.json', sources, indent=1)
 

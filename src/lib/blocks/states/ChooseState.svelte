@@ -9,9 +9,11 @@
 	const options = $derived([...rows].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')));
 </script>
 
-<label class="choose">
-	<span>{t('choose.label')}</span>
+<!-- A block like the questions on the Information page: a title, the control, and a line below. -->
+<section class="choose" aria-labelledby="choose-title">
+	<h2 id="choose-title">{t('choose.label')}</h2>
 	<select
+		aria-labelledby="choose-title"
 		value={store.selectedCode ?? ''}
 		onchange={(event) => (store.selectedCode = event.currentTarget.value || null)}
 	>
@@ -20,19 +22,24 @@
 			<option value={row.code}>{row.name}</option>
 		{/each}
 	</select>
-</label>
+</section>
 
 <style>
+	/* The title and the line below follow the questions on the Information page. */
 	.choose {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 4px 12px;
-		margin: 8px 0;
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--line);
+	}
+
+	h2 {
+		margin: 0;
+		padding: 10px 0;
+		font-size: 1.1rem;
 	}
 
 	select {
-		flex: 1 1 200px;
+		display: block;
+		width: 100%;
 		max-width: 320px;
 		min-height: 44px;
 		padding: 0 8px;
@@ -41,5 +48,21 @@
 		background: var(--background);
 		color: var(--text);
 		font: inherit;
+	}
+
+	/* On a wide screen, the title and the select sit on the same line, when there is room for both. */
+	@media (min-width: 960px) {
+		.choose {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px 16px;
+		}
+
+		select {
+			flex: 0 1 320px;
+			min-width: 0;
+			width: 320px;
+		}
 	}
 </style>

@@ -1,22 +1,24 @@
 <script lang="ts">
 	import { num } from '#lib/format';
-	import { DOMAINS, mapColor } from '#lib/scales';
+	import { mapColor, VALUE_DOMAIN } from '#lib/scales';
 	import { setColorblind, store } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
 
-	// IDHM cut-offs, marked on the scale (the bands themselves are in each state's detail).
+	// The scale is the same for every measure, so its ends and its labels are the same too.
+	const [min, max] = VALUE_DOMAIN;
+	const LABELS: number[] = [0.4, 0.6, 0.8];
+	// IDHM cut-offs: drawn as short marks without a label, so the labels stay readable on a phone.
 	const CUTS_IDHM: number[] = [0.5, 0.6, 0.7, 0.8];
 
-	const domain = $derived(DOMAINS[store.measure]);
-	const color = $derived(mapColor(store.measure, store.colorblind));
+	const color = $derived(mapColor(store.colorblind));
 	const gradient = $derived.by(() => {
-		const [min, max] = domain;
 		const steps = Array.from({ length: 11 }, (_, i) => min + ((max - min) * i) / 10);
 		return `linear-gradient(to right, ${steps.map((v) => color(v)).join(', ')})`;
 	});
 
+	const marks = $derived(store.measure === 'idhm' ? CUTS_IDHM : []);
+
 	function scalePosition(value: number): string {
-		const [min, max] = domain;
 		return `${((value - min) / (max - min)) * 100}%`;
 	}
 </script>
@@ -25,13 +27,14 @@
 	<div class="bar" style:background={gradient} role="img" aria-label={t('legend.label')}></div>
 
 	<div class="labels">
-		<span class="end" style:left="0%">{num(domain[0])}</span>
-		{#if store.measure === 'idhm'}
-			{#each CUTS_IDHM as cut (cut)}
-				<span class="cut" style:left={scalePosition(cut)}>{num(cut)}</span>
-			{/each}
-		{/if}
-		<span class="end" style:left="100%">{num(domain[1])}</span>
+		<span class="end" style:left="0%">{num(min)}</span>
+		{#each LABELS as label (label)}
+			<span style:left={scalePosition(label)}>{num(label)}</span>
+		{/each}
+		{#each marks as mark (mark)}
+			<span class="mark" style:left={scalePosition(mark)} aria-hidden="true"></span>
+		{/each}
+		<span class="end" style:left="100%">{num(max)}</span>
 	</div>
 
 	<!-- A discreet option, next to the scale it changes. -->
@@ -77,6 +80,14 @@
 
 	.labels .end:last-child {
 		transform: translateX(-100%);
+	}
+
+	/* A short line hanging from the bar, where a band starts. */
+	.labels .mark {
+		top: -6px;
+		width: 1px;
+		height: 6px;
+		background: var(--text-soft);
 	}
 
 	.colorblind {

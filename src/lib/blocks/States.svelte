@@ -16,6 +16,9 @@
 	import StateSelection from './states/StateSelection.svelte';
 	import MeasureSelector from './states/MeasureSelector.svelte';
 
+	// The page draws this block in two places on a wide screen: 'start' has the text and the controls, 'visual' has the map, the list or the chart.
+	let { part }: { part: 'start' | 'visual' } = $props();
+
 	let states: StateRow[] | null = $state.raw(null);
 	let topology: MapTopology | null = $state.raw(null);
 	let error = $state(false);
@@ -34,12 +37,8 @@
 	const brazilRow = $derived<StateRow | undefined>(states ? stateRow<StateRow>(states, 'BR', store.year) : undefined);
 </script>
 
-<div id="states">
-	{#if error}
-		<p role="alert">{t('error.load')}</p>
-	{:else if !states || !topology}
-		<p>{t('loading')}</p>
-	{:else}
+{#if part === 'start'}
+	{#if states && topology}
 		{#if store.subtab !== 'state'}
 			<MeasureSelector />
 		{/if}
@@ -50,45 +49,30 @@
 			<p class="highlight">{summaryText(brazilRow, store.measure)}</p>
 		{/if}
 
-		{#if store.subtab === 'map'}
-			<div class="view view-map">
-				<MapView {topology} rows={rowsOfYear} />
-				<StateSelection rows={rowsOfYear} />
-				<Legend />
-			</div>
-		{:else if store.subtab === 'ranking'}
-			<div class="view view-ranking">
-				<StateRanking rows={rowsOfYear} brazil={brazilRow} />
-				<StateSelection rows={rowsOfYear} />
-			</div>
-		{:else if store.subtab === 'regions'}
-			<div class="view view-regions">
-				<RegionsView />
-			</div>
-		{:else}
-			<div class="view view-state">
-				<ChooseState rows={rowsOfYear} />
-				{#if store.selectedCode}
-					<StateDetail states={states ?? []} rows={rowsOfYear} />
-				{:else}
-					<p class="empty">{t('detail.empty')}</p>
-				{/if}
-			</div>
+		{#if store.subtab === 'state'}
+			<ChooseState rows={rowsOfYear} />
+		{:else if store.subtab === 'map' || store.subtab === 'ranking'}
+			<StateSelection rows={rowsOfYear} />
 		{/if}
 	{/if}
-</div>
+{:else if error}
+	<p role="alert">{t('error.load')}</p>
+{:else if !states || !topology}
+	<p>{t('loading')}</p>
+{:else if store.subtab === 'map'}
+	<MapView {topology} rows={rowsOfYear} />
+	<Legend />
+{:else if store.subtab === 'ranking'}
+	<StateRanking rows={rowsOfYear} brazil={brazilRow} />
+{:else if store.subtab === 'regions'}
+	<RegionsView />
+{:else if store.selectedCode}
+	<StateDetail states={states ?? []} rows={rowsOfYear} />
+{:else}
+	<p class="empty">{t('detail.empty')}</p>
+{/if}
 
 <style>
-	/* The map is at most 640 px on a computer, so it fits on the screen next to the timeline. */
-	.view-map {
-		max-width: 640px;
-	}
-
-	.view-ranking,
-	.view-state {
-		max-width: 720px;
-	}
-
 	.empty {
 		color: var(--text-soft);
 	}

@@ -4,6 +4,7 @@
 	import World from '#lib/blocks/World.svelte';
 	import WorldRanking from '#lib/blocks/world/WorldRanking.svelte';
 	import SiteTitle from '#lib/SiteTitle.svelte';
+	import Split from '#lib/Split.svelte';
 	import SubTabs from '#lib/SubTabs.svelte';
 	import { t } from '#lib/texts';
 	import type { PageProps } from './$types';
@@ -26,33 +27,49 @@
 </svelte:head>
 
 <SubTabs options={VIEWS} current={view} onChoose={(key) => (view = key)} label={t('subtabs.label')} />
-<SiteTitle />
 
-<p class="highlight">{data.highlight}</p>
+<Split>
+	{#snippet start()}
+		<SiteTitle />
+		<p class="highlight">{data.highlight}</p>
+		{#if view === 'evolution'}
+			<World part="start" />
+		{:else}
+			<WorldRanking part="start" />
+		{/if}
+	{/snippet}
 
-{#if view === 'evolution'}
-	<World />
-	<Analysis items={data.analyses} />
-{:else}
-	<WorldRanking />
-{/if}
+	{#snippet visual()}
+		{#if view === 'evolution'}
+			<World part="visual" />
+		{:else}
+			<WorldRanking part="visual" />
+		{/if}
+	{/snippet}
 
-<!-- The notes on the data, collapsed. Each one has a bold title. -->
-<details class="observations">
-	<summary><h2>{t('world.observations.title')}</h2></summary>
-	<dl>
-		<dt>{t('world.notes.source')}</dt>
-		<dd>{t('world.subtitle')}</dd>
-		<dt>{t('world.notes.averages')}</dt>
-		<dd>{t('note.averages')}</dd>
-		<dt>{t('world.notes.brics')}</dt>
-		<dd>{t('note.brics')}</dd>
-		<dt>{t('world.notes.idhm')}</dt>
-		<dd>{t('note.idhm_vs_hdi')}</dd>
-	</dl>
-</details>
+	{#snippet end()}
+		{#if view === 'evolution'}
+			<Analysis items={data.analyses} />
+		{/if}
 
-<p class="follow"><a href={resolve('/')}>{t('world.go_brazil')}</a></p>
+		<!-- The notes on the data, collapsed. Each one has a bold title. -->
+		<details class="observations">
+			<summary><h2>{t('world.observations.title')}</h2></summary>
+			<dl>
+				<dt>{t('world.notes.source')}</dt>
+				<dd>{t('world.subtitle')}</dd>
+				<dt>{t('world.notes.averages')}</dt>
+				<dd>{t('note.averages')}</dd>
+				<dt>{t('world.notes.brics')}</dt>
+				<dd>{t('note.brics')}</dd>
+				<dt>{t('world.notes.idhm')}</dt>
+				<dd>{t('note.idhm_vs_hdi')}</dd>
+			</dl>
+		</details>
+
+		<p class="follow"><a href={resolve('/')}>{t('world.go_brazil')}</a></p>
+	{/snippet}
+</Split>
 
 <style>
 	.observations {

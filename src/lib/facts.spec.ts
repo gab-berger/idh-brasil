@@ -64,3 +64,12 @@ test('Brazil: education was the dimension that rose the most, from 0.279 to 0.79
 	expect(start.education).toBe(0.279);
 	expect(end.education).toBe(0.798);
 });
+
+test('Brazil in 1991, the example of the geometric mean: a simple average would be 0.529, the IDHM was 0.493', () => {
+	const brazil = required(stateRow(states, 'BR', 1991), 'Brazil 1991');
+	expect(brazil).toMatchObject({ longevity: 0.662, education: 0.279, income: 0.647, idhm: 0.493 });
+	const simple = (brazil.longevity + brazil.education + brazil.income) / 3;
+	expect(Math.round(simple * 1000) / 1000).toBe(0.529);
+	const geometric = Math.cbrt(brazil.longevity * brazil.education * brazil.income);
+	expect(Math.round(geometric * 1000) / 1000).toBe(0.493);
+});

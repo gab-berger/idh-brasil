@@ -11,7 +11,7 @@ import { expect, test, type Page } from '@playwright/test';
 const headerHeight = (page: Page) =>
 	page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')));
 
-for (const route of ['/', '/world', '/information']) {
+for (const route of ['/', '/mundo', '/informacoes']) {
 	for (const width of [360, 1280]) {
 		test(`no horizontal scroll: ${route} at ${width} px`, async ({ page }) => {
 			await page.setViewportSize({ width, height: 800 });
@@ -112,6 +112,7 @@ test('the sub-tabs switch the view: ranking, regions, state, and back to the map
 	await expect(page.getByRole('heading', { name: 'Como cada região do Brasil mudou?' })).toBeVisible();
 	await page.getByRole('button', { name: 'Estado', exact: true }).click();
 	await expect(page.getByText('Escolha um estado para ver os detalhes.')).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Escolher estado' })).toBeVisible();
 	await page.getByRole('button', { name: 'Mapa', exact: true }).click();
 	await expect(page.locator('.map svg')).toBeVisible();
 });
@@ -173,12 +174,12 @@ test('the Censo and PNAD note is at the end of the Brazil tab, and the link to t
 });
 
 test('the world tab shows the highlight of Brazil in 2023', async ({ page }) => {
-	await page.goto('/world');
+	await page.goto('/mundo');
 	await expect(page.getByText('IDH global do Brasil em 2023: 0,786 – alto | 84º / 193 países')).toBeVisible();
 });
 
 test('the world tab takes five lines and warns on the sixth', async ({ page }) => {
-	await page.goto('/world');
+	await page.goto('/mundo');
 	const lines = page.locator('#compare svg path.line');
 	await expect(lines).toHaveCount(5);
 	await page.locator('button.chip', { hasText: 'Rússia' }).click();
@@ -188,15 +189,15 @@ test('the world tab takes five lines and warns on the sixth', async ({ page }) =
 });
 
 test('the world tab switches between the evolution and the ranking, and back', async ({ page }) => {
-	await page.goto('/world');
+	await page.goto('/mundo');
 	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
-	await expect(page.locator('section[aria-labelledby="ranking-title"] li.brazil')).toContainText('Brasil');
+	await expect(page.locator('.box li.brazil')).toContainText('Brasil');
 	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
 	await expect(page.locator('#compare svg path.line').first()).toBeVisible();
 });
 
 test('the world ranking lists every country, with Brazil in the middle of the list', async ({ page }) => {
-	await page.goto('/world');
+	await page.goto('/mundo');
 	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
 	await expect(page.locator('.box li')).toHaveCount(193);
 	const box = await page.locator('.box').boundingBox();
@@ -205,7 +206,7 @@ test('the world ranking lists every country, with Brazil in the middle of the li
 });
 
 test('Brazil stays pinned to the edge of the list: at the bottom before reaching it, at the top after passing it', async ({ page }) => {
-	await page.goto('/world');
+	await page.goto('/mundo');
 	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
 	const box = page.locator('.box');
 	const brazil = page.locator('.box li.brazil');
@@ -230,7 +231,7 @@ test('Brazil stays pinned to the edge of the list: at the bottom before reaching
 });
 
 test('the year selection changes the list and the title', async ({ page }) => {
-	await page.goto('/world');
+	await page.goto('/mundo');
 	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
 	await page.getByLabel('Ano').selectOption('2010');
 	await expect(page.getByRole('heading', { name: 'Posição no ranking de 2010' })).toBeVisible();
@@ -238,7 +239,7 @@ test('the year selection changes the list and the title', async ({ page }) => {
 });
 
 test('the observations of the world tab are an expandable section, with bold titles', async ({ page }) => {
-	await page.goto('/world');
+	await page.goto('/mundo');
 	const observations = page.locator('details.observations');
 	await expect(observations).not.toHaveAttribute('open', '');
 	await observations.locator('summary').click();
@@ -249,7 +250,7 @@ test('the observations of the world tab are an expandable section, with bold tit
 });
 
 test('the evolution of Brazil comes in analysis blocks, as in the Brazil tab', async ({ page }) => {
-	await page.goto('/world');
+	await page.goto('/mundo');
 	const current = page.locator('section.analysis .item:not([hidden])');
 	await expect(current).toHaveCount(1);
 	await expect(current.locator('h3')).toHaveText('Qual o ritmo do Brasil em relação ao mundo?');
@@ -258,11 +259,37 @@ test('the evolution of Brazil comes in analysis blocks, as in the Brazil tab', a
 });
 
 test('Information: the questions open and close', async ({ page }) => {
-	await page.goto('/information');
-	await expect(page.locator('details')).toHaveCount(10);
+	await page.goto('/informacoes');
+	await expect(page.locator('details')).toHaveCount(12);
 	await expect(page.locator('details[open]')).toHaveCount(1);
 	await page.locator('details').nth(1).locator('summary').click();
 	await expect(page.locator('details[open]')).toHaveCount(2);
+});
+
+test('Information: the questions go from the most asked to the most specific, and the bands are a table', async ({
+	page
+}) => {
+	await page.goto('/informacoes');
+	await expect(page.locator('details summary h2')).toHaveText([
+		'O que é o IDH?',
+		'O que é o IDHM?',
+		'O que significam as faixas?',
+		'O que medem a Longevidade, a Educação e a Renda?',
+		'Por que o valor do Brasil é diferente nas abas Brasil e Mundo?',
+		'Por que alguns anos não têm dado?',
+		'O que o IDH não mostra?',
+		'De onde vêm os dados?',
+		'Como as três dimensões viram um número só?',
+		'Como são calculadas as médias?',
+		'Como funcionam as posições no ranking?',
+		'O que é o BRICS original?'
+	]);
+	await expect(page.locator('details[open] summary h2')).toHaveText('O que é o IDH?');
+	await page.getByText('O que significam as faixas?').click();
+	const bands = page.getByRole('table', { name: 'Faixas do IDHM e do IDH global' });
+	await expect(bands.locator('tbody tr')).toHaveCount(5);
+	await expect(bands.getByRole('row', { name: /médio/ })).toContainText('0,600 a 0,699');
+	await expect(bands.getByRole('row', { name: /médio/ })).toContainText('0,550 a 0,699');
 });
 
 test('the theme button switches between light and dark, and keeps the choice after a reload', async ({ page }) => {
@@ -297,4 +324,99 @@ test('on a 360 px phone, the header tabs and the theme button do not overlap', a
 		links.filter((link) => link.scrollWidth > link.clientWidth + 1).map((link) => link.textContent?.trim())
 	);
 	expect(overflowing).toEqual([]);
+});
+
+test('an address that does not exist shows the error page, in Portuguese', async ({ page }) => {
+	await page.goto('/pagina-que-nao-existe');
+	await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible();
+	await expect(page.getByRole('link', { name: 'Voltar ao início' })).toBeVisible();
+});
+
+test('on a wide screen, the state chooser has its title and the select on the same line', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Estado', exact: true }).click();
+	const select = page.getByRole('combobox', { name: 'Escolher estado' });
+	await expect(select).toBeVisible();
+	const title = await page.getByRole('heading', { name: 'Escolher estado' }).boundingBox();
+	const selectBox = await select.boundingBox();
+	if (!title || !selectBox) throw new Error('the chooser is not visible');
+	expect(Math.abs(title.y + title.height / 2 - (selectBox.y + selectBox.height / 2))).toBeLessThan(8);
+});
+
+test('on a 360 px phone, the state chooser has the select under its title', async ({ page }) => {
+	await page.setViewportSize({ width: 360, height: 800 });
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Estado', exact: true }).click();
+	const select = page.getByRole('combobox', { name: 'Escolher estado' });
+	await expect(select).toBeVisible();
+	const title = await page.getByRole('heading', { name: 'Escolher estado' }).boundingBox();
+	const selectBox = await select.boundingBox();
+	if (!title || !selectBox) throw new Error('the chooser is not visible');
+	expect(selectBox.y).toBeGreaterThan(title.y + title.height - 1);
+});
+
+test('on a wide screen, the two groups of lines stay on the left half, one above the other', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/mundo');
+	const averages = page.getByRole('heading', { name: 'Médias', exact: true });
+	await expect(averages).toBeVisible();
+	const countries = page.getByRole('heading', { name: 'Países', exact: true });
+	const averagesBox = await averages.boundingBox();
+	const countriesBox = await countries.boundingBox();
+	if (!averagesBox || !countriesBox) throw new Error('the groups are not visible');
+	expect(averagesBox.x + averagesBox.width).toBeLessThan(640);
+	expect(countriesBox.x + countriesBox.width).toBeLessThan(640);
+	expect(countriesBox.y).toBeGreaterThan(averagesBox.y + averagesBox.height);
+});
+
+test('on a 360 px phone, the two groups of lines in the world tab are stacked', async ({ page }) => {
+	await page.setViewportSize({ width: 360, height: 800 });
+	await page.goto('/mundo');
+	const averages = page.getByRole('heading', { name: 'Médias', exact: true });
+	await expect(averages).toBeVisible();
+	const countries = page.getByRole('heading', { name: 'Países', exact: true });
+	const averagesBox = await averages.boundingBox();
+	const countriesBox = await countries.boundingBox();
+	if (!averagesBox || !countriesBox) throw new Error('the groups are not visible');
+	expect(countriesBox.y).toBeGreaterThan(averagesBox.y + averagesBox.height);
+});
+
+test('on a wide screen, the world ranking list is on the right half and its year on the left', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/mundo');
+	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
+	const year = page.getByLabel('Ano');
+	await expect(year).toBeVisible();
+	const list = page.getByRole('region', { name: /Países no ranking de/ });
+	await expect(list).toBeVisible();
+	const yearBox = await year.boundingBox();
+	const listBox = await list.boundingBox();
+	if (!yearBox || !listBox) throw new Error('the ranking is not visible');
+	expect(yearBox.x + yearBox.width).toBeLessThan(640);
+	expect(listBox.x).toBeGreaterThan(640);
+});
+
+test('the world ranking does not make the page longer than its content', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/mundo');
+	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
+	await expect(page.locator('.box li').first()).toBeVisible();
+	const height = await page.evaluate(() => document.documentElement.scrollHeight);
+	expect(height).toBeLessThan(1500);
+});
+
+test('on a wide screen, the map is on the right half and stays on the screen while the text scrolls', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 720 });
+	await page.goto('/');
+	const map = page.locator('.map');
+	await expect(map).toBeVisible();
+	const before = await map.boundingBox();
+	if (!before) throw new Error('the map is not visible');
+	expect(before.x).toBeGreaterThan(640);
+	await page.evaluate(() => window.scrollTo(0, 400));
+	await expect.poll(async () => (await map.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(0);
+	const after = await map.boundingBox();
+	if (!after) throw new Error('the map is not visible after scrolling');
+	expect(after.y + after.height).toBeLessThanOrEqual(720);
 });

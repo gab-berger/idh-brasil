@@ -3,7 +3,7 @@
 	import Note from '#lib/Note.svelte';
 	import LineChart from '#lib/charts/LineChart.svelte';
 	import { load } from '#lib/data';
-	import { BRAZIL_COLOR, DOMAINS, REGION_COLORS, REGIONS, YEARS } from '#lib/scales';
+	import { BRAZIL_COLOR, REGION_COLORS, REGIONS, VALUE_DOMAIN, YEARS } from '#lib/scales';
 	import { seriesOf } from '#lib/series';
 	import { store } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
@@ -64,7 +64,7 @@
 	{:else}
 		<LineChart
 			{series}
-			domainY={DOMAINS[store.measure]}
+			domainY={VALUE_DOMAIN}
 			years={[FIRST, LAST]}
 			xLabels={X_LABELS}
 			marker={store.year}

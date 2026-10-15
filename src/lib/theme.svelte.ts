@@ -2,7 +2,7 @@
  * Light or dark theme. Without a choice, the page follows the system; once the reader chooses, the choice is kept
  * in this browser. The inline script in app.html applies a saved choice before the first paint.
  */
-const KEY = 'dash-idh:theme';
+const KEY = 'idh-brasil:theme';
 
 export const theme = $state({ dark: false });
 

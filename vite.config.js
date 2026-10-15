@@ -13,7 +13,7 @@ export default defineConfig({
 
 			// Static site: the build writes ready HTML to build/ (GitHub Pages).
 			adapter: adapter(),
-			// BASE_PATH is set in CI (e.g. /dash-idh); in development it is empty.
+			// BASE_PATH is set in CI (e.g. /idh-brasil); in development it is empty.
 			paths: { base: /** @type {`/${string}` | ''} */ (process.env.BASE_PATH ?? ''), relative: false },
 			prerender: { entries: ['*'] }
 		})

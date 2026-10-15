@@ -3,6 +3,7 @@
 	import Analysis from '#lib/Analysis.svelte';
 	import States from '#lib/blocks/States.svelte';
 	import SiteTitle from '#lib/SiteTitle.svelte';
+	import Split from '#lib/Split.svelte';
 	import SubTabs from '#lib/SubTabs.svelte';
 	import { store } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
@@ -26,19 +27,29 @@
 </svelte:head>
 
 <SubTabs options={VIEWS} current={store.subtab} onChoose={(key) => (store.subtab = key)} label={t('subtabs.label')} />
-<SiteTitle />
 
-<States />
+<Split id="states">
+	{#snippet start()}
+		<SiteTitle />
+		<States part="start" />
+	{/snippet}
 
-<Analysis items={data.analyses} />
+	{#snippet visual()}
+		<States part="visual" />
+	{/snippet}
 
-<!-- The notes on each period, and last, the link to the world tab. -->
-<details class="notes">
-	<summary>{t('time.note.summary')}</summary>
-	<p>{t('note.survey_change')}</p>
-</details>
+	{#snippet end()}
+		<Analysis items={data.analyses} />
 
-<p class="follow"><a href={resolve('/world')}>{t('brazil.go_world')}</a></p>
+		<!-- The notes on each period, and last, the link to the world tab. -->
+		<details class="notes">
+			<summary>{t('time.note.summary')}</summary>
+			<p>{t('note.survey_change')}</p>
+		</details>
+
+		<p class="follow"><a href={resolve('/mundo')}>{t('brazil.go_world')}</a></p>
+	{/snippet}
+</Split>
 
 <style>
 	.notes {

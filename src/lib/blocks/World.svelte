@@ -9,6 +9,9 @@
 	import type { AverageRow, ChartSeries, CountryRow, LineStyle } from '#lib/types';
 	import LineSelector from './world/LineSelector.svelte';
 
+	// The page draws this block in two places on a wide screen: 'start' has the title and the lines to choose, 'visual' has the chart.
+	let { part }: { part: 'start' | 'visual' } = $props();
+
 	const DASH: Record<LineStyle, string | undefined> = { solid: undefined, dashed: '8 5', dotted: '2 4' };
 	const DOMAIN_Y: [number, number] = [0.4, 0.95];
 	const YEAR_RANGE: [number, number] = [1990, 2023];
@@ -19,6 +22,7 @@
 
 	// The data is read only in the browser: during the build, the page comes out with the text of the tab, without the chart.
 	onMount(() => {
+		if (part === 'start') return;
 		Promise.all([load<CountryRow[]>('hdi_countries.json'), load<AverageRow[]>('averages.json')])
 			.then(([loadedCountries, loadedAverages]) => {
 				countries = loadedCountries;
@@ -52,24 +56,27 @@
 	});
 </script>
 
-<section id="compare" class="compare" aria-labelledby="compare-title">
+{#if part === 'start'}
 	<h2 id="compare-title">{t('world.title')}</h2>
-	{#if error}
-		<p role="alert">{t('error.load')}</p>
-	{:else if series.length === 0}
-		<p>{t('loading')}</p>
-	{:else}
-		<LineSelector />
-		<LineChart
-			{series}
-			domainY={DOMAIN_Y}
-			years={YEAR_RANGE}
-			xLabels={[1990, 2000, 2010, 2023]}
-			description={t('world.chart.label')}
-			tableCaption={t('world.chart.table')}
-		/>
-	{/if}
-</section>
+	<LineSelector />
+{:else}
+	<section id="compare" class="compare" aria-labelledby="compare-title">
+		{#if error}
+			<p role="alert">{t('error.load')}</p>
+		{:else if series.length === 0}
+			<p>{t('loading')}</p>
+		{:else}
+			<LineChart
+				{series}
+				domainY={DOMAIN_Y}
+				years={YEAR_RANGE}
+				xLabels={[1990, 2000, 2010, 2023]}
+				description={t('world.chart.label')}
+				tableCaption={t('world.chart.table')}
+			/>
+		{/if}
+	</section>
+{/if}
 
 <style>
 	h2 {

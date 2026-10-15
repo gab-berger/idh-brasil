@@ -5,7 +5,7 @@
 import { LINE_COLORS, MAX_LINES, YEARS } from './scales';
 import type { Action, Measure, SubTab } from './types';
 
-const COLORBLIND_KEY = 'dash-idh:colorblind';
+const COLORBLIND_KEY = 'idh-brasil:colorblind';
 
 /** Preference saved in this browser. Without storage (private browsing, blocked data), the default applies. */
 function readColorblind(): boolean {
@@ -22,6 +22,8 @@ export const store = $state({
 	measure: 'idhm' as Measure,
 	selectedCode: null as string | null,
 	subtab: 'map' as SubTab,
+	/** Year of the world ranking, shared by its controls and its list. Null until the data is read. */
+	worldRankingYear: null as number | null,
 	/** Colorblind palette on (see mapColor). */
 	colorblind: readColorblind(),
 	playing: false,

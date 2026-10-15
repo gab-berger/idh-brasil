@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { interpolateRdYlBu, interpolateYlGnBu, rgb } from 'd3';
 import { expect, test } from 'vitest';
-import { BRAZIL_COLOR, DIMENSION_COLORS, DOMAINS, hdiBand, idhmBand, LINE_COLORS, mapColor, positionInDomain, REGION_COLORS, YEARS } from './scales';
-import type { Measure, StateRow } from './types';
+import { BRAZIL_COLOR, DIMENSION_COLORS, hdiBand, idhmBand, LINE_COLORS, MEASURES, mapColor, positionInDomain, REGION_COLORS, VALUE_DOMAIN, YEARS } from './scales';
+import { t } from './texts';
+import type { HdiBand, IdhmBand, StateRow } from './types';
 
 const stateData = JSON.parse(
 	readFileSync(new URL('../../data/ready/idhm_states.json', import.meta.url), 'utf-8')
@@ -56,8 +57,9 @@ test('16 years with data: no 2011, with 2010 and 2012', () => {
 	expect(YEARS[YEARS.length - 1]).toBe(2024);
 });
 
-test('the fixed domains cover every value of the series', () => {
-	for (const [measure, [min, max]] of Object.entries(DOMAINS) as [Measure, [number, number]][]) {
+test('the one scale covers every value of the four measures', () => {
+	const [min, max] = VALUE_DOMAIN;
+	for (const measure of MEASURES) {
 		const values = stateData.map((row) => row[measure]);
 		expect(Math.min(...values)).toBeGreaterThanOrEqual(min);
 		expect(Math.max(...values)).toBeLessThanOrEqual(max);
@@ -65,19 +67,19 @@ test('the fixed domains cover every value of the series', () => {
 });
 
 test('the default palette goes from red (lowest value) to blue (highest value), and stops at the edges', () => {
-	expect(mapColor('idhm')(0.35)).toBe(interpolateRdYlBu(0));
-	expect(mapColor('idhm')(0.9)).toBe(interpolateRdYlBu(1));
-	expect(mapColor('idhm')(0.2)).toBe(interpolateRdYlBu(0));
-	const low = rgb(mapColor('idhm')(0.35));
-	const high = rgb(mapColor('idhm')(0.9));
+	expect(mapColor()(0.15)).toBe(interpolateRdYlBu(0));
+	expect(mapColor()(0.95)).toBe(interpolateRdYlBu(1));
+	expect(mapColor()(0.1)).toBe(interpolateRdYlBu(0));
+	const low = rgb(mapColor()(0.2));
+	const high = rgb(mapColor()(0.9));
 	expect(low.r).toBeGreaterThan(low.b);
 	expect(high.b).toBeGreaterThan(high.r);
 });
 
 test('the colorblind palette is yellow, green and blue, and it changes the map color', () => {
-	expect(mapColor('idhm', true)(0.35)).toBe(interpolateYlGnBu(0));
-	expect(mapColor('idhm', true)(0.9)).toBe(interpolateYlGnBu(1));
-	expect(mapColor('idhm', true)(0.9)).not.toBe(mapColor('idhm')(0.9));
+	expect(mapColor(true)(0.15)).toBe(interpolateYlGnBu(0));
+	expect(mapColor(true)(0.95)).toBe(interpolateYlGnBu(1));
+	expect(mapColor(true)(0.9)).not.toBe(mapColor()(0.9));
 });
 
 test('every line, dimension and region color has a 3:1 contrast or more on white', () => {
@@ -92,10 +94,38 @@ test('every line, dimension and region color has a 3:1 contrast or more on white
 	}
 });
 
-test('position in the domain: 0 at the minimum, 1 at the maximum, never outside 0 to 1', () => {
-	expect(positionInDomain(0.35, DOMAINS.idhm)).toBe(0);
-	expect(positionInDomain(0.9, DOMAINS.idhm)).toBe(1);
-	expect(positionInDomain(0.625, DOMAINS.idhm)).toBeCloseTo(0.5);
-	expect(positionInDomain(0.2, DOMAINS.idhm)).toBe(0);
-	expect(positionInDomain(1, DOMAINS.idhm)).toBe(1);
+test('position in the scale: 0 at the minimum, 1 at the maximum, never outside 0 to 1', () => {
+	expect(positionInDomain(0.15, VALUE_DOMAIN)).toBe(0);
+	expect(positionInDomain(0.95, VALUE_DOMAIN)).toBe(1);
+	expect(positionInDomain(0.55, VALUE_DOMAIN)).toBeCloseTo(0.5);
+	expect(positionInDomain(0.1, VALUE_DOMAIN)).toBe(0);
+	expect(positionInDomain(1, VALUE_DOMAIN)).toBe(1);
+});
+
+/** Lowest and highest value of a band, as the Informações page writes it: "0,500 a 0,599", "abaixo de 0,550", "0,800 ou mais". */
+function bandLimits(text: string): [number, number] {
+	const numbers = (text.match(/\d+(,\d+)?/g) ?? []).map((n) => Number(n.replace(',', '.')));
+	if (text.startsWith('abaixo de')) return [0, numbers[0] - 0.001];
+	if (text.endsWith('ou mais')) return [numbers[0], 1];
+	return [numbers[0], numbers[1]];
+}
+
+test('the band table of the Informações page agrees with the band functions, with no gap between bands', () => {
+	const idhmBands: IdhmBand[] = ['very_low', 'low', 'medium', 'high', 'very_high'];
+	const idhmLimits = idhmBands.map((band) => bandLimits(t(`about.bands.idhm.${band}`)));
+	idhmBands.forEach((band, i) => {
+		expect(idhmBand(idhmLimits[i][0])).toBe(band);
+		expect(idhmBand(idhmLimits[i][1])).toBe(band);
+	});
+	const hdiBands: HdiBand[] = ['low', 'medium', 'high', 'very_high'];
+	const hdiLimits = hdiBands.map((band) => bandLimits(t(`about.bands.hdi.${band}`)));
+	hdiBands.forEach((band, i) => {
+		expect(hdiBand(hdiLimits[i][0])).toBe(band);
+		expect(hdiBand(hdiLimits[i][1])).toBe(band);
+	});
+	for (const limits of [idhmLimits, hdiLimits]) {
+		expect(limits[0][0]).toBe(0);
+		expect(limits[limits.length - 1][1]).toBe(1);
+		for (let i = 1; i < limits.length; i++) expect(limits[i][0]).toBeCloseTo(limits[i - 1][1] + 0.001);
+	}
 });

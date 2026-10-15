@@ -2,30 +2,34 @@
 	import { onMount } from 'svelte';
 	import { load } from '#lib/data';
 	import { num, position } from '#lib/format';
+	import { store } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
 	import { rankingOfYear } from '#lib/world';
 	import type { RankingYears } from '#lib/types';
+
+	// The page draws this block in two places on a wide screen: 'start' has the title, the year and the total; 'visual' has the list.
+	let { part }: { part: 'start' | 'visual' } = $props();
 
 	// Height of each row, in px (the same as in the CSS). With it, Brazil falls in the middle of the box.
 	const ROW_HEIGHT = 36;
 
 	let data = $state.raw<RankingYears | null>(null);
 	let error = $state(false);
-	let year = $state(2023);
 	let box: HTMLElement | undefined = $state();
 
-	// The data is read in the browser. The list starts at the last year of the set.
+	// The data is read in the browser. The list starts at the last year of the set. The year lives in the store, because both places use it.
 	onMount(() => {
 		load<RankingYears>('ranking_years.json')
 			.then((loaded) => {
+				store.worldRankingYear ??= loaded.years[loaded.years.length - 1];
 				data = loaded;
-				year = loaded.years[loaded.years.length - 1];
 			})
 			.catch(() => (error = true));
 	});
 
 	const years = $derived(data?.years ?? []);
-	const rows = $derived(data ? rankingOfYear(data, year) : []);
+	const year = $derived(store.worldRankingYear ?? 0);
+	const rows = $derived(data && store.worldRankingYear !== null ? rankingOfYear(data, store.worldRankingYear) : []);
 	const yearIndex = $derived(years.indexOf(year));
 	const brazilIndex = $derived(rows.findIndex((row) => row.isBrazil));
 
@@ -37,60 +41,84 @@
 
 	function step(delta: number): void {
 		const next = years[yearIndex + delta];
-		if (next !== undefined) year = next;
+		if (next !== undefined) store.worldRankingYear = next;
 	}
 </script>
 
-{#if error}
+{#if part === 'start'}
+	{#if data && store.worldRankingYear !== null}
+		<section aria-labelledby="ranking-title">
+			<div class="head">
+				<h2 id="ranking-title">{t('world.ranking.title', { year })}</h2>
+
+				<div class="controls">
+					<label class="year">
+						<span>{t('world.ranking.year')}</span>
+						<select bind:value={store.worldRankingYear}>
+							{#each years as option (option)}
+								<option value={option}>{option}</option>
+							{/each}
+						</select>
+					</label>
+					<div class="steps">
+						<button type="button" onclick={() => step(-1)} disabled={yearIndex <= 0}>{t('time.previous')}</button>
+						<button type="button" onclick={() => step(1)} disabled={yearIndex >= years.length - 1}>
+							{t('time.next')}
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<p class="total">{t('world.ranking.total', { n: rows.length, year })}</p>
+		</section>
+	{/if}
+{:else if error}
 	<p role="alert">{t('error.load')}</p>
-{:else if !data}
+{:else if !data || store.worldRankingYear === null}
 	<p>{t('loading')}</p>
 {:else}
-	<section aria-labelledby="ranking-title">
-		<h2 id="ranking-title">{t('world.ranking.title', { year })}</h2>
+	<!-- The box scrolls, so it takes keyboard focus, for readers who do not use a mouse. -->
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+	<div class="box" bind:this={box} role="region" tabindex="0" aria-label={t('world.ranking.label', { year })}>
+		<ol>
+			{#each rows as row (row.iso3)}
+				<li class:brazil={row.isBrazil}>
+					<span class="position">{#if row.tie}<span aria-hidden="true">=</span><span class="sr-only">{t('world.ranking.tie')} </span>{/if}{position(row.position)}</span>
+					<span class="name">
+						{row.name}
+					</span>
+					<span class="value">{num(row.hdi)}</span>
+				</li>
+			{/each}
+		</ol>
+	</div>
 
-		<div class="controls">
-			<label class="year">
-				<span>{t('world.ranking.year')}</span>
-				<select bind:value={year}>
-					{#each years as option (option)}
-						<option value={option}>{option}</option>
-					{/each}
-				</select>
-			</label>
-			<div class="steps">
-				<button type="button" onclick={() => step(-1)} disabled={yearIndex <= 0}>{t('time.previous')}</button>
-				<button type="button" onclick={() => step(1)} disabled={yearIndex >= years.length - 1}>
-					{t('time.next')}
-				</button>
-			</div>
-		</div>
-
-		<p class="total">{t('world.ranking.total', { n: rows.length, year })}</p>
-
-		<!-- The box scrolls, so it takes keyboard focus, for readers who do not use a mouse. -->
-		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-		<div class="box" bind:this={box} role="region" tabindex="0" aria-label={t('world.ranking.label', { year })}>
-			<ol>
-				{#each rows as row (row.iso3)}
-					<li class:brazil={row.isBrazil}>
-						<span class="position">{#if row.tie}<span aria-hidden="true">=</span><span class="sr-only">{t('world.ranking.tie')} </span>{/if}{position(row.position)}</span>
-						<span class="name">
-							{row.name}
-						</span>
-						<span class="value">{num(row.hdi)}</span>
-					</li>
-				{/each}
-			</ol>
-		</div>
-
-		<p class="note">{t('world.ranking.note')}</p>
-	</section>
+	<p class="note">{t('world.ranking.note')}</p>
 {/if}
 
 <style>
 	section {
 		max-width: var(--text-width);
+	}
+
+	/* On a wide screen, the title and the year choice sit on the same line when there is room; otherwise they wrap. */
+	@media (min-width: 960px) {
+		.head {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0 24px;
+			margin: 36px 0 8px;
+		}
+
+		.head h2 {
+			margin: 0;
+		}
+
+		.head .controls {
+			margin: 0;
+		}
 	}
 
 	.controls {
@@ -150,8 +178,9 @@
 		color: var(--text-soft);
 	}
 
-	/* Eleven rows high: the list scrolls inside the box, and Brazil stays pinned to the edge. */
+	/* Eleven rows high: the list scrolls inside the box, and Brazil stays pinned to the edge. The box is also the frame of the text for screen readers in the rows, so that text cannot stretch the page. */
 	.box {
+		position: relative;
 		height: 396px;
 		overflow-y: auto;
 		overscroll-behavior: contain;

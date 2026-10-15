@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { num, position } from '#lib/format';
 	import { positions } from '#lib/ranking';
-	import { DOMAINS, mapColor, positionInDomain } from '#lib/scales';
+	import { mapColor, positionInDomain, VALUE_DOMAIN } from '#lib/scales';
 	import { store, toggleState } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
 	import type { StateRow } from '#lib/types';
 
 	let { rows, brazil }: { rows: StateRow[]; brazil?: StateRow } = $props();
 
-	// Bars on the fixed scale of the measure (the same as the map): the distance between states shows in the length.
-	const domain = $derived(DOMAINS[store.measure]);
-	const color = $derived(mapColor(store.measure, store.colorblind));
+	// Bars on the scale shared by every metric and by the map: the same length is the same value in each metric.
+	const domain = VALUE_DOMAIN;
+	const color = $derived(mapColor(store.colorblind));
 	const positionOf = $derived(positions(rows, store.measure));
 	const sorted = $derived([...rows].sort((a, b) => b[store.measure] - a[store.measure]));
 	const brazilValue = $derived(brazil?.[store.measure]);

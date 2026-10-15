@@ -1,31 +1,31 @@
-# Dash IDH
+# IDH Brasil
 
-A site with the IDH and the IDHM of Brazil: the 27 states from 1991 to 2024, and Brazil's evolution in the global HDI from 1990 to 2023, compared with regional averages, the BRICS and some countries. The copy on the site is in Portuguese; the code is in English.
+Site com o IDH e o IDHM do Brasil: os 27 estados de 1991 a 2024 e a evolução do Brasil no IDH global de 1990 a 2023, comparada com as médias dos continentes, o BRICS e alguns países. O texto do site está em português; o código, em inglês.
 
-The specification and the implementation plan are kept in a private support repository, outside this one.
+A especificação e o plano de implementação ficam em um repositório privado de apoio, fora deste.
 
-## Running it
+## Como rodar
 
-Requirements: Node 22.17 or newer, and Python 3.
+Requisitos: Node 22.17 ou mais novo, e Python 3.
 
 ```sh
 npm install
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # only to generate the data
-npm run data       # reads data/raw and writes data/ready (with checks.txt)
-npm run dev        # local site
-npm run build      # writes build/ (refuses to continue if checks.txt has a FAIL line)
-npm run test       # unit and end-to-end tests
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # só para gerar os dados
+npm run data       # lê data/raw e escreve data/ready (com checks.txt)
+npm run dev        # site local
+npm run build      # gera build/ (recusa continuar se o checks.txt tiver uma linha FAIL)
+npm run test       # testes unitários e de ponta a ponta
 ```
 
-## Data
+## Dados
 
-`data/ready/` is what the site publishes, and it is tracked in git. The sources and licenses are in `data/ready/sources.json`.
+`data/ready/` é o que o site publica, e está no git. As fontes e as licenças estão em `data/ready/sources.json`.
 
-`data/raw/` is not tracked in git (see `.gitignore`). To generate `data/ready/` again, put these official files there, unedited:
+`data/raw/` não entra no git (veja `.gitignore`). Para gerar `data/ready/` de novo, coloque lá estes arquivos oficiais, sem alterações:
 
-- `atlas_data.xlsx`: Atlas do Desenvolvimento Humano no Brasil (UNDP, Ipea and FJP), state IDHM
-- `HDR25_Composite_indices_complete_time_series.csv`: Human Development Report 2025 (UNDP), composite series
-- `UNSD — Methodology.csv`: UN M49 classification
-- `BR_UF_2024.zip`: territorial map of the states, 2024 (IBGE)
+- `atlas_data.xlsx`: Atlas do Desenvolvimento Humano no Brasil (PNUD, Ipea e FJP), IDHM dos estados
+- `HDR25_Composite_indices_complete_time_series.csv`: Relatório de Desenvolvimento Humano 2025 (PNUD), série composta
+- `UNSD — Methodology.csv`: classificação M49 da ONU
+- `BR_UF_2024.zip`: malha territorial dos estados, 2024 (IBGE)
 
-The source URLs are in `data/ready/sources.json`.
+As URLs das fontes estão em `data/ready/sources.json`.

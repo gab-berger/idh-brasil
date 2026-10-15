@@ -21,8 +21,10 @@
 	const box = $derived(path.bounds(collection));
 	const boxWidth = $derived(box[1][0] - box[0][0]);
 	const boxHeight = $derived(box[1][1] - box[0][1]);
+	// Width over height of the drawing: the box around the map keeps these proportions, so the DF pin lands on the right place.
+	const ratio = $derived(boxWidth / boxHeight);
 
-	const color = $derived(mapColor(store.measure, store.colorblind));
+	const color = $derived(mapColor(store.colorblind));
 	const byState = $derived(new Map(rows.map((row) => [row.code, row] as const)));
 	const positionOf = $derived(positions(rows, store.measure));
 	const shapes = $derived(
@@ -66,7 +68,7 @@
 	const viewBox = $derived(`${box[0][0]} ${box[0][1]} ${boxWidth} ${boxHeight}`);
 </script>
 
-<div class="map">
+<div class="map" style:--ratio={ratio}>
 	<svg {viewBox} role="group" aria-label={t('map.label', { measure: t(`measure.${store.measure}`), year: store.year })}>
 		{#each shapes as shape (shape.code)}
 			{@const value = valueOf(shape.code)}
@@ -101,14 +103,27 @@
 </div>
 
 <style>
+	/* The box has the proportions of the drawing, so the percentages of the DF pin land on the right place. */
 	.map {
 		position: relative;
+		width: 100%;
+		aspect-ratio: var(--ratio);
 	}
 
 	svg {
+		position: absolute;
+		inset: 0;
 		display: block;
 		width: 100%;
-		height: auto;
+		height: 100%;
+	}
+
+	/* On a wide screen the map fits the height of its half, and the legend takes the space below it. */
+	@media (min-width: 1024px) {
+		.map {
+			width: min(100%, calc((var(--visual-height) - 96px) * var(--ratio)));
+			margin: 0 auto;
+		}
 	}
 
 	path {
