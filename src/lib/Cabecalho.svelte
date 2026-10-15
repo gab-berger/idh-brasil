@@ -2,10 +2,11 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { ABAS } from '#lib/navegacao';
+	import { rolagem } from '#lib/rolagem.svelte';
 	import { t } from '#lib/textos';
 </script>
 
-<header class="cabecalho">
+<header class="cabecalho" class:oculto={rolagem.oculto}>
 	<div class="conteudo">
 		<a class="marca" href={resolve('/')}>{t('site.marca')}</a>
 		<nav aria-label={t('navegacao.rotulo')}>
@@ -32,6 +33,16 @@
 		height: var(--altura-menu);
 		background: var(--fundo);
 		border-bottom: 1px solid var(--linha);
+		transition: transform 200ms ease;
+	}
+
+	/* Ao descer a página, o cabeçalho sai da tela; ao subir, volta. Com o foco dentro dele, fica visível. */
+	.cabecalho.oculto {
+		transform: translateY(-100%);
+	}
+
+	.cabecalho.oculto:focus-within {
+		transform: none;
 	}
 
 	.conteudo {
@@ -46,8 +57,8 @@
 	}
 
 	.marca {
-		flex: none;
 		display: flex;
+		flex: none;
 		align-items: center;
 		height: 100%;
 		color: var(--texto);

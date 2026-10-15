@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-// Critérios de aceite que dá para checar no navegador: as três páginas, o mapa na primeira tela, as sub-abas,
-// a ordem dos controles, o destaque do Brasil, o detalhe do estado na sua aba, o carrossel, o Tocar, o limite de
-// linhas da aba Mundo, as perguntas em Informações e a nota do Censo e da PNAD no fim da aba Brasil.
+// Critérios de aceite que dá para checar no navegador: as três páginas, o mapa na primeira tela, as sub-abas e o
+// cabeçalho que some ao descer, a ordem dos controles, o destaque do Brasil, o detalhe do estado na sua aba, o
+// carrossel, o Tocar, o limite de linhas da aba Mundo, as perguntas em Informações e a ordem do fim da aba Brasil.
 
 for (const rota of ['/', '/mundo', '/informacoes']) {
 	for (const largura of [360, 1280]) {
@@ -21,6 +21,18 @@ test('no celular, o mapa começa na primeira tela', async ({ page }) => {
 	await page.goto('/');
 	const topo = await page.locator('.mapa svg').evaluate((svg) => svg.getBoundingClientRect().top);
 	expect(topo).toBeLessThan(844);
+});
+
+test('ao descer a página, o cabeçalho e as sub-abas somem; ao subir, voltam', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/');
+	await page.waitForSelector('.mapa svg path');
+	await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+	await expect(page.locator('header.cabecalho')).toHaveClass(/oculto/);
+	await expect(page.locator('.subabas')).toHaveClass(/oculto/);
+	await page.evaluate(() => window.scrollBy(0, -400));
+	await expect(page.locator('header.cabecalho')).not.toHaveClass(/oculto/);
+	await expect(page.locator('.subabas')).not.toHaveClass(/oculto/);
 });
 
 test('a ordem da aba Brasil: sub-abas, seleção de medida e depois o tempo', async ({ page }) => {
@@ -44,6 +56,7 @@ test('escolher um estado no mapa leva ao detalhe na aba Estado', async ({ page }
 	await page.getByRole('button', { name: 'Ver detalhes' }).click();
 	await expect(page.getByRole('button', { name: 'Estado', exact: true })).toHaveAttribute('aria-pressed', 'true');
 	await expect(page.getByRole('heading', { name: 'Maranhão' })).toBeVisible();
+	await expect(page.getByText('0,745 – alto | 27º / 27 estados')).toBeVisible();
 });
 
 test('as sub-abas trocam a vista: ranking, regiões, estado e volta ao mapa', async ({ page }) => {
@@ -76,11 +89,13 @@ test('o botão Tocar liga e desliga a animação', async ({ page }) => {
 	await expect(tocar).toHaveAttribute('aria-pressed', 'false');
 });
 
-test('a nota do Censo e da PNAD fica no fim da aba Brasil', async ({ page }) => {
+test('a nota do Censo e da PNAD fica no fim da aba Brasil, e o link para o Mundo é o último item', async ({ page }) => {
 	await page.goto('/');
-	const nota = await page.locator('details.nota-pesquisa').boundingBox();
 	const analises = await page.locator('section.analises').boundingBox();
+	const nota = await page.locator('details.nota-pesquisa').boundingBox();
+	const link = await page.getByRole('link', { name: 'Ver o Brasil no mundo →' }).boundingBox();
 	expect(nota!.y).toBeGreaterThan(analises!.y);
+	expect(link!.y).toBeGreaterThan(nota!.y);
 });
 
 test('a aba Mundo aceita cinco linhas e avisa na sexta', async ({ page }) => {

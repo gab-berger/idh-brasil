@@ -17,26 +17,15 @@
 
 <Analises itens={data.analises} />
 
-<p class="seguir"><a href={resolve('/mundo')}>{t('brasil.ir_mundo')}</a></p>
-
-<!-- Último item da página: de onde vêm os dados de cada período. -->
+<!-- Os dados de cada período, e por último o link para a aba Mundo. -->
 <details class="nota-pesquisa">
 	<summary>{t('tempo.nota.resumo')}</summary>
 	<p>{t('nota.troca_pesquisa')}</p>
 </details>
 
+<p class="seguir"><a href={resolve('/mundo')}>{t('brasil.ir_mundo')}</a></p>
+
 <style>
-	.seguir {
-		margin: 40px 0 0;
-	}
-
-	.seguir a {
-		display: inline-flex;
-		align-items: center;
-		color: var(--destaque);
-		font-weight: 600;
-	}
-
 	.nota-pesquisa {
 		margin-top: 32px;
 		font-size: 0.9rem;
@@ -50,5 +39,16 @@
 
 	.nota-pesquisa p {
 		margin: 0 0 8px;
+	}
+
+	.seguir {
+		margin: 24px 0 0;
+	}
+
+	.seguir a {
+		display: inline-flex;
+		align-items: center;
+		color: var(--destaque);
+		font-weight: 600;
 	}
 </style>

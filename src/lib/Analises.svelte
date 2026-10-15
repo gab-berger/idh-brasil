@@ -101,7 +101,8 @@
 	}
 
 	.controles button {
-		min-height: 44px;
+		position: relative;
+		min-height: 34px;
 		padding: 0 12px;
 		border: 1px solid var(--linha);
 		border-radius: 6px;
@@ -109,6 +110,12 @@
 		color: var(--texto);
 		font: inherit;
 		font-size: 0.9rem;
+	}
+
+	.controles button::after {
+		content: '';
+		position: absolute;
+		inset: -5px 0;
 	}
 
 	.posicao {
@@ -138,8 +145,16 @@
 		margin: 0;
 	}
 
+	.ver::after {
+		content: '';
+		position: absolute;
+		inset: -5px 0;
+	}
+
 	.ver {
 		margin-top: 10px;
+		position: relative;
+		min-height: 34px;
 		padding: 0 14px;
 		border: 1px solid var(--destaque);
 		border-radius: 6px;

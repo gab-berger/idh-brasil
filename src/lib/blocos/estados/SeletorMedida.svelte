@@ -22,7 +22,8 @@
 
 	button {
 		flex: 1 1 auto;
-		min-height: 44px;
+		position: relative;
+		min-height: 34px;
 		padding: 0 6px;
 		border: 1px solid var(--linha);
 		border-radius: 6px;
@@ -31,6 +32,12 @@
 		font: inherit;
 		font-size: 0.875rem;
 		white-space: nowrap;
+	}
+
+	button::after {
+		content: '';
+		position: absolute;
+		inset: -5px 0;
 	}
 
 	button[aria-pressed='true'] {

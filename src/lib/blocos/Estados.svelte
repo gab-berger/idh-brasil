@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { carregar } from '#lib/dados';
 	import { estado } from '#lib/estado.svelte';
+	import { rolagem } from '#lib/rolagem.svelte';
 	import { textoResumo } from '#lib/resumo';
 	import { linhaUf, ufsDoAno } from '#lib/series';
 	import { t } from '#lib/textos';
@@ -9,7 +10,7 @@
 	import Regioes from './Regioes.svelte';
 	import ControleTempo from './estados/ControleTempo.svelte';
 	import EscolherEstado from './estados/EscolherEstado.svelte';
-	import Gaveta from './estados/Gaveta.svelte';
+	import EstadoDetalhe from './estados/EstadoDetalhe.svelte';
 	import Legenda from './estados/Legenda.svelte';
 	import Mapa from './estados/Mapa.svelte';
 	import Ranking from './estados/Ranking.svelte';
@@ -43,7 +44,7 @@
 	{:else if !uf || !topo}
 		<p>{t('carregando')}</p>
 	{:else}
-		<div class="subabas" role="group" aria-label={t('subabas.rotulo')}>
+		<div class="subabas" class:oculto={rolagem.oculto} role="group" aria-label={t('subabas.rotulo')}>
 			{#each SUBABAS as aba (aba)}
 				<button type="button" aria-pressed={estado.subaba === aba} onclick={() => (estado.subaba = aba)}>
 					{t(`subabas.${aba}`)}
@@ -51,11 +52,13 @@
 			{/each}
 		</div>
 
-		<SeletorMedida />
+		{#if estado.subaba !== 'estado'}
+			<SeletorMedida />
+		{/if}
 
 		<ControleTempo />
 
-		{#if linhaBrasil}
+		{#if linhaBrasil && estado.subaba !== 'estado'}
 			<p class="destaque">{textoResumo(linhaBrasil, estado.medida)}</p>
 		{/if}
 
@@ -78,7 +81,7 @@
 			<div class="vista vista-estado">
 				<EscolherEstado linhas={linhasAno} />
 				{#if estado.ufSelecionada}
-					<Gaveta linhas={linhasAno} />
+					<EstadoDetalhe uf={uf ?? []} linhas={linhasAno} />
 				{:else}
 					<p class="vazio">{t('gaveta.vazio')}</p>
 				{/if}
@@ -88,11 +91,26 @@
 </div>
 
 <style>
-	/* As sub-abas são blocos: o escolhido fica azul inteiro, com o texto branco. */
+	/* As sub-abas ficam fixas abaixo do cabeçalho. Ao descer, somem junto com ele; ao subir, voltam. */
 	.subabas {
+		position: sticky;
+		top: var(--altura-menu);
+		z-index: 9;
 		display: flex;
 		gap: 6px;
-		margin: 0 0 12px;
+		margin: 0 calc(-1 * var(--gutter)) 12px;
+		padding: 8px var(--gutter);
+		border-bottom: 1px solid var(--linha);
+		background: var(--fundo);
+		transition: transform 200ms ease;
+	}
+
+	.subabas.oculto {
+		transform: translateY(calc(-100% - var(--altura-menu)));
+	}
+
+	.subabas.oculto:focus-within {
+		transform: none;
 	}
 
 	.subabas button {
@@ -116,6 +134,7 @@
 
 	.destaque {
 		margin: 4px 0 12px;
+		text-align: center;
 		font-weight: 600;
 		font-variant-numeric: tabular-nums;
 	}
