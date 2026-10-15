@@ -5,6 +5,7 @@ build/
 test-results/
 playwright-report/
 static/dados/
+dados/brutos/
 .venv/
 __pycache__/
 .DS_Store
