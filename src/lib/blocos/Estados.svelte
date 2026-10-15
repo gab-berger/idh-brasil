@@ -5,7 +5,8 @@
 	import { textoExtremos, textoResumo } from '#lib/resumo';
 	import { linhaUf, ufsDoAno } from '#lib/series';
 	import { t } from '#lib/textos';
-	import type { LinhaUf, MapaTopo } from '#lib/tipos';
+	import type { LinhaUf, MapaTopo, Subaba } from '#lib/tipos';
+	import Regioes from './Regioes.svelte';
 	import BotaoTocar from './estados/BotaoTocar.svelte';
 	import ControleTempo from './estados/ControleTempo.svelte';
 	import EscolherEstado from './estados/EscolherEstado.svelte';
@@ -17,6 +18,9 @@
 
 	/** Frases dos anos com texto próprio (1991, 2010 e 2024), calculadas no build. */
 	let { frases }: { frases: Record<number, string> } = $props();
+
+	/** As sub-abas, na ordem em que aparecem. */
+	const SUBABAS: Subaba[] = ['mapa', 'ranking', 'regioes'];
 
 	let uf: LinhaUf[] | null = $state.raw(null);
 	let topo: MapaTopo | null = $state.raw(null);
@@ -46,40 +50,46 @@
 	{:else if !uf || !topo}
 		<p>{t('carregando')}</p>
 	{:else}
-		<div class="topo">
-			<SeletorMedida />
-			<div class="resumo">
-				{#if linhaBrasil}
-					<p>{textoResumo(linhaBrasil, estado.medida)}</p>
+		<div class="subabas" role="group" aria-label={t('subabas.rotulo')}>
+			{#each SUBABAS as aba (aba)}
+				<button type="button" aria-pressed={estado.subaba === aba} onclick={() => (estado.subaba = aba)}>
+					{t(`subabas.${aba}`)}
+				</button>
+			{/each}
+		</div>
+
+		<div class="resumo">
+			{#if linhaBrasil}
+				<p>{textoResumo(linhaBrasil, estado.medida)}</p>
+			{/if}
+			<BotaoTocar />
+		</div>
+
+		<!-- A ordem do HTML é a do celular: o conteúdo e depois a ficha. No computador, a ficha fica ao lado. -->
+		<div class="conteudo" class:sem-ficha={estado.subaba === 'regioes'}>
+			<div class="principal">
+				{#if estado.subaba === 'mapa'}
+					<Mapa {topo} linhas={linhasAno} />
+					<Legenda />
+					<p class="frase">{frase}</p>
+				{:else if estado.subaba === 'ranking'}
+					<Ranking linhas={linhasAno} brasil={linhaBrasil} />
+				{:else}
+					<Regioes />
 				{/if}
-				<BotaoTocar />
+				<SeletorMedida />
 			</div>
-		</div>
 
-		<div class="vista" role="group" aria-label={t('vista.rotulo')}>
-			<button type="button" aria-pressed={estado.vista === 'mapa'} onclick={() => (estado.vista = 'mapa')}>
-				{t('vista.mapa')}
-			</button>
-			<button type="button" aria-pressed={estado.vista === 'ranking'} onclick={() => (estado.vista = 'ranking')}>
-				{t('vista.ranking')}
-			</button>
-		</div>
-
-		<!-- A ordem do HTML é a do celular (mapa ou ranking, depois a ficha). No computador, o mapa fica à esquerda,
-		     o ranking à direita e a ficha embaixo do mapa. -->
-		<div class="painel" class:ver-ranking={estado.vista === 'ranking'}>
-			<div class="area-mapa">
-				<Mapa {topo} linhas={linhasAno} />
-				<Legenda />
-				<p class="frase">{frase}</p>
-				<EscolherEstado linhas={linhasAno} />
-			</div>
-			<div class="area-ranking">
-				<Ranking linhas={linhasAno} brasil={linhaBrasil} />
-			</div>
-			<div class="area-ficha">
-				<Gaveta linhas={linhasAno} />
-			</div>
+			{#if estado.subaba !== 'regioes'}
+				<aside class="ficha" aria-label={t('gaveta.rotulo')}>
+					<EscolherEstado linhas={linhasAno} />
+					{#if estado.ufSelecionada}
+						<Gaveta linhas={linhasAno} />
+					{:else}
+						<p class="vazio">{t('gaveta.vazio')}</p>
+					{/if}
+				</aside>
+			{/if}
 		</div>
 
 		<ControleTempo />
@@ -87,23 +97,38 @@
 </div>
 
 <style>
-	.topo {
+	.subabas {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 12px 24px;
+		gap: 4px;
+		margin: 0 0 12px;
+		border-bottom: 1px solid var(--linha);
 	}
 
-	.topo > :global(.seletor) {
-		flex: 1 1 340px;
+	/* Sub-abas discretas: texto simples e um traço embaixo da escolhida. */
+	.subabas button {
+		flex: 1 1 auto;
+		min-height: 44px;
+		padding: 0 8px;
+		border: 0;
+		border-bottom: 2px solid transparent;
+		background: none;
+		color: var(--texto-suave);
+		font: inherit;
+		font-size: 0.9rem;
+	}
+
+	.subabas button[aria-pressed='true'] {
+		border-bottom-color: var(--destaque);
+		color: var(--texto);
+		font-weight: 600;
 	}
 
 	.resumo {
 		display: flex;
-		flex: 1 1 280px;
 		align-items: center;
 		justify-content: space-between;
 		gap: 12px;
+		margin: 0 0 12px;
 	}
 
 	.resumo p {
@@ -112,74 +137,44 @@
 		font-variant-numeric: tabular-nums;
 	}
 
-	.vista {
-		display: flex;
-		gap: 8px;
-		margin: 16px 0;
-	}
-
-	.vista button {
-		flex: 1;
-		min-height: 44px;
-		border: 1px solid var(--linha);
-		border-radius: 6px;
-		background: var(--fundo);
-		color: var(--texto);
-		font: inherit;
-	}
-
-	.vista button[aria-pressed='true'] {
-		border-color: var(--texto);
-		font-weight: 600;
-	}
-
-	.painel {
+	.conteudo {
 		display: flex;
 		flex-direction: column;
-		margin-top: 16px;
 	}
 
 	.frase {
 		margin: 8px 0;
 	}
 
-	/* No celular, mapa e ranking se alternam pelos botões acima. */
-	@media (max-width: 959.98px) {
-		.painel.ver-ranking .area-mapa {
-			display: none;
-		}
-
-		.painel:not(.ver-ranking) .area-ranking {
-			display: none;
-		}
+	.ficha {
+		margin-top: 8px;
 	}
 
-	/* No computador, tudo cabe na tela: os botões de alternar somem e o ranking fica ao lado. */
-	@media (min-width: 960px) {
-		.vista {
-			display: none;
-		}
+	/* A dica de "escolha um estado" só aparece no computador, onde a ficha fica ao lado. */
+	.vazio {
+		display: none;
+	}
 
-		.painel {
+	/* No computador, o mapa (ou o ranking) e a ficha lado a lado. */
+	@media (min-width: 960px) {
+		.conteudo {
 			display: grid;
 			grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-			grid-template-areas:
-				'mapa ranking'
-				'ficha ranking';
 			align-items: start;
 			column-gap: 32px;
 		}
 
-		.area-mapa {
-			grid-area: mapa;
+		.conteudo.sem-ficha {
+			grid-template-columns: minmax(0, 1fr);
 		}
 
-		.area-ficha {
-			grid-area: ficha;
+		.ficha {
+			margin-top: 0;
 		}
 
-		.area-ranking {
-			grid-area: ranking;
+		.vazio {
+			display: block;
+			color: var(--texto-suave);
 		}
 	}
 </style>

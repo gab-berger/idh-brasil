@@ -15,7 +15,7 @@
 </svelte:head>
 
 <div class="texto">
-	<h1>{t('mundo.titulo')}</h1>
+	<h2 class="pagina">{t('mundo.titulo')}</h2>
 	<p class="subtitulo">{t('mundo.subtitulo')}</p>
 	<p>{t('mundo.posicao.lead', { posicao: data.posicao.posicao, detalhe: data.posicao.detalhe })}</p>
 	<p>{data.evolucao}</p>
@@ -37,6 +37,10 @@
 </div>
 
 <style>
+	.pagina {
+		margin: 0 0 8px;
+	}
+
 	.seguir {
 		margin: 32px 0 0;
 	}

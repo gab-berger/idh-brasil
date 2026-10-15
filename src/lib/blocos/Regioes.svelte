@@ -55,8 +55,8 @@
 	});
 </script>
 
-<section id="regioes" aria-labelledby="regioes-titulo">
-	<h2 id="regioes-titulo">{t('regioes.titulo')}</h2>
+<section aria-labelledby="regioes-titulo">
+	<h3 id="regioes-titulo">{t('regioes.titulo')}</h3>
 	{#if erro}
 		<p role="alert">{t('erro.carregar')}</p>
 	{:else if series.length === 0}

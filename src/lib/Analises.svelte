@@ -37,7 +37,7 @@
 	function ver(item: Analise): void {
 		if (!item.acao) return;
 		irParaVista(item.acao);
-		const alvo = item.acao.alvo === 'regioes' ? 'regioes' : 'estados';
+		const alvo = 'estados';
 		document.getElementById(alvo)?.scrollIntoView({ behavior: semMovimento ? 'auto' : 'smooth' });
 	}
 

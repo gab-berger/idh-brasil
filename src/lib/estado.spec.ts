@@ -46,8 +46,9 @@ test('a paleta para daltônicos vem desligada, e liga e desliga', () => {
 
 test('irParaVista leva o mapa à vista de uma análise e só mexe no que ela pede', () => {
 	irParaVista({ rotulo: '', alvo: 'mapa', medida: 'educacao', ano: 1991, uf: 'TO' });
-	expect([estado.medida, estado.ano, estado.ufSelecionada, estado.vista]).toEqual(['educacao', 1991, 'TO', 'mapa']);
+	expect([estado.medida, estado.ano, estado.ufSelecionada, estado.subaba]).toEqual(['educacao', 1991, 'TO', 'mapa']);
 	irParaVista({ rotulo: '', alvo: 'regioes', uf: null });
 	expect(estado.ufSelecionada).toBeNull();
 	expect([estado.medida, estado.ano]).toEqual(['educacao', 1991]);
+	expect(estado.subaba).toBe('regioes');
 });

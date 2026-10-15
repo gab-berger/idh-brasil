@@ -3,7 +3,7 @@
  * para que as regras (ano com dado, no máximo 5 linhas, cor estável) fiquem num lugar só.
  */
 import { ANOS, CORES_LINHAS, MAX_LINHAS } from './escalas';
-import type { Acao, Medida, Vista } from './tipos';
+import type { Acao, Medida, Subaba } from './tipos';
 
 const CHAVE_DALTONISMO = 'dash-idh:daltonismo';
 
@@ -21,7 +21,7 @@ export const estado = $state({
 	ano: 2024,
 	medida: 'idhm' as Medida,
 	ufSelecionada: null as string | null,
-	vista: 'mapa' as Vista,
+	subaba: 'mapa' as Subaba,
 	/** Paleta para daltônicos ligada (ver corMapa). */
 	daltonismo: lerDaltonismo(),
 	tocando: false,
@@ -55,13 +55,13 @@ export function alternarLinha(chave: string): boolean {
 	return true;
 }
 
-/** Leva o mapa à vista de uma análise: medida, ano e UF. Para a animação, se estiver tocando. */
+/** Leva a aba Brasil à vista de uma análise: medida, ano, UF e sub-aba. Para a animação, se estiver tocando. */
 export function irParaVista(acao: Acao): void {
 	estado.tocando = false;
 	if (acao.medida) estado.medida = acao.medida;
 	if (acao.ano !== undefined) irParaAno(acao.ano);
 	if (acao.uf !== undefined) estado.ufSelecionada = acao.uf;
-	if (acao.alvo === 'mapa') estado.vista = 'mapa';
+	estado.subaba = acao.alvo;
 }
 
 /** Seleciona uma UF; tocar nela de novo desmarca. */

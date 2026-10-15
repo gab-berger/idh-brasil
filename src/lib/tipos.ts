@@ -12,8 +12,8 @@ export type FaixaIdhm = 'muito_baixo' | 'baixo' | 'medio' | 'alto' | 'muito_alto
 /** Faixas do IDH global (ver escalas.ts). */
 export type FaixaIdh = 'baixo' | 'medio' | 'alto' | 'muito_alto';
 
-/** Forma de ver os estados. */
-export type Vista = 'mapa' | 'ranking';
+/** Sub-abas da aba Brasil: o mapa, o ranking ou a evolução das regiões. */
+export type Subaba = 'mapa' | 'ranking' | 'regioes';
 
 /** Uma linha de idhm_uf.json: uma UF num ano ("BR" é o Brasil). */
 export interface LinhaUf {
@@ -46,7 +46,7 @@ export interface LinhaRegiao {
 /** O que uma análise faz quando a pessoa pede para ver: muda o mapa e rola até o alvo. */
 export interface Acao {
 	rotulo: string;
-	alvo: 'mapa' | 'regioes';
+	alvo: Subaba;
 	medida?: Medida;
 	ano?: number;
 	/** null desmarca a UF; ausente não mexe nela. */

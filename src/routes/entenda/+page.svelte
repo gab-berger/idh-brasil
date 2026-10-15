@@ -20,7 +20,7 @@
 </svelte:head>
 
 <div class="texto">
-	<h1>{t('entenda.titulo')}</h1>
+	<h2 class="pagina">{t('entenda.titulo')}</h2>
 	<p class="subtitulo">{t('entenda.subtitulo')}</p>
 
 	<!-- Perguntas que abrem e fecham: dá para ler só os títulos e abrir o que interessa. -->
@@ -97,6 +97,10 @@
 </div>
 
 <style>
+	.pagina {
+		margin: 0 0 8px;
+	}
+
 	details {
 		border-bottom: 1px solid var(--linha);
 	}

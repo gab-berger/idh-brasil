@@ -7,7 +7,7 @@
 
 <header class="cabecalho">
 	<div class="conteudo">
-		<a class="marca" href={resolve('/')}>{t('site.titulo')}</a>
+		<a class="marca" href={resolve('/')}>{t('site.marca')}</a>
 		<nav aria-label={t('navegacao.rotulo')}>
 			<ul>
 				{#each ABAS as aba (aba.rota)}
@@ -38,8 +38,7 @@
 		box-sizing: border-box;
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		gap: 8px;
+		gap: 12px;
 		height: 100%;
 		max-width: var(--largura-visual);
 		margin: 0 auto;
@@ -47,16 +46,22 @@
 	}
 
 	.marca {
+		flex: none;
 		display: flex;
 		align-items: center;
+		height: 100%;
 		color: var(--texto);
+		font-size: 0.95rem;
 		font-weight: 700;
 		text-decoration: none;
 		white-space: nowrap;
 	}
 
+	/* As abas dividem a largura que sobra, em vez de ficarem agrupadas à direita. */
 	nav {
+		flex: 1;
 		height: 100%;
+		min-width: 0;
 	}
 
 	ul {
@@ -67,25 +72,36 @@
 		list-style: none;
 	}
 
+	li {
+		display: flex;
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
 	nav a {
 		box-sizing: border-box;
 		display: flex;
+		flex: 1;
 		align-items: center;
+		justify-content: center;
 		height: 100%;
-		padding: 0 10px;
+		padding: 0 6px;
 		border-top: 3px solid transparent;
 		border-bottom: 3px solid transparent;
-		color: var(--texto);
+		color: var(--texto-suave);
+		font-size: 0.9rem;
 		text-decoration: none;
 		white-space: nowrap;
 	}
 
 	nav a:hover {
 		border-bottom-color: var(--linha);
+		color: var(--texto);
 	}
 
 	nav a[aria-current='page'] {
 		border-bottom-color: var(--destaque);
+		color: var(--texto);
 		font-weight: 600;
 	}
 </style>

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-// Critérios de aceite que dá para checar no navegador: as três abas, o mapa primeiro, o carrossel, o Tocar,
-// o limite de linhas da aba Mundo e as perguntas da aba Entenda.
+// Critérios de aceite que dá para checar no navegador: as três abas, o mapa primeiro, as sub-abas, a ficha ao
+// lado do mapa no computador, o carrossel, o Tocar, o limite de linhas da aba Mundo e as perguntas da aba Entenda.
 
 for (const rota of ['/', '/mundo', '/entenda']) {
 	for (const largura of [360, 1280]) {
@@ -22,14 +22,24 @@ test('no celular, o mapa começa na primeira tela', async ({ page }) => {
 	expect(topo).toBeLessThan(844);
 });
 
-test('no computador, o mapa e o ranking ficam lado a lado', async ({ page }) => {
+test('no computador, a ficha do estado fica ao lado do mapa', async ({ page }) => {
 	await page.setViewportSize({ width: 1280, height: 800 });
 	await page.goto('/');
-	const mapa = await page.locator('.area-mapa').boundingBox();
-	const ranking = await page.locator('.area-ranking').boundingBox();
+	const mapa = await page.locator('.mapa svg').boundingBox();
+	const ficha = await page.locator('aside.ficha').boundingBox();
 	expect(mapa).not.toBeNull();
-	expect(ranking).not.toBeNull();
-	expect(ranking!.x).toBeGreaterThan(mapa!.x + mapa!.width - 1);
+	expect(ficha).not.toBeNull();
+	expect(ficha!.x).toBeGreaterThan(mapa!.x + mapa!.width - 1);
+});
+
+test('as sub-abas trocam a vista: ranking, evolução das regiões e volta ao mapa', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
+	await expect(page.locator('#estados ol')).toBeVisible();
+	await page.getByRole('button', { name: 'Evolução das regiões' }).click();
+	await expect(page.getByRole('heading', { name: 'Como cada região do Brasil mudou?' })).toBeVisible();
+	await page.getByRole('button', { name: 'Mapa', exact: true }).click();
+	await expect(page.locator('.mapa svg')).toBeVisible();
 });
 
 test('as análises giram à mão: uma por vez, em ordem', async ({ page }) => {
