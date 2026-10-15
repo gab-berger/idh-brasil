@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { corMapa, DOMINIOS } from '#lib/escalas';
-	import { estado } from '#lib/estado.svelte';
+	import { definirDaltonismo, estado } from '#lib/estado.svelte';
 	import { num } from '#lib/formato';
 	import { t } from '#lib/textos';
 
@@ -33,6 +33,16 @@
 		{/if}
 		<span class="ponta" style:left="100%">{num(dominio[1])}</span>
 	</div>
+
+	<!-- Opção discreta, junto da escala que ela troca. -->
+	<button
+		type="button"
+		class="daltonismo"
+		aria-pressed={estado.daltonismo}
+		onclick={() => definirDaltonismo(!estado.daltonismo)}
+	>
+		{t('paleta.daltonismo')}
+	</button>
 </div>
 
 <style>
@@ -67,5 +77,34 @@
 
 	.rotulos .ponta:last-child {
 		transform: translateX(-100%);
+	}
+
+	.daltonismo {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--texto-suave);
+		font: inherit;
+		font-size: 0.85rem;
+		cursor: pointer;
+	}
+
+	/* Caixinha desenhada: vazia com a opção desligada, preenchida com ela ligada. */
+	.daltonismo::before {
+		content: '';
+		box-sizing: border-box;
+		width: 14px;
+		height: 14px;
+		border: 1.5px solid var(--texto-suave);
+		border-radius: 3px;
+	}
+
+	.daltonismo[aria-pressed='true']::before {
+		border-color: var(--destaque);
+		background: var(--destaque);
+		box-shadow: inset 0 0 0 2px var(--fundo);
 	}
 </style>

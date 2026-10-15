@@ -4,7 +4,7 @@
 	import { indiceMaisProximo, percentualDoAno } from '#lib/tempo';
 	import { t } from '#lib/textos';
 
-	const PASSO_MS = 800;
+	// A animação (botão Tocar) fica no alto da aba, perto do mapa; aqui ficam a régua e o passo a passo.
 	const ULTIMO = ANOS.length - 1;
 	const indice = $derived(ANOS.indexOf(estado.ano));
 	const PASSOS: Record<string, number> = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 };
@@ -27,29 +27,6 @@
 	let arrastando = false;
 
 	const fonteDo = (ano: number): string => (ano <= 2010 ? t('fonte.censo') : t('fonte.pnad'));
-
-	// Um ano a cada PASSO_MS. Se já estiver em 2024, recomeça em 1991. Para ao chegar em 2024.
-	$effect(() => {
-		if (!estado.tocando) return;
-		const id = setInterval(() => {
-			const i = ANOS.indexOf(estado.ano);
-			if (i >= ULTIMO) {
-				estado.tocando = false;
-				return;
-			}
-			irParaAno(ANOS[i + 1]);
-		}, PASSO_MS);
-		return () => clearInterval(id);
-	});
-
-	function tocarOuPausar(): void {
-		if (estado.tocando) {
-			estado.tocando = false;
-			return;
-		}
-		if (estado.ano === ANOS[ULTIMO]) irParaAno(ANOS[0]);
-		estado.tocando = true;
-	}
 
 	function andar(passo: number): void {
 		irParaAno(ANOS[Math.min(ULTIMO, Math.max(0, indice + passo))]);
@@ -94,26 +71,16 @@
 	}
 </script>
 
-<svelte:document
-	onvisibilitychange={() => {
-		if (document.hidden) estado.tocando = false;
-	}}
-/>
-
 <div class="tempo">
 	<div class="controles">
 		<button type="button" onclick={() => andar(-1)} disabled={estado.tocando || indice === 0}>
 			{t('tempo.anterior')}
 		</button>
-		<button type="button" aria-pressed={estado.tocando} onclick={tocarOuPausar}>
-			{estado.tocando ? t('tempo.pausar') : t('tempo.tocar')}
-		</button>
+		<p class="ano" aria-hidden="true">{estado.ano}</p>
 		<button type="button" onclick={() => andar(1)} disabled={estado.tocando || indice === ULTIMO}>
 			{t('tempo.proximo')}
 		</button>
 	</div>
-
-	<p class="ano" aria-hidden="true">{estado.ano}</p>
 
 	<div class="regua">
 		<div
@@ -160,6 +127,12 @@
 			{/each}
 		</div>
 	</div>
+
+	<!-- A nota da troca de pesquisa fica junto da quebra da régua; o texto completo também está em Entenda. -->
+	<details class="nota-pesquisa">
+		<summary>{t('tempo.nota.resumo')}</summary>
+		<p>{t('nota.troca_pesquisa')}</p>
+	</details>
 </div>
 
 <style>
@@ -172,7 +145,8 @@
 
 	.controles {
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
 		gap: 6px;
 	}
 
@@ -187,18 +161,13 @@
 		font-size: 0.9rem;
 	}
 
-	.controles button[aria-pressed='true'] {
-		border-color: var(--texto);
-		font-weight: 600;
-	}
-
 	.controles button:disabled {
 		color: var(--texto-suave);
 		opacity: 0.6;
 	}
 
 	.ano {
-		margin: 0;
+		margin: 0 8px;
 		font-size: 1.5rem;
 		font-weight: 700;
 		text-align: center;
@@ -293,5 +262,19 @@
 
 	.rotulos .dir {
 		transform: translateX(-100%);
+	}
+
+	.nota-pesquisa {
+		font-size: 0.9rem;
+		color: var(--texto-suave);
+	}
+
+	.nota-pesquisa summary {
+		padding: 12px 0;
+		cursor: pointer;
+	}
+
+	.nota-pesquisa p {
+		margin: 0 0 8px;
 	}
 </style>

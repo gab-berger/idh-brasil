@@ -3,7 +3,7 @@
  * nada aqui é lido dos dados.
  */
 import { interpolateRdYlBu, interpolateYlGnBu, scaleSequential } from 'd3';
-import type { Dimensao, FaixaIdh, FaixaIdhm, Medida } from './tipos';
+import type { Dimensao, FaixaIdh, FaixaIdhm, Medida, SiglaRegiao } from './tipos';
 
 /** Anos com dado: Censo em 1991, 2000 e 2010; PNAD Contínua de 2012 a 2024. Não há 2011. */
 export const ANOS: number[] = [1991, 2000, 2010, ...Array.from({ length: 13 }, (_, i) => 2012 + i)];
@@ -65,10 +65,25 @@ export function posicaoNoDominio(valor: number, dominio: [number, number]): numb
 export const COR_BRASIL = '#D55E00';
 
 /** Cores das linhas da comparação, por posição livre. Cada linha mantém a cor até ser desligada. */
-export const CORES_LINHAS: string[] = ['#000000', '#0072B2', '#009E73', '#CC79A7', '#A86F00'];
+export const CORES_LINHAS: string[] = ['#000000', '#0072B2', '#009E73', '#CC79A7'];
 
-/** Máximo de linhas ligadas ao mesmo tempo, além do Brasil. */
-export const MAX_LINHAS = CORES_LINHAS.length;
+/** Máximo de linhas ligadas ao mesmo tempo, além do Brasil. A quinta reaproveita uma cor e fica pontilhada (D7). */
+export const MAX_LINHAS = 5;
+
+/** Ordem das regiões nas listas e no gráfico: de norte a sul. */
+export const REGIOES: SiglaRegiao[] = ['N', 'NE', 'CO', 'SE', 'S'];
+
+/**
+ * Cores das regiões no gráfico de linhas (D7): só as quatro cores que passam no contraste,
+ * então a quinta linha repete o preto, pontilhada. O rótulo no fim de cada linha diz qual é qual.
+ */
+export const CORES_REGIOES: Record<SiglaRegiao, { cor: string; traco?: string }> = {
+	N: { cor: '#009E73' },
+	NE: { cor: '#CC79A7' },
+	CO: { cor: '#000000', traco: '2 4' },
+	SE: { cor: '#0072B2' },
+	S: { cor: '#000000' }
+};
 
 /** Cores das três dimensões nos gráficos de subíndices. */
 export const CORES_DIMENSAO: Record<Dimensao, string> = {

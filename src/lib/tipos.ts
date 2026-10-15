@@ -28,6 +28,50 @@ export interface LinhaUf {
 	renda: number;
 }
 
+/** As cinco regiões do Brasil, pela sigla. */
+export type SiglaRegiao = 'N' | 'NE' | 'CO' | 'SE' | 'S';
+
+/** Uma linha de regioes.json: a média simples dos estados de uma região, num ano. */
+export interface LinhaRegiao {
+	regiao: SiglaRegiao;
+	nome: string;
+	ano: number;
+	idhm: number;
+	educacao: number;
+	longevidade: number;
+	renda: number;
+	n_estados: number;
+}
+
+/** O que uma análise faz quando a pessoa pede para ver: muda o mapa e rola até o alvo. */
+export interface Acao {
+	rotulo: string;
+	alvo: 'mapa' | 'regioes';
+	medida?: Medida;
+	ano?: number;
+	/** null desmarca a UF; ausente não mexe nela. */
+	uf?: string | null;
+}
+
+/** Uma análise pronta, calculada no build. */
+export interface Analise {
+	id: string;
+	titulo: string;
+	texto: string;
+	acao?: Acao;
+}
+
+/** Uma série do gráfico de linhas. */
+export interface SerieLinha {
+	chave: string;
+	rotulo: string;
+	cor: string;
+	/** stroke-dasharray do SVG; ausente = linha contínua. */
+	traco?: string;
+	espessura?: number;
+	pontos: { ano: number; valor: number }[];
+}
+
 /** Uma linha de idh_paises.json: um dos países da comparação, num ano. */
 export interface LinhaPais {
 	iso3: string;
@@ -57,6 +101,19 @@ export interface LinhaMedia {
 	ano: number;
 	idh: number;
 	n_paises: number;
+}
+
+/** Estilo do traço: contínuo para países, tracejado para médias; a quinta linha é sempre pontilhada (D7). */
+export type EstiloLinha = 'solid' | 'dashed' | 'dotted';
+
+/** Uma linha do ranking mundial perto do Brasil. Empatados têm a mesma posição e `empate` marcado. */
+export interface LinhaRanking {
+	iso3: string;
+	posicao: number;
+	nome: string;
+	idh: number;
+	brasil: boolean;
+	empate: boolean;
 }
 
 /** Uma entrada de fontes.json. */

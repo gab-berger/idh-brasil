@@ -1,15 +1,12 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { numerosAbertura } from '#lib/abertura';
-import type { LinhaUf, Pais } from '#lib/tipos';
+import { analisesDoBrasil } from '#lib/analises';
+import { lerDados } from '#lib/dados.server';
+import { frasesDosAnos } from '#lib/frases';
+import type { LinhaRegiao, LinhaUf } from '#lib/tipos';
 import type { PageServerLoad } from './$types';
 
-/** Lê um arquivo de dados prontos. O build roda na raiz do projeto, onde fica dados/prontos. */
-function lerDados<T>(nome: string): T {
-	return JSON.parse(readFileSync(join(process.cwd(), 'dados', 'prontos', nome), 'utf-8')) as T;
-}
-
-// Calculado no build: a página de abertura já sai com os números, sem depender de JavaScript.
-export const load: PageServerLoad = () => ({
-	abertura: numerosAbertura(lerDados<LinhaUf[]>('idhm_uf.json'), lerDados<Pais[]>('paises.json'))
-});
+// Calculado no build: as frases dos anos e as análises saem prontas no HTML, sem depender de JavaScript.
+export const load: PageServerLoad = () => {
+	const uf = lerDados<LinhaUf[]>('idhm_uf.json');
+	const regioes = lerDados<LinhaRegiao[]>('regioes.json');
+	return { frases: frasesDosAnos(uf), analises: analisesDoBrasil(uf, regioes) };
+};

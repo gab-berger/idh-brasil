@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { CORES_LINHAS } from './escalas';
-import { alternarLinha, alternarUf, definirDaltonismo, estado, irParaAno } from './estado.svelte';
+import { alternarLinha, alternarUf, definirDaltonismo, estado, irParaAno, irParaVista } from './estado.svelte';
 
 test('abre com mundo, BRICS, EUA e China, nessa ordem, e sem UF selecionada', () => {
 	expect(Object.keys(estado.linhas)).toEqual(['mundo', 'brics', 'USA', 'CHN']);
@@ -42,4 +42,12 @@ test('a paleta para daltônicos vem desligada, e liga e desliga', () => {
 	expect(estado.daltonismo).toBe(true);
 	definirDaltonismo(false);
 	expect(estado.daltonismo).toBe(false);
+});
+
+test('irParaVista leva o mapa à vista de uma análise e só mexe no que ela pede', () => {
+	irParaVista({ rotulo: '', alvo: 'mapa', medida: 'educacao', ano: 1991, uf: 'TO' });
+	expect([estado.medida, estado.ano, estado.ufSelecionada, estado.vista]).toEqual(['educacao', 1991, 'TO', 'mapa']);
+	irParaVista({ rotulo: '', alvo: 'regioes', uf: null });
+	expect(estado.ufSelecionada).toBeNull();
+	expect([estado.medida, estado.ano]).toEqual(['educacao', 1991]);
 });

@@ -141,4 +141,15 @@
 		font-size: 0.9rem;
 		color: var(--texto-suave);
 	}
+
+	/* Com mouse, no computador, linhas mais baixas: o ranking cabe ao lado do mapa. No toque, 44 px. */
+	@media (min-width: 960px) and (pointer: fine) {
+		button {
+			min-height: 28px;
+		}
+
+		.nome {
+			font-size: 0.85rem;
+		}
+	}
 </style>

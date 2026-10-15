@@ -6,6 +6,7 @@ import {
 	COR_BRASIL,
 	CORES_DIMENSAO,
 	CORES_LINHAS,
+	CORES_REGIOES,
 	corMapa,
 	DOMINIOS,
 	faixaIdh,
@@ -85,8 +86,13 @@ test('a paleta para daltônicos é amarelo, verde e azul, e troca a cor do mapa'
 	expect(corMapa('idhm', true)(0.9)).not.toBe(corMapa('idhm')(0.9));
 });
 
-test('cada cor de linha e de dimensão tem contraste de 3:1 ou mais sobre branco', () => {
-	const cores = [COR_BRASIL, ...CORES_LINHAS, ...Object.values(CORES_DIMENSAO)];
+test('cada cor de linha, de dimensão e de região tem contraste de 3:1 ou mais sobre branco', () => {
+	const cores = [
+		COR_BRASIL,
+		...CORES_LINHAS,
+		...Object.values(CORES_DIMENSAO),
+		...Object.values(CORES_REGIOES).map((regiao) => regiao.cor)
+	];
 	for (const cor of cores) {
 		expect(contrasteNoBranco(cor)).toBeGreaterThanOrEqual(3);
 	}

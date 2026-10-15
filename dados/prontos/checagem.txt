@@ -1,5 +1,5 @@
 Relatório de checagem — 2026-10-14
-39 linhas, 0 falha(s)
+48 linhas, 0 falha(s)
 
 OK  Atlas: 27 UFs + Brasil (28 territórios)
 OK  Atlas: anos 1991, 2000, 2010 e 2012-2024 (16 anos)
@@ -17,6 +17,14 @@ OK  Atlas: MA 2024 = 0.745 (pesquisas: 0.745)
 OK  Atlas: PA 2024 = 0.758 (pesquisas: 0.758)
 OK  Atlas: PB 2024 = 0.760 (pesquisas: 0.760)
 OK  Atlas: 10 UFs em 'muito alto' em 2024 (pesquisas: 10)
+OK  Regiões: as 5 regiões cobrem as 27 UFs, cada uma uma vez (27 UFs)
+OK  Regiões: todas as UFs da região entram em todos os anos (80 linhas)
+OK  Regiões: cada média fica entre o menor e o maior estado da região (0 fora)
+     média Norte: IDHM 1991 = 0.422, 2024 = 0.772
+     média Nordeste: IDHM 1991 = 0.393, 2024 = 0.761
+     média Sudeste: IDHM 1991 = 0.533, 2024 = 0.818
+     média Sul: IDHM 1991 = 0.531, 2024 = 0.824
+     média Centro-Oeste: IDHM 1991 = 0.510, 2024 = 0.823
 OK  HDR: 195 países
 OK  HDR: Brasil 2023 = 0.786, posição 84 (pesquisas: 0,786 e 84º)
 OK  HDR: BRA com série completa 1990-2023 (0 anos faltando)
@@ -39,4 +47,5 @@ OK  Médias: 170 países no painel 2000-2023
 OK  Malha: 27 UFs (27 geometrias)
 OK  Malha: siglas iguais às do Atlas
 OK  Malha: códigos de UF com 2 dígitos
+OK  Regiões: a região de cada UF confere com o código IBGE da malha
 OK  Malha: 115 KB (limite 150 KB)

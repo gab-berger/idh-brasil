@@ -10,6 +10,8 @@
 	--altura-menu: 48px;
 	--gutter: 16px;
 	--largura-texto: 720px;
+	/* Mapa e gráficos usam mais largura no computador; o texto corrido fica em --largura-texto. */
+	--largura-visual: 1080px;
 }
 
 html {
@@ -26,20 +28,48 @@ body {
 
 main {
 	box-sizing: border-box;
-	max-width: var(--largura-texto);
+	max-width: var(--largura-visual);
 	margin: 0 auto;
 	padding: calc(var(--altura-menu) + 16px) var(--gutter) 48px;
 }
 
 h1 {
-	font-size: 1.75rem;
+	font-size: 1.5rem;
 	line-height: 1.2;
-	margin: 0 0 8px;
+	margin: 0 0 6px;
 }
 
 h2 {
 	font-size: 1.375rem;
 	margin: 48px 0 12px;
+}
+
+.subtitulo {
+	margin: 0 0 16px;
+	color: var(--texto-suave);
+}
+
+/* Texto corrido numa coluna confortável de ler, mesmo no computador. */
+.texto {
+	max-width: var(--largura-texto);
+}
+
+/* Só para leitores de tela. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Quem rola até um id (#estados, #regioes) para abaixo do cabeçalho fixo. */
+[id] {
+	scroll-margin-top: calc(var(--altura-menu) + 8px);
 }
 
 /* Alvos de toque com pelo menos 44 px. */
@@ -53,6 +83,12 @@ a {
 :focus-visible {
 	outline: 3px solid var(--destaque);
 	outline-offset: 2px;
+}
+
+@media (min-width: 960px) {
+	h1 {
+		font-size: 1.75rem;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -57,6 +57,36 @@ reg_uf = [{k: (round(float(r[k]), 3) if k in cols else r[k]) for k in ['uf', 'no
 for r in reg_uf: r['ano'] = int(r['ano'])
 grava_json('idhm_uf.json', reg_uf, separators=(',', ':'))
 
+# ---------- 1b. Médias das regiões (simples) ----------
+# Como as médias dos continentes (bloco 4): cada estado pesa igual. Calculadas com os valores publicados
+# em idhm_uf.json (3 casas), para que qualquer um refaça a conta a partir do arquivo.
+REGIOES = {'N': ('Norte', ['AC', 'AM', 'AP', 'PA', 'RO', 'RR', 'TO']),
+           'NE': ('Nordeste', ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE']),
+           'SE': ('Sudeste', ['ES', 'MG', 'RJ', 'SP']),
+           'S': ('Sul', ['PR', 'RS', 'SC']),
+           'CO': ('Centro-Oeste', ['DF', 'GO', 'MS', 'MT'])}
+REGIAO_DA_UF = {u: sigla for sigla, (_, ufs) in REGIOES.items() for u in ufs}
+checa(sorted(REGIAO_DA_UF) == sorted(set(UFS.values()) - {'BR'}) and len(REGIAO_DA_UF) == 27,
+      f"Regiões: as 5 regiões cobrem as 27 UFs, cada uma uma vez ({len(REGIAO_DA_UF)} UFs)")
+pub = pd.DataFrame(reg_uf)
+reg_regioes, fora = [], 0
+for sigla, (nome, ufs) in REGIOES.items():
+    for a in anos_esp:
+        sub = pub[(pub.ano == a) & pub.uf.isin(ufs)]
+        d = {'regiao': sigla, 'nome': nome, 'ano': a}
+        for c in cols:
+            d[c] = round(float(sub[c].mean()), 3)
+            fora += not (sub[c].min() <= d[c] <= sub[c].max())
+        d['n_estados'] = int(len(sub))
+        reg_regioes.append(d)
+grava_json('regioes.json', reg_regioes, separators=(',', ':'))
+checa(len(reg_regioes) == 5 * len(anos_esp) and all(r['n_estados'] == len(REGIOES[r['regiao']][1]) for r in reg_regioes),
+      f"Regiões: todas as UFs da região entram em todos os anos ({len(reg_regioes)} linhas)")
+checa(fora == 0, f"Regiões: cada média fica entre o menor e o maior estado da região ({fora} fora)")
+for sigla, (nome, _) in REGIOES.items():
+    ini, fim = [r['idhm'] for r in reg_regioes if r['regiao'] == sigla and r['ano'] in (1991, 2024)]
+    log.append(f"     média {nome}: IDHM 1991 = {ini:.3f}, 2024 = {fim:.3f}")
+
 # ---------- 2. IDH dos países (HDR 2025) ----------
 h = pd.read_csv(BRUTOS / 'HDR25_Composite_indices_complete_time_series.csv', encoding='latin-1')
 paises = h[h.iso3.str.fullmatch(r'[A-Z]{3}')].copy()
@@ -155,6 +185,10 @@ geoms = mapa['objects']['estados']['geometries']
 checa(len(geoms) == 27, f"Malha: 27 UFs ({len(geoms)} geometrias)")
 checa({g['properties']['uf'] for g in geoms} == set(UFS.values()) - {'BR'}, "Malha: siglas iguais às do Atlas")
 checa(all(len(g['properties']['cod']) == 2 for g in geoms), "Malha: códigos de UF com 2 dígitos")
+# O 1º dígito do código IBGE da UF é a região: 1 Norte, 2 Nordeste, 3 Sudeste, 4 Sul, 5 Centro-Oeste.
+DIGITO_REGIAO = {'1': 'N', '2': 'NE', '3': 'SE', '4': 'S', '5': 'CO'}
+checa(all(DIGITO_REGIAO.get(g['properties']['cod'][0]) == REGIAO_DA_UF[g['properties']['uf']] for g in geoms),
+      "Regiões: a região de cada UF confere com o código IBGE da malha")
 tam = (SAIDA / 'br_uf.topojson').stat().st_size
 checa(tam <= 150_000, f"Malha: {tam / 1000:.0f} KB (limite 150 KB)")
 

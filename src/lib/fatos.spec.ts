@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import { linhaUf, serie, ufsDoAno } from './series';
 import type { LinhaUf } from './tipos';
 
-// Os números dos cartões de abertura e dos destaques vêm da especificação (documento de apoio, fora do repositório).
+// Os números das frases dos anos e das análises vêm da especificação (documento de apoio, fora do repositório).
 // Este teste confere cada um contra o arquivo de dados, para que nada saia errado para a tela.
 const uf = JSON.parse(
 	readFileSync(new URL('../../dados/prontos/idhm_uf.json', import.meta.url), 'utf-8')
@@ -15,7 +15,7 @@ function exigir<T>(valor: T | undefined, descricao: string): T {
 	return valor;
 }
 
-test('cartão de 2024: Brasil 0,805; DF 0,866 (maior); Maranhão 0,745 (menor)', () => {
+test('2024: Brasil 0,805; DF 0,866 (maior); Maranhão 0,745 (menor)', () => {
 	expect(exigir(linhaUf(uf, 'BR', 2024), 'Brasil 2024').idhm).toBe(0.805);
 	const estados2024 = ufsDoAno(uf, 2024).sort((a, b) => b.idhm - a.idhm);
 	expect(estados2024[0].uf).toBe('DF');
@@ -24,13 +24,13 @@ test('cartão de 2024: Brasil 0,805; DF 0,866 (maior); Maranhão 0,745 (menor)',
 	expect(estados2024[estados2024.length - 1].idhm).toBe(0.745);
 });
 
-test('cartão de 2024: todos os estados em alto ou muito alto; 10 acima de 0,800', () => {
+test('2024: todos os estados em alto ou muito alto; 10 acima de 0,800', () => {
 	const estados2024 = ufsDoAno(uf, 2024);
 	expect(estados2024.every((l) => l.idhm >= 0.7)).toBe(true);
 	expect(estados2024.filter((l) => l.idhm >= 0.8)).toHaveLength(10);
 });
 
-test('cartão de 1991: 20 estados em muito baixo; o maior é o DF, 0,616', () => {
+test('1991: 20 estados em muito baixo; o maior é o DF, 0,616', () => {
 	const estados1991 = ufsDoAno(uf, 1991);
 	expect(estados1991.filter((l) => l.idhm < 0.5)).toHaveLength(20);
 	const maior = estados1991.reduce((a, b) => (b.idhm > a.idhm ? b : a));
@@ -38,7 +38,7 @@ test('cartão de 1991: 20 estados em muito baixo; o maior é o DF, 0,616', () =>
 	expect(maior.idhm).toBe(0.616);
 });
 
-test('cartão de 2010: nenhum estado abaixo de 0,600; só o DF acima de 0,800', () => {
+test('2010: nenhum estado abaixo de 0,600; só o DF acima de 0,800', () => {
 	const estados2010 = ufsDoAno(uf, 2010);
 	expect(estados2010.every((l) => l.idhm >= 0.6)).toBe(true);
 	const acima = estados2010.filter((l) => l.idhm > 0.8);
