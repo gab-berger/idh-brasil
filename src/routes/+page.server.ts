@@ -1,11 +1,11 @@
-import { analisesDoBrasil } from '#lib/analises';
-import { lerDados } from '#lib/dados.server';
-import type { LinhaRegiao, LinhaUf } from '#lib/tipos';
+import { brazilAnalyses } from '#lib/analysis';
+import { readData } from '#lib/data.server';
+import type { RegionRow, StateRow } from '#lib/types';
 import type { PageServerLoad } from './$types';
 
-// Calculado no build: as análises saem prontas no HTML, sem depender de JavaScript.
+// Computed at build time: the analyses come out ready in the HTML, without depending on JavaScript.
 export const load: PageServerLoad = () => {
-	const uf = lerDados<LinhaUf[]>('idhm_uf.json');
-	const regioes = lerDados<LinhaRegiao[]>('regioes.json');
-	return { analises: analisesDoBrasil(uf, regioes) };
+	const states = readData<StateRow[]>('idhm_states.json');
+	const regions = readData<RegionRow[]>('regions.json');
+	return { analyses: brazilAnalyses(states, regions) };
 };

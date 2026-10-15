@@ -4,8 +4,8 @@ build/
 .output/
 test-results/
 playwright-report/
-static/dados/
-dados/brutos/
+static/data/
+data/raw/
 .venv/
 __pycache__/
 .DS_Store

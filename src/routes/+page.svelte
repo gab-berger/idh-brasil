@@ -1,41 +1,69 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import Analises from '#lib/Analises.svelte';
-	import Estados from '#lib/blocos/Estados.svelte';
-	import SubAbas from '#lib/SubAbas.svelte';
-	import TituloSite from '#lib/TituloSite.svelte';
-	import { estado } from '#lib/estado.svelte';
-	import { t } from '#lib/textos';
-	import type { Subaba } from '#lib/tipos';
+	import Analysis from '#lib/Analysis.svelte';
+	import States from '#lib/blocks/States.svelte';
+	import SiteTitle from '#lib/SiteTitle.svelte';
+	import SubTabs from '#lib/SubTabs.svelte';
+	import { store } from '#lib/store.svelte';
+	import { t } from '#lib/texts';
+	import type { SubTab } from '#lib/types';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	/** As sub-abas da aba Brasil, na ordem em que aparecem. */
-	const VISTAS: { chave: Subaba; rotulo: string }[] = [
-		{ chave: 'mapa', rotulo: t('subabas.mapa') },
-		{ chave: 'ranking', rotulo: t('subabas.ranking') },
-		{ chave: 'regioes', rotulo: t('subabas.regioes') },
-		{ chave: 'estado', rotulo: t('subabas.estado') }
+	/** The sub-tabs of the Brazil tab, in the order they appear. */
+	const VIEWS: { key: SubTab; label: string }[] = [
+		{ key: 'map', label: t('subtabs.map') },
+		{ key: 'ranking', label: t('subtabs.ranking') },
+		{ key: 'regions', label: t('subtabs.regions') },
+		{ key: 'state', label: t('subtabs.state') }
 	];
 </script>
 
 <svelte:head>
-	<title>{t('site.titulo')}</title>
-	<meta name="description" content={t('site.resumo')} />
+	<title>{t('site.title')}</title>
+	<meta name="description" content={t('site.summary')} />
 </svelte:head>
 
-<SubAbas opcoes={VISTAS} atual={estado.subaba} aoEscolher={(chave) => (estado.subaba = chave)} rotulo={t('subabas.rotulo')} />
-<TituloSite />
+<SubTabs options={VIEWS} current={store.subtab} onChoose={(key) => (store.subtab = key)} label={t('subtabs.label')} />
+<SiteTitle />
 
-<Estados />
+<States />
 
-<Analises itens={data.analises} />
+<Analysis items={data.analyses} />
 
-<!-- Os dados de cada período, e por último o link para a aba Mundo. -->
-<details class="notas">
-	<summary>{t('tempo.nota.resumo')}</summary>
-	<p>{t('nota.troca_pesquisa')}</p>
+<!-- The notes on each period, and last, the link to the world tab. -->
+<details class="notes">
+	<summary>{t('time.note.summary')}</summary>
+	<p>{t('note.survey_change')}</p>
 </details>
 
-<p class="seguir"><a href={resolve('/mundo')}>{t('brasil.ir_mundo')}</a></p>
+<p class="follow"><a href={resolve('/world')}>{t('brazil.go_world')}</a></p>
+
+<style>
+	.notes {
+		margin-top: 32px;
+		font-size: 0.9rem;
+		color: var(--text-soft);
+	}
+
+	.notes summary {
+		padding: 12px 0;
+		cursor: pointer;
+	}
+
+	.notes p {
+		margin: 0 0 8px;
+	}
+
+	.follow {
+		margin: 24px 0 0;
+	}
+
+	.follow a {
+		display: inline-flex;
+		align-items: center;
+		color: var(--accent);
+		font-weight: 600;
+	}
+</style>

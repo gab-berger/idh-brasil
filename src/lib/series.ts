@@ -1,20 +1,16 @@
-/** Consultas sobre as linhas dos arquivos de dados. Funções puras: não leem nada, só filtram. */
+/** Queries over the rows of the data files. Pure functions: they read nothing, they only filter. */
 
-/** Linhas com `campo === valor`, em ordem de ano. */
-export function serie<T extends { ano: number }>(linhas: T[], campo: keyof T, valor: T[keyof T]): T[] {
-	return linhas.filter((linha) => linha[campo] === valor).sort((a, b) => a.ano - b.ano);
+/** Rows with `field === value`, in year order. */
+export function seriesOf<T extends { year: number }>(rows: T[], field: keyof T, value: T[keyof T]): T[] {
+	return rows.filter((row) => row[field] === value).sort((a, b) => a.year - b.year);
 }
 
-/** Linha de uma UF num ano, ou undefined se não houver. */
-export function linhaUf<T extends { uf: string; ano: number }>(
-	linhas: T[],
-	uf: string,
-	ano: number
-): T | undefined {
-	return linhas.find((linha) => linha.uf === uf && linha.ano === ano);
+/** Row of a state in a year, or undefined if there is none. */
+export function stateRow<T extends { code: string; year: number }>(rows: T[], code: string, year: number): T | undefined {
+	return rows.find((row) => row.code === code && row.year === year);
 }
 
-/** Linhas das 27 UFs num ano (o Brasil, uf "BR", fica de fora). */
-export function ufsDoAno<T extends { uf: string; ano: number }>(linhas: T[], ano: number): T[] {
-	return linhas.filter((linha) => linha.ano === ano && linha.uf !== 'BR');
+/** Rows of the 27 states in a year (Brazil, code "BR", stays out). */
+export function statesOfYear<T extends { code: string; year: number }>(rows: T[], year: number): T[] {
+	return rows.filter((row) => row.year === year && row.code !== 'BR');
 }

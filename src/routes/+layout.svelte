@@ -2,20 +2,20 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import type { Snippet } from 'svelte';
-	import Cabecalho from '#lib/Cabecalho.svelte';
+	import Header from '#lib/Header.svelte';
 	import favicon from '#lib/assets/favicon.svg';
-	import { observarRolagem } from '#lib/rolagem.svelte';
+	import { watchScroll } from '#lib/scroll.svelte';
 
 	let { children }: { children: Snippet } = $props();
 
-	onMount(observarRolagem);
+	onMount(watchScroll);
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<Cabecalho />
+<Header />
 
 <main>
 	{@render children()}

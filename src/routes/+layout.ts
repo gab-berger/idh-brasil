@@ -1,2 +1,2 @@
-// Site estático: todas as páginas são geradas no build.
+// Static site: every page is generated at build time.
 export const prerender = true;

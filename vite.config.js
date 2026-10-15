@@ -11,9 +11,9 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			// Site estático: o build gera HTML pronto em build/ (GitHub Pages).
+			// Static site: the build writes ready HTML to build/ (GitHub Pages).
 			adapter: adapter(),
-			// BASE_PATH é definido no CI (ex.: /dash-idh); em desenvolvimento fica vazio.
+			// BASE_PATH is set in CI (e.g. /dash-idh); in development it is empty.
 			paths: { base: /** @type {`/${string}` | ''} */ (process.env.BASE_PATH ?? ''), relative: false },
 			prerender: { entries: ['*'] }
 		})

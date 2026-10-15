@@ -1,26 +1,26 @@
 import { expect, test } from 'vitest';
-import { posicoes } from './ranking';
-import { indiceMaisProximo, percentualDoAno } from './tempo';
+import { positions } from './ranking';
+import { nearestIndex, percentOfYear } from './time';
 
-/** Uma linha com as quatro medidas, que é o que `posicoes` exige. */
-const linha = (uf: string, idhm: number) => ({ uf, idhm, educacao: 0, longevidade: 0, renda: 0 });
+/** A row with the four measures, which is what `positions` needs. */
+const row = (code: string, idhm: number) => ({ code, idhm, education: 0, longevity: 0, income: 0 });
 
-test('posição: 1 é o maior, e empates dividem a posição', () => {
-	const pos = posicoes([linha('A', 0.8), linha('B', 0.7), linha('C', 0.7), linha('D', 0.6)], 'idhm');
+test('position: 1 is the highest, and ties share the position', () => {
+	const pos = positions([row('A', 0.8), row('B', 0.7), row('C', 0.7), row('D', 0.6)], 'idhm');
 	expect([pos.get('A'), pos.get('B'), pos.get('C'), pos.get('D')]).toEqual([1, 2, 2, 4]);
 });
 
-test('a régua vai de 0 a 100 e é proporcional aos anos', () => {
-	expect(percentualDoAno(1991)).toBe(0);
-	expect(percentualDoAno(2024)).toBe(100);
-	expect(percentualDoAno(2000)).toBeCloseTo((9 / 33) * 100);
+test('the timeline goes from 0 to 100 and is proportional to the years', () => {
+	expect(percentOfYear(1991)).toBe(0);
+	expect(percentOfYear(2024)).toBe(100);
+	expect(percentOfYear(2000)).toBeCloseTo((9 / 33) * 100);
 });
 
-test('posição da régua escolhe o ano com dado mais próximo', () => {
-	expect(indiceMaisProximo(0)).toBe(0);
-	expect(indiceMaisProximo(1)).toBe(15);
-	// 2010,4 está mais perto de 2010 do que de 2012
-	expect(indiceMaisProximo((2010.4 - 1991) / 33)).toBe(2);
-	// 2011,4 está mais perto de 2012 do que de 2010; 2011 não existe
-	expect(indiceMaisProximo((2011.4 - 1991) / 33)).toBe(3);
+test('the timeline position picks the closest year with data', () => {
+	expect(nearestIndex(0)).toBe(0);
+	expect(nearestIndex(1)).toBe(15);
+	// 2010.4 is closer to 2010 than to 2012
+	expect(nearestIndex((2010.4 - 1991) / 33)).toBe(2);
+	// 2011.4 is closer to 2012 than to 2010; 2011 does not exist
+	expect(nearestIndex((2011.4 - 1991) / 33)).toBe(3);
 });

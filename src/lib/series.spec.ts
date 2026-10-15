@@ -1,22 +1,22 @@
 import { expect, test } from 'vitest';
-import { linhaUf, serie, ufsDoAno } from './series';
+import { seriesOf, stateRow, statesOfYear } from './series';
 
-const linhas = [
-	{ uf: 'DF', ano: 2024, idhm: 0.866 },
-	{ uf: 'BR', ano: 2024, idhm: 0.805 },
-	{ uf: 'DF', ano: 1991, idhm: 0.616 },
-	{ uf: 'MA', ano: 2024, idhm: 0.745 }
+const rows = [
+	{ code: 'DF', year: 2024, idhm: 0.866 },
+	{ code: 'BR', year: 2024, idhm: 0.805 },
+	{ code: 'DF', year: 1991, idhm: 0.616 },
+	{ code: 'MA', year: 2024, idhm: 0.745 }
 ];
 
-test('serie filtra pelo campo e ordena por ano', () => {
-	expect(serie(linhas, 'uf', 'DF').map((linha) => linha.ano)).toEqual([1991, 2024]);
+test('seriesOf filters by the field and sorts by year', () => {
+	expect(seriesOf(rows, 'code', 'DF').map((row) => row.year)).toEqual([1991, 2024]);
 });
 
-test('linhaUf acha a UF no ano, ou undefined se não houver', () => {
-	expect(linhaUf(linhas, 'DF', 2024)?.idhm).toBe(0.866);
-	expect(linhaUf(linhas, 'MA', 1991)).toBeUndefined();
+test('stateRow finds the state in a year, or undefined if there is none', () => {
+	expect(stateRow(rows, 'DF', 2024)?.idhm).toBe(0.866);
+	expect(stateRow(rows, 'MA', 1991)).toBeUndefined();
 });
 
-test('ufsDoAno deixa o Brasil de fora', () => {
-	expect(ufsDoAno(linhas, 2024).map((linha) => linha.uf)).toEqual(['DF', 'MA']);
+test('statesOfYear leaves Brazil out', () => {
+	expect(statesOfYear(rows, 2024).map((row) => row.code)).toEqual(['DF', 'MA']);
 });

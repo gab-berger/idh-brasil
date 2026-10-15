@@ -1,0 +1,54 @@
+Data check report — 2026-10-14
+51 lines, 0 failure(s)
+
+OK   Atlas: 27 states + Brazil (28 territories)
+OK   Atlas: years 1991, 2000, 2010 and 2012-2024 (16 years)
+OK   Atlas: one row per territory and year (448 rows)
+OK   Atlas: no missing values
+OK   Atlas: all values between 0 and 1
+OK   Atlas: IDHM = geometric mean of the components (max difference 0.0005, rounding)
+OK   Atlas: BR 2012 = 0.744 (published: 0.744)
+OK   Atlas: BR 2024 = 0.805 (published: 0.805)
+OK   Atlas: PR 1991 = 0.507 (published: 0.507)
+OK   Atlas: PR 2010 = 0.749 (published: 0.749)
+OK   Atlas: DF 2024 = 0.866 (published: 0.866)
+OK   Atlas: SP 2024 = 0.838 (published: 0.838)
+OK   Atlas: MA 2024 = 0.745 (published: 0.745)
+OK   Atlas: PA 2024 = 0.758 (published: 0.758)
+OK   Atlas: PB 2024 = 0.760 (published: 0.760)
+OK   Atlas: 10 states in 'very high' in 2024 (published: 10)
+OK   Regions: the 5 regions cover the 27 states, each once (27 states)
+OK   Regions: every state of a region is in every year (80 rows)
+OK   Regions: each average is between the lowest and the highest state of its region (0 outside)
+     Norte average: IDHM 1991 = 0.422, 2024 = 0.772
+     Nordeste average: IDHM 1991 = 0.393, 2024 = 0.761
+     Sudeste average: IDHM 1991 = 0.533, 2024 = 0.818
+     Sul average: IDHM 1991 = 0.531, 2024 = 0.824
+     Centro-Oeste average: IDHM 1991 = 0.510, 2024 = 0.823
+OK   HDR: 195 countries
+OK   HDR: Brazil 2023 = 0.786, position 84 (published: 0.786 and 84th)
+OK   HDR: BRA with a full series 1990-2023 (0 years missing)
+OK   HDR: RUS with a full series 1990-2023 (0 years missing)
+OK   HDR: IND with a full series 1990-2023 (0 years missing)
+OK   HDR: CHN with a full series 1990-2023 (0 years missing)
+OK   HDR: ZAF with a full series 1990-2023 (0 years missing)
+OK   HDR: USA with a full series 1990-2023 (0 years missing)
+OK   HDR: ARG with a full series 1990-2023 (0 years missing)
+OK   M49: region found for 195 of 195 countries
+OK   Portuguese names: 195 of 195 (no translation: none)
+OK   Averages: 170 countries in the 2000-2023 panel
+     average world 2023 = 0.752 (170 countries)
+     average africa 2023 = 0.592 (45 countries)
+     average latin_america_caribbean 2023 = 0.764 (29 countries)
+     average asia 2023 = 0.767 (44 countries)
+     average europe 2023 = 0.903 (40 countries)
+     average oceania 2023 = 0.735 (10 countries)
+     average brics 2023 = 0.768 (5 countries)
+OK   Ranking 2023 recalculated = official HDR positions (193 countries; diverging: none)
+OK   HDR: 193 countries with a 2023 position (expected 193)
+     ranking by year: 141 countries in 1990, 193 in 2023
+OK   Map: 27 states (27 geometries)
+OK   Map: codes equal the Atlas abbreviations
+OK   Map: state IBGE codes have 2 digits
+OK   Regions: each state's region matches its IBGE code in the map
+OK   Map: 115 KB (limit 150 KB)

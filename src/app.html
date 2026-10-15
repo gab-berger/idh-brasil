@@ -4,6 +4,13 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<script>
+			// Applies the saved theme before the first paint, so the page does not flash in the wrong colors.
+			try {
+				var saved = localStorage.getItem('dash-idh:theme');
+				if (saved === 'dark' || saved === 'light') document.documentElement.dataset.theme = saved;
+			} catch (error) {}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

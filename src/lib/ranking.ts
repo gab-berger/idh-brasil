@@ -1,14 +1,11 @@
-import type { Medida } from './tipos';
+import type { Measure } from './types';
 
-/** Posição de cada UF pelo valor da medida: 1 é o maior. Empates dividem a posição (1, 2, 2, 4). */
-export function posicoes<T extends { uf: string } & Record<Medida, number>>(
-	linhas: T[],
-	medida: Medida
+/** Position of each state by the value of a measure: 1 is the highest. Ties share the position (1, 2, 2, 4). */
+export function positions<T extends { code: string } & Record<Measure, number>>(
+	rows: T[],
+	measure: Measure
 ): Map<string, number> {
 	return new Map(
-		linhas.map((linha): [string, number] => [
-			linha.uf,
-			1 + linhas.filter((outra) => outra[medida] > linha[medida]).length
-		])
+		rows.map((row): [string, number] => [row.code, 1 + rows.filter((other) => other[measure] > row[measure]).length])
 	);
 }

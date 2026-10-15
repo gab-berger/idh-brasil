@@ -1,2 +1,2 @@
-// Alias #lib: os módulos de src/lib são importados pelo caminho completo (#lib/escalas, #lib/textos...).
+// #lib alias: the modules of src/lib are imported by their full path (#lib/scales, #lib/texts...).
 export {};

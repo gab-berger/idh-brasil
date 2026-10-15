@@ -1,31 +1,31 @@
 # Dash IDH
 
-Site com o IDH e o IDHM do Brasil: os 27 estados de 1991 a 2024 e a evolução do Brasil no IDH global de 1990 a 2023, comparada com médias regionais, o BRICS e alguns países.
+A site with the IDH and the IDHM of Brazil: the 27 states from 1991 to 2024, and Brazil's evolution in the global HDI from 1990 to 2023, compared with regional averages, the BRICS and some countries. The copy on the site is in Portuguese; the code is in English.
 
-A especificação e o plano de implementação ficam num repositório privado de apoio, fora deste repositório.
+The specification and the implementation plan are kept in a private support repository, outside this one.
 
-## Como rodar
+## Running it
 
-Pré-requisitos: Node 22.17 ou mais novo e Python 3.
+Requirements: Node 22.17 or newer, and Python 3.
 
 ```sh
 npm install
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # só para gerar os dados
-npm run dados      # lê dados/brutos e gera dados/prontos (com checagem.txt)
-npm run dev        # site local
-npm run build      # gera build/ (recusa seguir se a checagem tiver FALHA)
-npm run test       # testes de unidade e ponta a ponta
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # only to generate the data
+npm run data       # reads data/raw and writes data/ready (with checks.txt)
+npm run dev        # local site
+npm run build      # writes build/ (refuses to continue if checks.txt has a FAIL line)
+npm run test       # unit and end-to-end tests
 ```
 
-## Dados
+## Data
 
-`dados/prontos/` é o que o site publica, e fica no git. Fontes e licenças estão em `dados/prontos/fontes.json`.
+`data/ready/` is what the site publishes, and it is tracked in git. The sources and licenses are in `data/ready/sources.json`.
 
-`dados/brutos/` não fica no git (ver `.gitignore`). Para gerar `dados/prontos/` de novo, coloque lá estes arquivos oficiais, sem edição:
+`data/raw/` is not tracked in git (see `.gitignore`). To generate `data/ready/` again, put these official files there, unedited:
 
-- `atlas_data.xlsx`: Atlas do Desenvolvimento Humano no Brasil (PNUD, Ipea e FJP), IDHM por UF
-- `HDR25_Composite_indices_complete_time_series.csv`: Human Development Report 2025 (PNUD), série composta
-- `UNSD — Methodology.csv`: classificação M49 da ONU
-- `BR_UF_2024.zip`: malha territorial das UFs 2024 (IBGE)
+- `atlas_data.xlsx`: Atlas do Desenvolvimento Humano no Brasil (UNDP, Ipea and FJP), state IDHM
+- `HDR25_Composite_indices_complete_time_series.csv`: Human Development Report 2025 (UNDP), composite series
+- `UNSD — Methodology.csv`: UN M49 classification
+- `BR_UF_2024.zip`: territorial map of the states, 2024 (IBGE)
 
-As URLs de origem estão em `dados/prontos/fontes.json`.
+The source URLs are in `data/ready/sources.json`.
