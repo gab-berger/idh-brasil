@@ -7,20 +7,20 @@
 	import { t } from '#lib/textos';
 	import type { LinhaUf, MapaTopo, Subaba } from '#lib/tipos';
 	import Regioes from './Regioes.svelte';
-	import BotaoTocar from './estados/BotaoTocar.svelte';
 	import ControleTempo from './estados/ControleTempo.svelte';
 	import EscolherEstado from './estados/EscolherEstado.svelte';
 	import Gaveta from './estados/Gaveta.svelte';
 	import Legenda from './estados/Legenda.svelte';
 	import Mapa from './estados/Mapa.svelte';
 	import Ranking from './estados/Ranking.svelte';
+	import SelecaoEstado from './estados/SelecaoEstado.svelte';
 	import SeletorMedida from './estados/SeletorMedida.svelte';
 
 	/** Frases dos anos com texto próprio (1991, 2010 e 2024), calculadas no build. */
 	let { frases }: { frases: Record<number, string> } = $props();
 
 	/** As sub-abas, na ordem em que aparecem. */
-	const SUBABAS: Subaba[] = ['mapa', 'ranking', 'regioes'];
+	const SUBABAS: Subaba[] = ['mapa', 'ranking', 'regioes', 'estado'];
 
 	let uf: LinhaUf[] | null = $state.raw(null);
 	let topo: MapaTopo | null = $state.raw(null);
@@ -58,41 +58,46 @@
 			{/each}
 		</div>
 
-		<div class="resumo">
-			{#if linhaBrasil}
-				<p>{textoResumo(linhaBrasil, estado.medida)}</p>
-			{/if}
-			<BotaoTocar />
-		</div>
+		<ControleTempo />
 
-		<!-- A ordem do HTML é a do celular: o conteúdo e depois a ficha. No computador, a ficha fica ao lado. -->
-		<div class="conteudo" class:sem-ficha={estado.subaba === 'regioes'}>
-			<div class="principal">
-				{#if estado.subaba === 'mapa'}
-					<Mapa {topo} linhas={linhasAno} />
-					<Legenda />
-					<p class="frase">{frase}</p>
-				{:else if estado.subaba === 'ranking'}
-					<Ranking linhas={linhasAno} brasil={linhaBrasil} />
-				{:else}
-					<Regioes />
-				{/if}
+		{#if linhaBrasil}
+			<p class="resumo">{textoResumo(linhaBrasil, estado.medida)}</p>
+		{/if}
+
+		{#if estado.subaba === 'mapa'}
+			<div class="vista vista-mapa">
+				<Mapa {topo} linhas={linhasAno} />
+				<SelecaoEstado linhas={linhasAno} />
+				<Legenda />
+				<p class="frase">{frase}</p>
 				<SeletorMedida />
 			</div>
+		{:else if estado.subaba === 'ranking'}
+			<div class="vista vista-ranking">
+				<Ranking linhas={linhasAno} brasil={linhaBrasil} />
+				<SelecaoEstado linhas={linhasAno} />
+				<SeletorMedida />
+			</div>
+		{:else if estado.subaba === 'regioes'}
+			<div class="vista vista-regioes">
+				<Regioes />
+				<SeletorMedida />
+			</div>
+		{:else}
+			<div class="vista vista-estado">
+				<EscolherEstado linhas={linhasAno} />
+				{#if estado.ufSelecionada}
+					<Gaveta linhas={linhasAno} />
+				{:else}
+					<p class="vazio">{t('gaveta.vazio')}</p>
+				{/if}
+			</div>
+		{/if}
 
-			{#if estado.subaba !== 'regioes'}
-				<aside class="ficha" aria-label={t('gaveta.rotulo')}>
-					<EscolherEstado linhas={linhasAno} />
-					{#if estado.ufSelecionada}
-						<Gaveta linhas={linhasAno} />
-					{:else}
-						<p class="vazio">{t('gaveta.vazio')}</p>
-					{/if}
-				</aside>
-			{/if}
-		</div>
-
-		<ControleTempo />
+		<details class="nota-pesquisa">
+			<summary>{t('tempo.nota.resumo')}</summary>
+			<p>{t('nota.troca_pesquisa')}</p>
+		</details>
 	{/if}
 </div>
 
@@ -124,57 +129,41 @@
 	}
 
 	.resumo {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 12px;
-		margin: 0 0 12px;
-	}
-
-	.resumo p {
-		margin: 0;
+		margin: 4px 0 12px;
 		font-weight: 600;
 		font-variant-numeric: tabular-nums;
 	}
 
-	.conteudo {
-		display: flex;
-		flex-direction: column;
+	/* O mapa tem no máximo 640 px no computador, para caber na tela junto com a linha do tempo. */
+	.vista-mapa {
+		max-width: 640px;
+	}
+
+	.vista-ranking,
+	.vista-estado {
+		max-width: 720px;
 	}
 
 	.frase {
 		margin: 8px 0;
 	}
 
-	.ficha {
-		margin-top: 8px;
-	}
-
-	/* A dica de "escolha um estado" só aparece no computador, onde a ficha fica ao lado. */
 	.vazio {
-		display: none;
+		color: var(--texto-suave);
 	}
 
-	/* No computador, o mapa (ou o ranking) e a ficha lado a lado. */
-	@media (min-width: 960px) {
-		.conteudo {
-			display: grid;
-			grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-			align-items: start;
-			column-gap: 32px;
-		}
+	.nota-pesquisa {
+		margin-top: 24px;
+		font-size: 0.9rem;
+		color: var(--texto-suave);
+	}
 
-		.conteudo.sem-ficha {
-			grid-template-columns: minmax(0, 1fr);
-		}
+	.nota-pesquisa summary {
+		padding: 12px 0;
+		cursor: pointer;
+	}
 
-		.ficha {
-			margin-top: 0;
-		}
-
-		.vazio {
-			display: block;
-			color: var(--texto-suave);
-		}
+	.nota-pesquisa p {
+		margin: 0 0 8px;
 	}
 </style>

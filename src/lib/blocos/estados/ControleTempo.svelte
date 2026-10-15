@@ -3,8 +3,8 @@
 	import { estado, irParaAno } from '#lib/estado.svelte';
 	import { indiceMaisProximo, percentualDoAno } from '#lib/tempo';
 	import { t } from '#lib/textos';
+	import BotaoTocar from './BotaoTocar.svelte';
 
-	// A animação (botão Tocar) fica no alto da aba, perto do mapa; aqui ficam a régua e o passo a passo.
 	const ULTIMO = ANOS.length - 1;
 	const indice = $derived(ANOS.indexOf(estado.ano));
 	const PASSOS: Record<string, number> = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 };
@@ -76,7 +76,10 @@
 		<button type="button" onclick={() => andar(-1)} disabled={estado.tocando || indice === 0}>
 			{t('tempo.anterior')}
 		</button>
-		<p class="ano" aria-hidden="true">{estado.ano}</p>
+		<div class="centro">
+			<p class="ano" aria-hidden="true">{estado.ano}</p>
+			<BotaoTocar />
+		</div>
 		<button type="button" onclick={() => andar(1)} disabled={estado.tocando || indice === ULTIMO}>
 			{t('tempo.proximo')}
 		</button>
@@ -127,22 +130,17 @@
 			{/each}
 		</div>
 	</div>
-
-	<!-- A nota da troca de pesquisa fica junto da quebra da régua; o texto completo também está em Entenda. -->
-	<details class="nota-pesquisa">
-		<summary>{t('tempo.nota.resumo')}</summary>
-		<p>{t('nota.troca_pesquisa')}</p>
-	</details>
 </div>
 
 <style>
 	.tempo {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		margin: 16px 0;
+		gap: 4px;
+		margin: 0 0 12px;
 	}
 
+	/* Anterior e próximo nas pontas; ano e play no centro, com o play menor. */
 	.controles {
 		display: grid;
 		grid-template-columns: 1fr auto 1fr;
@@ -150,7 +148,7 @@
 		gap: 6px;
 	}
 
-	.controles button {
+	.controles > button {
 		min-height: 44px;
 		padding: 0 4px;
 		border: 1px solid var(--linha);
@@ -158,19 +156,24 @@
 		background: var(--fundo);
 		color: var(--texto);
 		font: inherit;
-		font-size: 0.9rem;
+		font-size: 0.85rem;
 	}
 
-	.controles button:disabled {
+	.controles > button:disabled {
 		color: var(--texto-suave);
 		opacity: 0.6;
 	}
 
+	.centro {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
 	.ano {
-		margin: 0 8px;
-		font-size: 1.5rem;
+		margin: 0;
+		font-size: 1.25rem;
 		font-weight: 700;
-		text-align: center;
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -262,19 +265,5 @@
 
 	.rotulos .dir {
 		transform: translateX(-100%);
-	}
-
-	.nota-pesquisa {
-		font-size: 0.9rem;
-		color: var(--texto-suave);
-	}
-
-	.nota-pesquisa summary {
-		padding: 12px 0;
-		cursor: pointer;
-	}
-
-	.nota-pesquisa p {
-		margin: 0 0 8px;
 	}
 </style>

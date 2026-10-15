@@ -42,27 +42,37 @@
 	}}
 />
 
-<button type="button" class="tocar" aria-pressed={estado.tocando} onclick={tocarOuPausar}>
-	{estado.tocando ? t('tempo.pausar') : t('tempo.tocar')}
+<button
+	type="button"
+	class="tocar"
+	aria-pressed={estado.tocando}
+	aria-label={estado.tocando ? t('tempo.pausar') : t('tempo.tocar')}
+	title={estado.tocando ? t('tempo.pausar') : t('tempo.tocar')}
+	onclick={tocarOuPausar}
+>
+	<span aria-hidden="true">{estado.tocando ? '❚❚' : '▶'}</span>
 </button>
 
 <style>
-	/* O botão mais visível da aba: a animação de 1991 a 2024 é o que mais chama a atenção. */
+	/* Botão redondo e pequeno: o desenho tem 44 px, a área de toque também. */
 	.tocar {
+		display: inline-flex;
 		flex: none;
-		min-height: 44px;
-		padding: 0 18px;
-		border: 0;
-		border-radius: 22px;
-		background: var(--destaque);
-		color: var(--fundo);
-		font: inherit;
-		font-weight: 600;
-		white-space: nowrap;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		padding: 0;
+		border: 1px solid var(--destaque);
+		border-radius: 50%;
+		background: var(--fundo);
+		color: var(--destaque);
+		font-size: 0.8rem;
 		cursor: pointer;
 	}
 
 	.tocar[aria-pressed='true'] {
-		background: var(--texto);
+		border-color: var(--texto);
+		color: var(--texto);
 	}
 </style>

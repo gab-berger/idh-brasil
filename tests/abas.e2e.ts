@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
 
-// Critérios de aceite que dá para checar no navegador: as três abas, o mapa primeiro, as sub-abas, a ficha ao
-// lado do mapa no computador, o carrossel, o Tocar, o limite de linhas da aba Mundo e as perguntas da aba Entenda.
+// Critérios de aceite que dá para checar no navegador: as três páginas, o mapa na primeira tela, as sub-abas,
+// o detalhe do estado na sua aba, o carrossel, o Tocar, o limite de linhas da aba Mundo e as perguntas em Informações.
 
-for (const rota of ['/', '/mundo', '/entenda']) {
+for (const rota of ['/', '/mundo', '/informacoes']) {
 	for (const largura of [360, 1280]) {
 		test(`sem rolagem horizontal: ${rota} em ${largura} px`, async ({ page }) => {
 			await page.setViewportSize({ width: largura, height: 800 });
@@ -22,22 +22,22 @@ test('no celular, o mapa começa na primeira tela', async ({ page }) => {
 	expect(topo).toBeLessThan(844);
 });
 
-test('no computador, a ficha do estado fica ao lado do mapa', async ({ page }) => {
-	await page.setViewportSize({ width: 1280, height: 800 });
+test('escolher um estado no mapa leva ao detalhe na aba Estado', async ({ page }) => {
 	await page.goto('/');
-	const mapa = await page.locator('.mapa svg').boundingBox();
-	const ficha = await page.locator('aside.ficha').boundingBox();
-	expect(mapa).not.toBeNull();
-	expect(ficha).not.toBeNull();
-	expect(ficha!.x).toBeGreaterThan(mapa!.x + mapa!.width - 1);
+	await page.getByRole('button', { name: /^Maranhão, IDHM/ }).click();
+	await page.getByRole('button', { name: 'Ver detalhes' }).click();
+	await expect(page.getByRole('button', { name: 'Estado', exact: true })).toHaveAttribute('aria-pressed', 'true');
+	await expect(page.getByRole('heading', { name: 'Maranhão' })).toBeVisible();
 });
 
-test('as sub-abas trocam a vista: ranking, evolução das regiões e volta ao mapa', async ({ page }) => {
+test('as sub-abas trocam a vista: ranking, regiões, estado e volta ao mapa', async ({ page }) => {
 	await page.goto('/');
 	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
 	await expect(page.locator('#estados ol')).toBeVisible();
-	await page.getByRole('button', { name: 'Evolução das regiões' }).click();
+	await page.getByRole('button', { name: 'Regiões', exact: true }).click();
 	await expect(page.getByRole('heading', { name: 'Como cada região do Brasil mudou?' })).toBeVisible();
+	await page.getByRole('button', { name: 'Estado', exact: true }).click();
+	await expect(page.getByText('Escolha um estado para ver os detalhes.')).toBeVisible();
 	await page.getByRole('button', { name: 'Mapa', exact: true }).click();
 	await expect(page.locator('.mapa svg')).toBeVisible();
 });
@@ -70,8 +70,8 @@ test('a aba Mundo aceita cinco linhas e avisa na sexta', async ({ page }) => {
 	await expect(page.getByRole('status')).toContainText('Até 5 linhas');
 });
 
-test('Entenda: as perguntas abrem e fecham', async ({ page }) => {
-	await page.goto('/entenda');
+test('Informações: as perguntas abrem e fecham', async ({ page }) => {
+	await page.goto('/informacoes');
 	await expect(page.locator('details')).toHaveCount(10);
 	await expect(page.locator('details[open]')).toHaveCount(1);
 	await page.locator('details').nth(1).locator('summary').click();

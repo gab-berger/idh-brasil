@@ -2,7 +2,7 @@ import type { ChaveTexto } from './textos';
 
 export interface Aba {
 	/** Rota do SvelteKit, sem o caminho base (o link usa resolve()). */
-	rota: '/' | '/mundo' | '/entenda';
+	rota: '/' | '/mundo' | '/informacoes';
 	/** Chave em textos.pt.json com o nome da aba. */
 	chave: ChaveTexto;
 }
@@ -11,5 +11,5 @@ export interface Aba {
 export const ABAS: Aba[] = [
 	{ rota: '/', chave: 'abas.brasil' },
 	{ rota: '/mundo', chave: 'abas.mundo' },
-	{ rota: '/entenda', chave: 'abas.entenda' }
+	{ rota: '/informacoes', chave: 'abas.informacoes' }
 ];

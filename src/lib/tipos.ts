@@ -13,7 +13,7 @@ export type FaixaIdhm = 'muito_baixo' | 'baixo' | 'medio' | 'alto' | 'muito_alto
 export type FaixaIdh = 'baixo' | 'medio' | 'alto' | 'muito_alto';
 
 /** Sub-abas da aba Brasil: o mapa, o ranking ou a evolução das regiões. */
-export type Subaba = 'mapa' | 'ranking' | 'regioes';
+export type Subaba = 'mapa' | 'ranking' | 'regioes' | 'estado';
 
 /** Uma linha de idhm_uf.json: uma UF num ano ("BR" é o Brasil). */
 export interface LinhaUf {

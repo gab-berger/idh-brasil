@@ -15,7 +15,7 @@
 </script>
 
 <svelte:head>
-	<title>{t('abas.entenda')} · {t('site.titulo')}</title>
+	<title>{t('abas.informacoes')} · {t('site.titulo')}</title>
 	<meta name="description" content={t('entenda.subtitulo')} />
 </svelte:head>
 
