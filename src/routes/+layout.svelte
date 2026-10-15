@@ -31,6 +31,7 @@
 	.titulo-site p {
 		margin: 0;
 		font-size: 0.85rem;
+		white-space: pre-line;
 		color: var(--texto-suave);
 	}
 </style>

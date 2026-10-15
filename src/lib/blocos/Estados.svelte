@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { carregar } from '#lib/dados';
 	import { estado } from '#lib/estado.svelte';
-	import { textoExtremos, textoResumo } from '#lib/resumo';
+	import { textoResumo } from '#lib/resumo';
 	import { linhaUf, ufsDoAno } from '#lib/series';
 	import { t } from '#lib/textos';
 	import type { LinhaUf, MapaTopo, Subaba } from '#lib/tipos';
@@ -15,9 +15,6 @@
 	import Ranking from './estados/Ranking.svelte';
 	import SelecaoEstado from './estados/SelecaoEstado.svelte';
 	import SeletorMedida from './estados/SeletorMedida.svelte';
-
-	/** Frases dos anos com texto próprio (1991, 2010 e 2024), calculadas no build. */
-	let { frases }: { frases: Record<number, string> } = $props();
 
 	/** As sub-abas, na ordem em que aparecem. */
 	const SUBABAS: Subaba[] = ['mapa', 'ranking', 'regioes', 'estado'];
@@ -38,10 +35,6 @@
 
 	const linhasAno = $derived<LinhaUf[]>(uf ? ufsDoAno<LinhaUf>(uf, estado.ano) : []);
 	const linhaBrasil = $derived<LinhaUf | undefined>(uf ? linhaUf<LinhaUf>(uf, 'BR', estado.ano) : undefined);
-	// Embaixo do mapa: a frase própria do ano (só no IDHM) ou, nos outros casos, o maior e o menor estado.
-	const frase = $derived(
-		estado.medida === 'idhm' && frases[estado.ano] ? frases[estado.ano] : textoExtremos(linhasAno, estado.medida)
-	);
 </script>
 
 <div id="estados">
@@ -58,10 +51,12 @@
 			{/each}
 		</div>
 
+		<SeletorMedida />
+
 		<ControleTempo />
 
 		{#if linhaBrasil}
-			<p class="resumo">{textoResumo(linhaBrasil, estado.medida)}</p>
+			<p class="destaque">{textoResumo(linhaBrasil, estado.medida)}</p>
 		{/if}
 
 		{#if estado.subaba === 'mapa'}
@@ -69,19 +64,15 @@
 				<Mapa {topo} linhas={linhasAno} />
 				<SelecaoEstado linhas={linhasAno} />
 				<Legenda />
-				<p class="frase">{frase}</p>
-				<SeletorMedida />
 			</div>
 		{:else if estado.subaba === 'ranking'}
 			<div class="vista vista-ranking">
 				<Ranking linhas={linhasAno} brasil={linhaBrasil} />
 				<SelecaoEstado linhas={linhasAno} />
-				<SeletorMedida />
 			</div>
 		{:else if estado.subaba === 'regioes'}
 			<div class="vista vista-regioes">
 				<Regioes />
-				<SeletorMedida />
 			</div>
 		{:else}
 			<div class="vista vista-estado">
@@ -93,42 +84,37 @@
 				{/if}
 			</div>
 		{/if}
-
-		<details class="nota-pesquisa">
-			<summary>{t('tempo.nota.resumo')}</summary>
-			<p>{t('nota.troca_pesquisa')}</p>
-		</details>
 	{/if}
 </div>
 
 <style>
+	/* As sub-abas são blocos: o escolhido fica azul inteiro, com o texto branco. */
 	.subabas {
 		display: flex;
-		gap: 4px;
+		gap: 6px;
 		margin: 0 0 12px;
-		border-bottom: 1px solid var(--linha);
 	}
 
-	/* Sub-abas discretas: texto simples e um traço embaixo da escolhida. */
 	.subabas button {
 		flex: 1 1 auto;
 		min-height: 44px;
 		padding: 0 8px;
-		border: 0;
-		border-bottom: 2px solid transparent;
-		background: none;
-		color: var(--texto-suave);
+		border: 1px solid var(--linha);
+		border-radius: 6px;
+		background: var(--fundo);
+		color: var(--texto);
 		font: inherit;
 		font-size: 0.9rem;
 	}
 
 	.subabas button[aria-pressed='true'] {
-		border-bottom-color: var(--destaque);
-		color: var(--texto);
+		border-color: var(--destaque);
+		background: var(--destaque);
+		color: var(--fundo);
 		font-weight: 600;
 	}
 
-	.resumo {
+	.destaque {
 		margin: 4px 0 12px;
 		font-weight: 600;
 		font-variant-numeric: tabular-nums;
@@ -144,26 +130,7 @@
 		max-width: 720px;
 	}
 
-	.frase {
-		margin: 8px 0;
-	}
-
 	.vazio {
 		color: var(--texto-suave);
-	}
-
-	.nota-pesquisa {
-		margin-top: 24px;
-		font-size: 0.9rem;
-		color: var(--texto-suave);
-	}
-
-	.nota-pesquisa summary {
-		padding: 12px 0;
-		cursor: pointer;
-	}
-
-	.nota-pesquisa p {
-		margin: 0 0 8px;
 	}
 </style>

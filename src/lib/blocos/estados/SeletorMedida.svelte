@@ -13,10 +13,11 @@
 </div>
 
 <style>
-	/* Uma linha só: cada botão toma a largura do próprio texto, e o espaço sobrante é dividido. */
+	/* Mesmo desenho das sub-abas: o escolhido é um bloco azul inteiro. */
 	.seletor {
 		display: flex;
-		gap: 4px;
+		gap: 6px;
+		margin: 0 0 12px;
 	}
 
 	button {
@@ -33,7 +34,9 @@
 	}
 
 	button[aria-pressed='true'] {
-		border-color: var(--texto);
+		border-color: var(--destaque);
+		background: var(--destaque);
+		color: var(--fundo);
 		font-weight: 600;
 	}
 </style>

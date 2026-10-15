@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 // Critérios de aceite que dá para checar no navegador: as três páginas, o mapa na primeira tela, as sub-abas,
-// o detalhe do estado na sua aba, o carrossel, o Tocar, o limite de linhas da aba Mundo e as perguntas em Informações.
+// a ordem dos controles, o destaque do Brasil, o detalhe do estado na sua aba, o carrossel, o Tocar, o limite de
+// linhas da aba Mundo, as perguntas em Informações e a nota do Censo e da PNAD no fim da aba Brasil.
 
 for (const rota of ['/', '/mundo', '/informacoes']) {
 	for (const largura of [360, 1280]) {
@@ -20,6 +21,21 @@ test('no celular, o mapa começa na primeira tela', async ({ page }) => {
 	await page.goto('/');
 	const topo = await page.locator('.mapa svg').evaluate((svg) => svg.getBoundingClientRect().top);
 	expect(topo).toBeLessThan(844);
+});
+
+test('a ordem da aba Brasil: sub-abas, seleção de medida e depois o tempo', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/');
+	const subabas = await page.locator('.subabas').boundingBox();
+	const medida = await page.locator('.seletor').boundingBox();
+	const tempo = await page.locator('.tempo').boundingBox();
+	expect(subabas!.y).toBeLessThan(medida!.y);
+	expect(medida!.y).toBeLessThan(tempo!.y);
+});
+
+test('o destaque mostra o IDH do Brasil com a classificação', async ({ page }) => {
+	await page.goto('/');
+	await expect(page.getByText('IDH Brasil: 0,805 – muito alto')).toBeVisible();
 });
 
 test('escolher um estado no mapa leva ao detalhe na aba Estado', async ({ page }) => {
@@ -58,6 +74,13 @@ test('o botão Tocar liga e desliga a animação', async ({ page }) => {
 	await expect(tocar).toHaveAttribute('aria-pressed', 'true');
 	await tocar.click();
 	await expect(tocar).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('a nota do Censo e da PNAD fica no fim da aba Brasil', async ({ page }) => {
+	await page.goto('/');
+	const nota = await page.locator('details.nota-pesquisa').boundingBox();
+	const analises = await page.locator('section.analises').boundingBox();
+	expect(nota!.y).toBeGreaterThan(analises!.y);
 });
 
 test('a aba Mundo aceita cinco linhas e avisa na sexta', async ({ page }) => {

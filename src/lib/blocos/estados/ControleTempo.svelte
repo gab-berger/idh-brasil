@@ -140,7 +140,7 @@
 		margin: 0 0 12px;
 	}
 
-	/* Anterior e próximo nas pontas; ano e play no centro, com o play menor. */
+	/* Anterior e próximo nas pontas; ano e play no centro. */
 	.controles {
 		display: grid;
 		grid-template-columns: 1fr auto 1fr;
@@ -148,8 +148,10 @@
 		gap: 6px;
 	}
 
+	/* Botões baixos: o desenho tem 34 px, e a área de toque (abaixo) chega a 44 px. */
 	.controles > button {
-		min-height: 44px;
+		position: relative;
+		min-height: 34px;
 		padding: 0 4px;
 		border: 1px solid var(--linha);
 		border-radius: 6px;
@@ -157,6 +159,12 @@
 		color: var(--texto);
 		font: inherit;
 		font-size: 0.85rem;
+	}
+
+	.controles > button::after {
+		content: '';
+		position: absolute;
+		inset: -5px 0;
 	}
 
 	.controles > button:disabled {
@@ -222,16 +230,16 @@
 		box-shadow: 4px 0 0 var(--texto);
 	}
 
+	/* Indicador discreto: um círculo pequeno, de contorno azul e miolo branco. */
 	.polegar {
 		position: absolute;
 		top: 50%;
-		width: 24px;
-		height: 24px;
-		margin: -12px 0 0 -12px;
-		border: 3px solid var(--fundo);
+		width: 14px;
+		height: 14px;
+		margin: -7px 0 0 -7px;
+		border: 2px solid var(--destaque);
 		border-radius: 50%;
-		background: var(--destaque);
-		box-shadow: 0 0 0 1px var(--texto);
+		background: var(--fundo);
 	}
 
 	.trilho:focus-visible .polegar {
