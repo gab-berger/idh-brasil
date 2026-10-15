@@ -53,7 +53,7 @@
 </script>
 
 <section id="comparacao" class="comparacao" aria-labelledby="comparacao-titulo">
-	<h2 id="comparacao-titulo">{t('mundo.grafico.titulo')}</h2>
+	<h2 id="comparacao-titulo">{t('mundo.titulo')}</h2>
 	{#if erro}
 		<p role="alert">{t('erro.carregar')}</p>
 	{:else if series.length === 0}
@@ -70,3 +70,9 @@
 		/>
 	{/if}
 </section>
+
+<style>
+	h2 {
+		margin: 16px 0 8px;
+	}
+</style>

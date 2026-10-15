@@ -2,11 +2,21 @@
 	import { resolve } from '$app/paths';
 	import Mundo from '#lib/blocos/Mundo.svelte';
 	import RankingMundo from '#lib/blocos/mundo/RankingMundo.svelte';
-	import Nota from '#lib/Nota.svelte';
+	import SubAbas from '#lib/SubAbas.svelte';
+	import TituloSite from '#lib/TituloSite.svelte';
 	import { t } from '#lib/textos';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	type Vista = 'evolucao' | 'ranking';
+	let vista: Vista = $state('evolucao');
+
+	/** As sub-abas da aba Mundo: a evolução do IDH e a posição do Brasil no ranking. */
+	const VISTAS: { chave: Vista; rotulo: string }[] = [
+		{ chave: 'evolucao', rotulo: t('mundo.vista.evolucao') },
+		{ chave: 'ranking', rotulo: t('subabas.ranking') }
+	];
 </script>
 
 <svelte:head>
@@ -14,41 +24,47 @@
 	<meta name="description" content={t('mundo.subtitulo')} />
 </svelte:head>
 
-<div class="texto">
-	<h2 class="pagina">{t('mundo.titulo')}</h2>
-	<p class="subtitulo">{t('mundo.subtitulo')}</p>
-	<p>{t('mundo.posicao.lead', { posicao: data.posicao.posicao, detalhe: data.posicao.detalhe })}</p>
-	<p>{data.evolucao}</p>
-</div>
+<SubAbas opcoes={VISTAS} atual={vista} aoEscolher={(chave) => (vista = chave)} rotulo={t('subabas.rotulo')} />
+<TituloSite />
 
-<Mundo />
+<p class="destaque">{data.destaque}</p>
 
-<section class="texto" aria-labelledby="ranking-titulo">
-	<h2 id="ranking-titulo">{t('mundo.ranking.titulo')}</h2>
-	<RankingMundo linhas={data.vizinhos} />
-	<Nota chave="nota.ranking" />
-</section>
+{#if vista === 'evolucao'}
+	<Mundo />
+	<p class="resposta">{data.evolucao}</p>
+{:else}
+	<section aria-labelledby="ranking-titulo">
+		<h2 id="ranking-titulo">{t('mundo.ranking.titulo')}</h2>
+		<RankingMundo linhas={data.vizinhos} />
+		<p class="nota-linha">{t('nota.ranking')}</p>
+	</section>
+{/if}
 
-<div class="texto">
-	<Nota chave="nota.medias" />
-	<Nota chave="nota.brics" />
-	<Nota chave="nota.idhm_vs_idh" />
-	<p class="seguir"><a href={resolve('/')}>{t('mundo.ir_brasil')}</a></p>
-</div>
+<!-- Como os números foram calculados, recolhido; por último, o link de volta ao Brasil. -->
+<details class="notas">
+	<summary>{t('mundo.sobre.resumo')}</summary>
+	<p>{t('mundo.subtitulo')}</p>
+	<p>{t('nota.medias')}</p>
+	<p>{t('nota.brics')}</p>
+	<p>{t('nota.idhm_vs_idh')}</p>
+</details>
+
+<p class="seguir"><a href={resolve('/')}>{t('mundo.ir_brasil')}</a></p>
 
 <style>
-	.pagina {
-		margin: 0 0 8px;
+	h2 {
+		margin: 16px 0 8px;
 	}
 
-	.seguir {
-		margin: 32px 0 0;
+	.resposta,
+	.notas,
+	section {
+		max-width: var(--largura-texto);
 	}
 
-	.seguir a {
-		display: inline-flex;
-		align-items: center;
-		color: var(--destaque);
-		font-weight: 600;
+	.nota-linha {
+		margin: 8px 0 0;
+		font-size: 0.9rem;
+		color: var(--texto-suave);
 	}
 </style>

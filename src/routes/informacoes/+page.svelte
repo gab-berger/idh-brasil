@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { dataBr } from '#lib/formato';
+	import TituloSite from '#lib/TituloSite.svelte';
 	import { t, type ChaveTexto } from '#lib/textos';
 	import type { Dimensao } from '#lib/tipos';
 	import type { PageProps } from './$types';
@@ -18,6 +19,8 @@
 	<title>{t('abas.informacoes')} · {t('site.titulo')}</title>
 	<meta name="description" content={t('entenda.subtitulo')} />
 </svelte:head>
+
+<TituloSite />
 
 <div class="texto">
 	<h2 class="pagina">{t('entenda.titulo')}</h2>

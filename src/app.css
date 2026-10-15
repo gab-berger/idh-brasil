@@ -7,7 +7,8 @@
 	--superficie: #f5f6f7;
 	--destaque: #0072b2;
 	--brasil: #d55e00;
-	--altura-menu: 48px;
+	--altura-menu: 40px;
+	--altura-abas: 52px;
 	--gutter: 16px;
 	--largura-texto: 720px;
 	/* Mapa e gráficos usam mais largura no computador; o texto corrido fica em --largura-texto. */
@@ -70,7 +71,44 @@ h2 {
 
 /* Quem rola até um id (#estados) para abaixo do cabeçalho fixo. */
 [id] {
-	scroll-margin-top: calc(var(--altura-menu) + var(--altura-titulo, 0px) + 8px);
+	scroll-margin-top: calc(var(--altura-menu) + var(--altura-abas) + 8px);
+}
+
+/* Linha de destaque, centrada: o indicador do Brasil no ano e na medida escolhidos. */
+.destaque {
+	margin: 4px 0 12px;
+	text-align: center;
+	text-wrap: balance;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Notas recolhidas no fim da aba: o mesmo desenho na aba Brasil e na aba Mundo. */
+.notas {
+	margin-top: 32px;
+	font-size: 0.9rem;
+	color: var(--texto-suave);
+}
+
+.notas summary {
+	padding: 12px 0;
+	cursor: pointer;
+}
+
+.notas p {
+	margin: 0 0 8px;
+}
+
+/* Link para a outra aba, sempre o último item da página. */
+.seguir {
+	margin: 24px 0 0;
+}
+
+.seguir a {
+	display: inline-flex;
+	align-items: center;
+	color: var(--destaque);
+	font-weight: 600;
 }
 
 /* Alvos de toque com pelo menos 44 px. */

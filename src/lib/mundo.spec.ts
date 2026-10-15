@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
-import { estiloDaLinha, evolucaoDoBrasil, GRUPOS, PAISES, posicaoNoMundo, rotuloDe, vizinhosDoBrasil } from './mundo';
+import { destaqueDoBrasil, estiloDaLinha, evolucaoDoBrasil, GRUPOS, PAISES, rotuloDe, vizinhosDoBrasil } from './mundo';
 import type { LinhaMedia, LinhaPais, Pais } from './tipos';
 
 // Os números da aba Mundo são conferidos contra os arquivos de dados prontos.
@@ -10,8 +10,8 @@ const paises = ler<Pais[]>('paises.json');
 const linhasPais = ler<LinhaPais[]>('idh_paises.json');
 const medias = ler<LinhaMedia[]>('medias.json');
 
-test('posição no mundo: 84º, IDH 0,786, empatado com Palau', () => {
-	expect(posicaoNoMundo(paises)).toEqual({ posicao: '84º', detalhe: 'IDH 0,786, empatado com Palau' });
+test('destaque de 2023: IDH 0,786, alto, em 84º de 193 países', () => {
+	expect(destaqueDoBrasil(paises)).toBe('IDH global do Brasil em 2023: 0,786 – alto | 84º / 193 países');
 });
 
 test('ranking: três logo acima, Brasil e o empatado, três logo abaixo (especificação, G7)', () => {

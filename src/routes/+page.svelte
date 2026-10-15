@@ -2,10 +2,22 @@
 	import { resolve } from '$app/paths';
 	import Analises from '#lib/Analises.svelte';
 	import Estados from '#lib/blocos/Estados.svelte';
+	import SubAbas from '#lib/SubAbas.svelte';
+	import TituloSite from '#lib/TituloSite.svelte';
+	import { estado } from '#lib/estado.svelte';
 	import { t } from '#lib/textos';
+	import type { Subaba } from '#lib/tipos';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	/** As sub-abas da aba Brasil, na ordem em que aparecem. */
+	const VISTAS: { chave: Subaba; rotulo: string }[] = [
+		{ chave: 'mapa', rotulo: t('subabas.mapa') },
+		{ chave: 'ranking', rotulo: t('subabas.ranking') },
+		{ chave: 'regioes', rotulo: t('subabas.regioes') },
+		{ chave: 'estado', rotulo: t('subabas.estado') }
+	];
 </script>
 
 <svelte:head>
@@ -13,42 +25,17 @@
 	<meta name="description" content={t('site.resumo')} />
 </svelte:head>
 
+<SubAbas opcoes={VISTAS} atual={estado.subaba} aoEscolher={(chave) => (estado.subaba = chave)} rotulo={t('subabas.rotulo')} />
+<TituloSite />
+
 <Estados />
 
 <Analises itens={data.analises} />
 
 <!-- Os dados de cada período, e por último o link para a aba Mundo. -->
-<details class="nota-pesquisa">
+<details class="notas">
 	<summary>{t('tempo.nota.resumo')}</summary>
 	<p>{t('nota.troca_pesquisa')}</p>
 </details>
 
 <p class="seguir"><a href={resolve('/mundo')}>{t('brasil.ir_mundo')}</a></p>
-
-<style>
-	.nota-pesquisa {
-		margin-top: 32px;
-		font-size: 0.9rem;
-		color: var(--texto-suave);
-	}
-
-	.nota-pesquisa summary {
-		padding: 12px 0;
-		cursor: pointer;
-	}
-
-	.nota-pesquisa p {
-		margin: 0 0 8px;
-	}
-
-	.seguir {
-		margin: 24px 0 0;
-	}
-
-	.seguir a {
-		display: inline-flex;
-		align-items: center;
-		color: var(--destaque);
-		font-weight: 600;
-	}
-</style>

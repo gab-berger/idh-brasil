@@ -1,8 +1,9 @@
 /**
  * Aba Mundo: a posição do Brasil no ranking, a leitura da evolução e as linhas da comparação.
- * As funções são puras. O build chama as que leem arquivos (posição, ranking, evolução); o navegador
+ * As funções são puras. O build chama as que leem arquivos (destaque, ranking, evolução); o navegador
  * chama as que montam as linhas do gráfico.
  */
+import { faixaIdh } from './escalas';
 import { juntar, num, posicao } from './formato';
 import { obrigatorio } from './obrigatorio';
 import { t, type ChaveTexto } from './textos';
@@ -91,23 +92,22 @@ function temRanking(pais: Pais): pais is ComRanking {
 
 const porNome = (a: Pais, b: Pais): number => a.nome_pt.localeCompare(b.nome_pt, 'pt-BR');
 
-/** Posição do Brasil no ranking de 2023, com o IDH e os empatados. */
-export function posicaoNoMundo(paises: Pais[]): { posicao: string; detalhe: string } {
+/** Linha de destaque da aba Mundo, no mesmo formato da aba Estado: "IDH global do Brasil em 2023: 0,786 – alto | 84º / 193 países". */
+export function destaqueDoBrasil(paises: Pais[]): string {
 	const brasil = obrigatorio(
 		paises.find((pais) => pais.iso3 === 'BRA'),
 		'Brasil no HDR'
 	);
-	const posicaoBr = obrigatorio(brasil.posicao_2023, 'posição do Brasil em 2023');
-	const idhBr = obrigatorio(brasil.idh_2023, 'IDH do Brasil em 2023');
-	const empatados = paises
-		.filter((pais) => pais.iso3 !== 'BRA' && pais.posicao_2023 === posicaoBr)
-		.map((pais) => pais.nome_pt);
-	const detalhe =
-		empatados.length > 0
-			? t('mundo.posicao.detalhe', { idh: num(idhBr), outros: juntar(empatados) })
-			: t('mundo.posicao.detalhe_sem_empate', { idh: num(idhBr) });
-	return { posicao: posicao(posicaoBr), detalhe };
+	const idh = obrigatorio(brasil.idh_2023, 'IDH do Brasil em 2023');
+	const pos = obrigatorio(brasil.posicao_2023, 'posição do Brasil em 2023');
+	return t('destaque.mundo', {
+		valor: num(idh),
+		faixa: t(`faixa.${faixaIdh(idh)}`),
+		posicao: posicao(pos),
+		total: paises.filter(temRanking).length
+	});
 }
+
 
 /** Países perto do Brasil no ranking de 2023: os 3 logo acima, o Brasil com os empatados, os 3 logo abaixo. */
 export function vizinhosDoBrasil(paises: Pais[]): LinhaRanking[] {

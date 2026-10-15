@@ -25,6 +25,7 @@
 
 <style>
 	.cabecalho {
+		box-sizing: border-box;
 		position: fixed;
 		top: 0;
 		right: 0;
@@ -66,6 +67,20 @@
 		font-weight: 700;
 		text-decoration: none;
 		white-space: nowrap;
+	}
+
+	/* Alvos de toque de 44 px num cabeçalho de 40 px: a área extra fica num pseudo-elemento. */
+	.marca,
+	nav a {
+		position: relative;
+		min-height: 0;
+	}
+
+	.marca::after,
+	nav a::after {
+		content: '';
+		position: absolute;
+		inset: -3px 0;
 	}
 
 	/* As abas dividem a largura que sobra, em vez de ficarem agrupadas à direita. */

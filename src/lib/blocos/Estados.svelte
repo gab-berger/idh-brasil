@@ -2,11 +2,10 @@
 	import { onMount } from 'svelte';
 	import { carregar } from '#lib/dados';
 	import { estado } from '#lib/estado.svelte';
-	import { rolagem } from '#lib/rolagem.svelte';
 	import { textoResumo } from '#lib/resumo';
 	import { linhaUf, ufsDoAno } from '#lib/series';
 	import { t } from '#lib/textos';
-	import type { LinhaUf, MapaTopo, Subaba } from '#lib/tipos';
+	import type { LinhaUf, MapaTopo } from '#lib/tipos';
 	import Regioes from './Regioes.svelte';
 	import ControleTempo from './estados/ControleTempo.svelte';
 	import EscolherEstado from './estados/EscolherEstado.svelte';
@@ -16,9 +15,6 @@
 	import Ranking from './estados/Ranking.svelte';
 	import SelecaoEstado from './estados/SelecaoEstado.svelte';
 	import SeletorMedida from './estados/SeletorMedida.svelte';
-
-	/** As sub-abas, na ordem em que aparecem. */
-	const SUBABAS: Subaba[] = ['mapa', 'ranking', 'regioes', 'estado'];
 
 	let uf: LinhaUf[] | null = $state.raw(null);
 	let topo: MapaTopo | null = $state.raw(null);
@@ -44,14 +40,6 @@
 	{:else if !uf || !topo}
 		<p>{t('carregando')}</p>
 	{:else}
-		<div class="subabas" class:oculto={rolagem.oculto} role="group" aria-label={t('subabas.rotulo')}>
-			{#each SUBABAS as aba (aba)}
-				<button type="button" aria-pressed={estado.subaba === aba} onclick={() => (estado.subaba = aba)}>
-					{t(`subabas.${aba}`)}
-				</button>
-			{/each}
-		</div>
-
 		{#if estado.subaba !== 'estado'}
 			<SeletorMedida />
 		{/if}
@@ -91,61 +79,6 @@
 </div>
 
 <style>
-	/* As sub-abas ficam fixas abaixo do cabeçalho. Ao descer, somem junto com ele; ao subir, voltam. */
-	.subabas {
-		position: sticky;
-		top: calc(var(--altura-menu) + var(--altura-titulo));
-		z-index: 8;
-		display: flex;
-		gap: 6px;
-		margin: 0 calc(-1 * var(--gutter)) 12px;
-		padding: 8px var(--gutter);
-		border-bottom: 1px solid var(--linha);
-		background: var(--fundo);
-		transition: transform 200ms ease;
-	}
-
-	.subabas.oculto {
-		transform: translateY(calc(-100% - var(--altura-menu) - var(--altura-titulo)));
-	}
-
-	.subabas.oculto:focus-within {
-		transform: none;
-	}
-
-	.subabas button {
-		flex: 1 1 auto;
-		position: relative;
-		min-height: 34px;
-		padding: 0 8px;
-		border: 1px solid var(--linha);
-		border-radius: 6px;
-		background: var(--fundo);
-		color: var(--texto);
-		font: inherit;
-		font-size: 0.9rem;
-	}
-
-	.subabas button::after {
-		content: '';
-		position: absolute;
-		inset: -5px 0;
-	}
-
-	.subabas button[aria-pressed='true'] {
-		border-color: var(--destaque);
-		background: var(--destaque);
-		color: var(--fundo);
-		font-weight: 600;
-	}
-
-	.destaque {
-		margin: 4px 0 12px;
-		text-align: center;
-		font-weight: 600;
-		font-variant-numeric: tabular-nums;
-	}
-
 	/* O mapa tem no máximo 640 px no computador, para caber na tela junto com a linha do tempo. */
 	.vista-mapa {
 		max-width: 640px;
