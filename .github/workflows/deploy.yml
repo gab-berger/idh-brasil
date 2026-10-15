@@ -17,7 +17,9 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # A fixed Ubuntu version: the browser test installs system packages that depend on it, and ubuntu-latest
+    # moves to a new version from time to time.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -33,7 +35,7 @@ jobs:
   build:
     needs: test
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -51,7 +53,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       pages: write
       id-token: write

@@ -19,4 +19,10 @@
 	.page-title {
 		margin: 0 0 8px;
 	}
+
+	/* The same link color as the rest of the site, readable in both themes. */
+	a {
+		color: var(--accent);
+		font-weight: 600;
+	}
 </style>
