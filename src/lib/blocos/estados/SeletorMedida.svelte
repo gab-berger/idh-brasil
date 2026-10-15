@@ -13,28 +13,23 @@
 </div>
 
 <style>
-	/* No celular, duas colunas: "Longevidade" não cabe em um quarto da largura. */
+	/* Uma linha só: cada botão toma a largura do próprio texto, e o espaço sobrante é dividido. */
 	.seletor {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		display: flex;
 		gap: 4px;
 	}
 
-	@media (min-width: 480px) {
-		.seletor {
-			grid-template-columns: repeat(4, 1fr);
-		}
-	}
-
 	button {
+		flex: 1 1 auto;
 		min-height: 44px;
-		padding: 0 4px;
+		padding: 0 6px;
 		border: 1px solid var(--linha);
 		border-radius: 6px;
 		background: var(--fundo);
 		color: var(--texto);
 		font: inherit;
-		font-size: 0.9rem;
+		font-size: 0.875rem;
+		white-space: nowrap;
 	}
 
 	button[aria-pressed='true'] {

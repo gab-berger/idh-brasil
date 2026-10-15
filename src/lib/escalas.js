@@ -1,6 +1,6 @@
 /**
  * Escalas, faixas e cores da interface. Os valores vêm da especificação
- * (PLANO.md: Design visual e Regras de dados); nada aqui é lido dos dados.
+ * (especificação, em Design visual e Regras de dados); nada aqui é lido dos dados.
  */
 import { interpolateYlGnBu, scaleSequential } from 'd3';
 
@@ -11,6 +11,7 @@ export const ANOS = [1991, 2000, 2010, ...Array.from({ length: 13 }, (_, i) => 2
 export const MEDIDAS = /** @type {const} */ (['idhm', 'longevidade', 'educacao', 'renda']);
 
 /** Domínio fixo de cada medida: do menor ao maior valor da série inteira (1991 a 2024). */
+/** @type {Record<Medida, [number, number]>} */
 export const DOMINIOS = {
 	idhm: [0.35, 0.9],
 	educacao: [0.15, 0.9],
@@ -51,6 +52,17 @@ export function faixaIdh(valor) {
  */
 export function corMapa(medida) {
 	return scaleSequential(DOMINIOS[medida], interpolateYlGnBu).clamp(true);
+}
+
+/**
+ * Posição de um valor dentro do domínio de uma medida: 0 no mínimo, 1 no máximo.
+ * Usada para comprimento de barras, então a diferença entre estados fica visível.
+ * @param {number} valor
+ * @param {[number, number]} dominio
+ */
+export function posicaoNoDominio(valor, dominio) {
+	const [minimo, maximo] = dominio;
+	return Math.min(1, Math.max(0, (valor - minimo) / (maximo - minimo)));
 }
 
 /** Cor do Brasil em todos os gráficos de linha. */

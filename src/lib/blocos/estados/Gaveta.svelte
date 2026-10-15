@@ -1,6 +1,6 @@
 <script>
 	import { alternarUf, estado } from '#lib/estado.svelte.js';
-	import { CORES_DIMENSAO, faixaIdhm } from '#lib/escalas.js';
+	import { CORES_DIMENSAO, DOMINIOS, faixaIdhm, posicaoNoDominio } from '#lib/escalas.js';
 	import { num, posicao } from '#lib/formato.js';
 	import { posicoes } from '#lib/ranking.js';
 	import { t } from '#lib/textos.js';
@@ -42,7 +42,7 @@
 			{#each DIMENSOES as dimensao (dimensao)}
 				<li>
 					<span class="nome">{t(`medida.${dimensao}`)}</span>
-					<span class="barra"><span style:width={`${linha[dimensao] * 100}%`} style:background={CORES_DIMENSAO[dimensao]}></span></span>
+					<span class="barra"><span style:width={`${posicaoNoDominio(linha[dimensao], DOMINIOS[dimensao]) * 100}%`} style:background={CORES_DIMENSAO[dimensao]}></span></span>
 					<span class="valor">{num(linha[dimensao])}</span>
 				</li>
 			{/each}

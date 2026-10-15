@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
 import { linhaUf, serie, ufsDoAno } from './series.js';
 
-// Os números dos cartões de abertura e dos destaques vêm da especificação (PLANO.md).
+// Os números dos cartões de abertura e dos destaques vêm da especificação (documento de apoio, fora do repositório).
 // Este teste confere cada um contra o arquivo de dados, para que nada saia errado para a tela.
 const uf = /** @type {any[]} */ (
 	JSON.parse(readFileSync(new URL('../../dados/prontos/idhm_uf.json', import.meta.url), 'utf-8'))

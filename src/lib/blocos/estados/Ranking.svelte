@@ -1,6 +1,6 @@
 <script>
 	import { alternarUf, estado } from '#lib/estado.svelte.js';
-	import { corMapa } from '#lib/escalas.js';
+	import { corMapa, DOMINIOS, posicaoNoDominio } from '#lib/escalas.js';
 	import { num, posicao } from '#lib/formato.js';
 	import { posicoes } from '#lib/ranking.js';
 	import { t } from '#lib/textos.js';
@@ -8,11 +8,23 @@
 	/** @type {{ linhas: any[], brasil?: any }} */
 	let { linhas, brasil } = $props();
 
+	// Barras na escala fixa da medida (a mesma do mapa): a distância entre estados aparece no comprimento.
+	const dominio = $derived(DOMINIOS[estado.medida]);
 	const cor = $derived(corMapa(estado.medida));
 	const pos = $derived(posicoes(linhas, estado.medida));
 	const ordenadas = $derived([...linhas].sort((a, b) => b[estado.medida] - a[estado.medida]));
 	const valorBrasil = $derived(brasil?.[estado.medida]);
+
+	/** @param {number} valor */
+	const fracao = (valor) => posicaoNoDominio(valor, dominio);
 </script>
+
+<div class="eixo" aria-hidden="true">
+	<span></span>
+	<span></span>
+	<span class="faixa-eixo"><span>{num(dominio[0])}</span><span>{num(dominio[1])}</span></span>
+	<span></span>
+</div>
 
 <div class="lista">
 	<ol aria-label={t('ranking.rotulo', { medida: t(`medida.${estado.medida}`), ano: estado.ano })}>
@@ -22,7 +34,7 @@
 				<button type="button" aria-pressed={estado.ufSelecionada === linha.uf} onclick={() => alternarUf(linha.uf)}>
 					<span class="posicao">{posicao(pos.get(linha.uf) ?? 0)}</span>
 					<span class="nome">{linha.nome}</span>
-					<span class="barra"><span style:width={`${valor * 100}%`} style:background={cor(valor)}></span></span>
+					<span class="barra"><span style:width={`${fracao(valor) * 100}%`} style:background={cor(valor)}></span></span>
 					<span class="valor">{num(valor)}</span>
 				</button>
 			</li>
@@ -31,7 +43,7 @@
 
 	<!-- Mesmas colunas das linhas acima (pos + nome à esquerda, valor à direita): a linha cai exatamente no valor do Brasil. -->
 	{#if valorBrasil !== undefined}
-		<span class="referencia" style:left={`calc(9.5rem + (100% - 13.5rem) * ${valorBrasil})`} aria-hidden="true"></span>
+		<span class="referencia" style:left={`calc(9.5rem + (100% - 13.5rem) * ${fracao(valorBrasil)})`} aria-hidden="true"></span>
 	{/if}
 </div>
 {#if valorBrasil !== undefined}
@@ -39,6 +51,21 @@
 {/if}
 
 <style>
+	/* Mesmas colunas da lista, para os extremos do eixo ficarem nas pontas da barra. */
+	.eixo {
+		display: grid;
+		grid-template-columns: 2.5rem 7rem minmax(0, 1fr) 4rem;
+		margin-bottom: 4px;
+		font-size: 0.75rem;
+		color: var(--texto-suave);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.faixa-eixo {
+		display: flex;
+		justify-content: space-between;
+	}
+
 	.lista {
 		position: relative;
 	}

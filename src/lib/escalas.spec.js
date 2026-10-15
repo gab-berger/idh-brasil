@@ -9,7 +9,8 @@ import {
 	corMapa,
 	DOMINIOS,
 	faixaIdh,
-	faixaIdhm
+	faixaIdhm,
+	posicaoNoDominio
 } from './escalas.js';
 
 const dadosUf = /** @type {any[]} */ (
@@ -81,4 +82,12 @@ test('cada cor de linha e de dimensão tem contraste de 3:1 ou mais sobre branco
 	for (const cor of cores) {
 		expect(contrasteNoBranco(cor)).toBeGreaterThanOrEqual(3);
 	}
+});
+
+test('posição no domínio: 0 no mínimo, 1 no máximo, e nunca fora de 0 a 1', () => {
+	expect(posicaoNoDominio(0.35, DOMINIOS.idhm)).toBe(0);
+	expect(posicaoNoDominio(0.9, DOMINIOS.idhm)).toBe(1);
+	expect(posicaoNoDominio(0.625, DOMINIOS.idhm)).toBeCloseTo(0.5);
+	expect(posicaoNoDominio(0.2, DOMINIOS.idhm)).toBe(0);
+	expect(posicaoNoDominio(1, DOMINIOS.idhm)).toBe(1);
 });
