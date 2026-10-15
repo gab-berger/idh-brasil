@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
-import { destaqueDoBrasil, estiloDaLinha, evolucaoDoBrasil, GRUPOS, PAISES, rankingDoAno, rotuloDe } from './mundo';
+import { analisesDaEvolucao, destaqueDoBrasil, estiloDaLinha, GRUPOS, PAISES, rankingDoAno, rotuloDe } from './mundo';
 import type { LinhaMedia, LinhaPais, Pais, RankingAnos } from './tipos';
 
 // Os números da aba Mundo são conferidos contra os arquivos de dados prontos.
@@ -37,10 +37,18 @@ test('em 1990, só entram os países com dado: 141, na ordem da posição', () =
 	expect(posicoes).toEqual([...posicoes].sort((a, b) => a - b));
 });
 
-test('evolução de 2000 a 2023: o Brasil subiu quase no mesmo ritmo que o mundo', () => {
-	expect(evolucaoDoBrasil(linhasPais, medias)).toBe(
-		'Entre 2000 e 2023, o IDH do Brasil subiu 0,096 e a média dos países subiu 0,105. Ou seja, o Brasil evoluiu quase no mesmo ritmo que o resto do mundo. O Brasil subiu mais que América Latina e Caribe, Europa e Oceania. Subiu menos que África, Ásia e BRICS.'
-	);
+test('evolução de 2000 a 2023 em três blocos: o Brasil subiu quase no mesmo ritmo que o mundo', () => {
+	const analises = analisesDaEvolucao(linhasPais, medias);
+	expect(analises.map((a) => a.texto)).toEqual([
+		'Entre 2000 e 2023, o IDH do Brasil subiu 0,096 e a média dos países subiu 0,105. Ou seja, o Brasil evoluiu quase no mesmo ritmo que o resto do mundo.',
+		'O Brasil subiu mais que América Latina e Caribe, Europa e Oceania.',
+		'Subiu menos que África, Ásia e BRICS.'
+	]);
+	expect(analises.map((a) => a.titulo)).toEqual([
+		'Qual o ritmo do Brasil em relação ao mundo?',
+		'Quais grupos o Brasil superou no crescimento?',
+		'Quais grupos superaram o Brasil no crescimento?'
+	]);
 });
 
 test('estilo das linhas: médias tracejadas, países contínuos, a quinta pontilhada', () => {

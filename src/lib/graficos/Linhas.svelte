@@ -51,9 +51,10 @@
 			.y((p) => y(p.valor))
 	);
 
-	// Ano sob o ponteiro (mouse ou dedo). Sem ponteiro, a leitura mostra o último ano.
+	// Ano sob o ponteiro (mouse ou dedo). Sem ponteiro, a leitura segue a linha do tempo (o marcador);
+	// sem marcador, mostra o último ano.
 	let anoFoco: number | null = $state(null);
-	const anoLeitura = $derived(anoFoco ?? anos[1]);
+	const anoLeitura = $derived(anoFoco ?? marcador ?? anos[1]);
 
 	function valorEm(serie: SerieLinha, ano: number): number | undefined {
 		return serie.pontos.find((p) => p.ano === ano)?.valor;

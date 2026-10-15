@@ -102,7 +102,7 @@ for _, r in paises[paises.iso3.isin(COMPARAR)].iterrows():
         d = {'iso3': r.iso3, 'ano': a}
         for k, nk in ind.items():
             v = r.get(f'{k}_{a}')
-            d[nk] = None if pd.isna(v) else round(float(v), 3 if k == 'hdi' else 2 if k != 'gnipc' else 0)
+            d[nk] = None if pd.isna(v) else round(float(v), 0 if k == 'gnipc' else 3)
         reg_p.append(d)
 grava_json('idh_paises.json', reg_p, separators=(',', ':'))
 br = paises[paises.iso3 == 'BRA'].iloc[0]
@@ -184,7 +184,7 @@ log.append(f"     ranking por ano: {len(pos_por_ano[1990])} países em 1990, {le
 
 # ---------- 5. Fontes ----------
 fontes = [
- {'id': 'atlas', 'nome': 'Atlas do Desenvolvimento Humano no Brasil (PNUD, Ipea e FJP)', 'edicao': 'Censos 1991-2010 e PNAD Contínua 2012-2024',
+ {'id': 'atlas', 'nome': 'Atlas do Desenvolvimento Humano no Brasil (PNUD, Ipea e FJP)', 'edicao': 'Censos 1991, 2000 e 2010; PNAD Contínua de 2012 a 2024, na série revisada do Radar IDHM (maio de 2026)',
   'url': 'https://www.atlasbrasil.org.br/', 'licenca': 'uso confirmado em 14/10/2026; citar o Atlas', 'data_acesso': DATA_ACESSO},
  {'id': 'hdr', 'nome': 'Human Development Report 2025 (PNUD)', 'edicao': 'Série composta 1990-2023',
   'url': 'https://hdr.undp.org/data-center/documentation-and-downloads', 'licenca': 'CC BY 3.0 IGO', 'data_acesso': DATA_ACESSO},

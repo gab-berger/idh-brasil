@@ -7,7 +7,7 @@ import { faixaIdh } from './escalas';
 import { juntar, num, posicao } from './formato';
 import { obrigatorio } from './obrigatorio';
 import { t, type ChaveTexto } from './textos';
-import type { EstiloLinha, LinhaMedia, LinhaPais, LinhaRanking, Pais, RankingAnos } from './tipos';
+import type { Analise, EstiloLinha, LinhaMedia, LinhaPais, LinhaRanking, Pais, RankingAnos } from './tipos';
 
 /** Grupos de comparação (médias de países), na ordem da lista de linhas. */
 export const GRUPOS = ['mundo', 'africa', 'america_latina_caribe', 'asia', 'europa', 'oceania', 'brics'];
@@ -59,31 +59,48 @@ function subiu(chave: string, paises: LinhaPais[], medias: LinhaMedia[]): number
 	return Math.round((fim.valor - ini.valor) * 1000) / 1000;
 }
 
-/** Responde à pergunta da aba: o Brasil evoluiu mais ou menos que o resto do mundo? Calculado no build. */
-export function evolucaoDoBrasil(paises: LinhaPais[], medias: LinhaMedia[]): string {
+/**
+ * Responde à pergunta da aba em blocos de análise, no formato da aba Brasil: o ritmo do Brasil em relação ao mundo,
+ * os grupos que o Brasil superou e os que o superaram. Calculado no build.
+ */
+export function analisesDaEvolucao(paises: LinhaPais[], medias: LinhaMedia[]): Analise[] {
 	const brasil = obrigatorio(subiu('BRA', paises, medias), 'evolução do Brasil');
 	const mundo = obrigatorio(subiu('mundo', paises, medias), 'evolução do mundo');
 	const diferenca = brasil - mundo;
 	// Diferença menor que 0,01 é "quase no mesmo ritmo": os números já mostram a diferença exata.
 	const ritmo = Math.abs(diferenca) < 0.01 ? 'ritmo_igual' : diferenca < 0 ? 'ritmo_menos' : 'ritmo_mais';
-	const frases = [
-		t('mundo.evolucao.texto', {
-			ano_ini: INICIO,
-			ano_fim: FIM,
-			delta_br: num(Math.abs(brasil)),
-			delta_mundo: num(Math.abs(mundo)),
-			ritmo: t(`mundo.evolucao.${ritmo}`)
-		})
-	];
 	const grupos = GRUPOS.filter((g) => g !== 'mundo').map((g) => ({
 		chave: g,
 		subiu: obrigatorio(subiu(g, paises, medias), `evolução de ${g}`)
 	}));
 	const mais = grupos.filter((g) => brasil > g.subiu).map((g) => rotuloDe(g.chave));
 	const menos = grupos.filter((g) => brasil < g.subiu).map((g) => rotuloDe(g.chave));
-	frases.push(mais.length > 0 ? t('mundo.evolucao.mais', { lista: juntar(mais) }) : t('mundo.evolucao.mais_nenhum'));
-	if (menos.length > 0) frases.push(t('mundo.evolucao.menos', { lista: juntar(menos) }));
-	return frases.join(' ');
+	const analises: Analise[] = [
+		{
+			id: 'ritmo',
+			titulo: t('mundo.analise.ritmo'),
+			texto: t('mundo.evolucao.texto', {
+				ano_ini: INICIO,
+				ano_fim: FIM,
+				delta_br: num(Math.abs(brasil)),
+				delta_mundo: num(Math.abs(mundo)),
+				ritmo: t(`mundo.evolucao.${ritmo}`)
+			})
+		},
+		{
+			id: 'superou',
+			titulo: t('mundo.analise.superou'),
+			texto: mais.length > 0 ? t('mundo.evolucao.mais', { lista: juntar(mais) }) : t('mundo.evolucao.mais_nenhum')
+		}
+	];
+	if (menos.length > 0) {
+		analises.push({
+			id: 'superaram',
+			titulo: t('mundo.analise.superaram'),
+			texto: t('mundo.evolucao.menos', { lista: juntar(menos) })
+		});
+	}
+	return analises;
 }
 
 function temRanking(pais: Pais): pais is ComRanking {

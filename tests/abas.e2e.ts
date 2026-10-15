@@ -125,6 +125,25 @@ test('a legenda das linhas fica embaixo do gráfico, e a leitura embaixo da lege
 	expect(leitura!.y).toBeGreaterThan(legenda!.y);
 });
 
+test('o play atualiza o resumo do gráfico de regiões, ano a ano', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Regiões', exact: true }).click();
+	await page.getByRole('slider').focus();
+	await page.keyboard.press('Home');
+	await expect(page.getByText(/^Em 1991:/)).toBeVisible();
+	await page.locator('button.tocar').click();
+	await expect(page.getByText(/^Em 2000:/)).toBeVisible({ timeout: 5000 });
+	await page.locator('button.tocar').click();
+});
+
+test('o resumo do gráfico de estado acompanha a linha do tempo', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: /^Maranhão, IDHM/ }).click();
+	await page.getByRole('button', { name: 'Ver detalhes' }).click();
+	await page.locator('.tempo').getByRole('button', { name: '◀ Anterior' }).click();
+	await expect(page.getByText(/^Em 2023:/)).toBeVisible();
+});
+
 test('as análises giram à mão: uma por vez, em ordem', async ({ page }) => {
 	await page.goto('/');
 	const atual = page.locator('section.analises .analise:not([hidden])');
@@ -217,10 +236,24 @@ test('a seleção de ano troca a lista e o título', async ({ page }) => {
 	await expect(page.getByText('países com dado em 2010')).toBeVisible();
 });
 
-test('a observação do final da aba Mundo é um bloco do rotativo, mesmo com um item só', async ({ page }) => {
+test('as observações da aba Mundo são uma seção expansível, com títulos em negrito', async ({ page }) => {
 	await page.goto('/mundo');
-	await expect(page.locator('section.analises h3')).toHaveText('Sobre os dados e as médias');
-	await expect(page.locator('section.analises .controles')).toHaveCount(0);
+	const observacoes = page.locator('details.observacoes');
+	await expect(observacoes).not.toHaveAttribute('open', '');
+	await observacoes.locator('summary').click();
+	await expect(observacoes).toHaveAttribute('open', '');
+	const titulos = observacoes.locator('dt');
+	await expect(titulos).toHaveText(['Fonte', 'Médias', 'BRICS', 'IDHM e IDH']);
+	expect(await titulos.first().evaluate((el) => getComputedStyle(el).fontWeight)).toBe('600');
+});
+
+test('a evolução do Brasil vem em blocos de informações, como na aba Brasil', async ({ page }) => {
+	await page.goto('/mundo');
+	const atual = page.locator('section.analises .analise:not([hidden])');
+	await expect(atual).toHaveCount(1);
+	await expect(atual.locator('h3')).toHaveText('Qual o ritmo do Brasil em relação ao mundo?');
+	await page.locator('section.analises .controles button', { hasText: 'Próxima' }).click();
+	await expect(atual.locator('h3')).toHaveText('Quais grupos o Brasil superou no crescimento?');
 });
 
 test('Informações: as perguntas abrem e fecham', async ({ page }) => {
