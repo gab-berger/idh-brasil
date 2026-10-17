@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { interpolateRdYlBu, interpolateYlGnBu, rgb } from 'd3';
 import { expect, test } from 'vitest';
-import { BRAZIL_COLOR, DIMENSION_COLORS, hdiBand, idhmBand, LINE_COLORS, MEASURES, mapColor, positionInDomain, REGION_COLORS, VALUE_DOMAIN, YEARS } from './scales';
+import { BRAZIL_COLOR, DIMENSION_COLORS, hdiBand, idhmBand, LINE_COLORS, MEASURES, mapColor, positionInDomain, VALUE_DOMAIN, YEARS } from './scales';
 import { t } from './texts';
 import type { HdiBand, IdhmBand, StateRow } from './types';
 
@@ -82,13 +82,8 @@ test('the colorblind palette is yellow, green and blue, and it changes the map c
 	expect(mapColor(true)(0.9)).not.toBe(mapColor()(0.9));
 });
 
-test('every line, dimension and region color has a 3:1 contrast or more on white', () => {
-	const colors = [
-		BRAZIL_COLOR,
-		...LINE_COLORS,
-		...Object.values(DIMENSION_COLORS),
-		...Object.values(REGION_COLORS).map((region) => region.color)
-	];
+test('every line and dimension color has a 3:1 contrast or more on white', () => {
+	const colors = [BRAZIL_COLOR, ...LINE_COLORS, ...Object.values(DIMENSION_COLORS)];
 	for (const color of colors) {
 		expect(contrastOnWhite(lightValue(color))).toBeGreaterThanOrEqual(3);
 	}

@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { REGION_GROUPS, regionKey, regionName } from '#lib/evolution';
 	import { store } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
 	import type { StateRow } from '#lib/types';
 
-	let { rows }: { rows: StateRow[] } = $props();
+	// states: the rows of the Atlas file, only for the name of each state.
+	let { states }: { states: StateRow[] } = $props();
 
-	// Alphabetical: the quickest way to find a small state on the map, such as DF or Sergipe.
-	const options = $derived([...rows].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')));
+	const names = $derived(new Map(states.map((row): [string, string] => [row.code, row.name])));
 </script>
 
 <!-- A block like the questions on the Information page: a title, the control, and a line below. -->
@@ -18,8 +19,18 @@
 		onchange={(event) => (store.selectedCode = event.currentTarget.value || null)}
 	>
 		<option value="">{t('choose.none')}</option>
-		{#each options as row (row.code)}
-			<option value={row.code}>{row.name}</option>
+		<optgroup label={t('choose.regions')}>
+			{#each REGION_GROUPS as group (group.code)}
+				<option value={regionKey(group.code)}>{regionName(group.code)}</option>
+			{/each}
+		</optgroup>
+		<!-- The states in the order of the line selector: by region, then by name. -->
+		{#each REGION_GROUPS as group (group.code)}
+			<optgroup label={t('choose.states', { region: regionName(group.code) })}>
+				{#each group.states as code (code)}
+					<option value={code}>{names.get(code) ?? code}</option>
+				{/each}
+			</optgroup>
 		{/each}
 	</select>
 </section>

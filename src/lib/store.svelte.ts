@@ -2,7 +2,8 @@
  * Shared state of the blocks. Only the functions of this file change the values, so the rules
  * (years with data, at most 5 lines, stable colors) live in one place.
  */
-import { LINE_COLORS, MAX_LINES, YEARS } from './scales';
+import { regionKey } from './evolution';
+import { LINE_COLORS, MAX_LINES, REGIONS, YEARS } from './scales';
 import type { Action, Measure, SubTab } from './types';
 
 const COLORBLIND_KEY = 'idh-brasil:colorblind';
@@ -20,6 +21,7 @@ function readColorblind(): boolean {
 export const store = $state({
 	year: 2024,
 	measure: 'idhm' as Measure,
+	/** The place chosen on the map, in the ranking or in the evolution tab: a state code or a region key. Null is none (Brazil, in the evolution tab). */
 	selectedCode: null as string | null,
 	subtab: 'map' as SubTab,
 	/** Year of the world ranking, shared by its controls and its list. Null until the data is read. */
@@ -33,7 +35,12 @@ export const store = $state({
 		brics: LINE_COLORS[1],
 		USA: LINE_COLORS[2],
 		CHN: LINE_COLORS[3]
-	} as Record<string, string>
+	} as Record<string, string>,
+	/** Lines on in the comparison of regions and states: key -> color. Up to MAX_LINES, besides Brazil. Opens with the five regions. */
+	compare: Object.fromEntries(REGIONS.map((code, index) => [regionKey(code), LINE_COLORS[index % LINE_COLORS.length]])) as Record<
+		string,
+		string
+	>
 });
 
 /** Takes the map and the charts to a year with data. */
@@ -43,21 +50,31 @@ export function goToYear(year: number): void {
 }
 
 /**
- * Turns a comparison line on or off. Returns false when the limit blocks the action.
+ * Turns a line of a set on or off. Returns false when the limit blocks the action.
  * A new line takes the first free color; the others keep theirs.
  */
-export function toggleLine(key: string): boolean {
-	if (key in store.lines) {
-		delete store.lines[key];
+function toggleIn(lines: Record<string, string>, key: string): boolean {
+	if (key in lines) {
+		delete lines[key];
 		return true;
 	}
-	if (Object.keys(store.lines).length >= MAX_LINES) return false;
-	const used = Object.values(store.lines);
-	store.lines[key] = LINE_COLORS.find((color) => !used.includes(color)) ?? LINE_COLORS[0];
+	if (Object.keys(lines).length >= MAX_LINES) return false;
+	const used = Object.values(lines);
+	lines[key] = LINE_COLORS.find((color) => !used.includes(color)) ?? LINE_COLORS[0];
 	return true;
 }
 
-/** Takes the Brazil tab to the view of an analysis: measure, year, state and sub-tab. Stops the animation if it is playing. */
+/** Turns a line of the world comparison on or off. */
+export function toggleLine(key: string): boolean {
+	return toggleIn(store.lines, key);
+}
+
+/** Turns a line of the comparison of regions and states on or off. */
+export function toggleCompare(key: string): boolean {
+	return toggleIn(store.compare, key);
+}
+
+/** Takes the Brazil tab to the view of an analysis: measure, year, place and sub-tab. Stops the animation if it is playing. */
 export function goToView(action: Action): void {
 	store.playing = false;
 	if (action.measure) store.measure = action.measure;

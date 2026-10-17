@@ -13,11 +13,11 @@
 </div>
 
 <style>
-	/* Same design as the sub-tabs: the chosen one is a whole blue block. */
+	/* Second row under the sub-tabs, with the same design: the chosen one is a whole blue block. */
 	.selector {
 		display: flex;
+		flex: 1 1 auto;
 		gap: 6px;
-		margin: 0 0 12px;
 	}
 
 	button {

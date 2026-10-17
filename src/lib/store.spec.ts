@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { LINE_COLORS } from './scales';
-import { goToView, goToYear, setColorblind, store, toggleLine, toggleState } from './store.svelte';
+import { goToView, goToYear, setColorblind, store, toggleCompare, toggleLine, toggleState } from './store.svelte';
 
 test('opens with the world, BRICS, the USA and China, in that order, and with no state selected', () => {
 	expect(Object.keys(store.lines)).toEqual(['world', 'brics', 'USA', 'CHN']);
@@ -47,8 +47,23 @@ test('the colorblind palette starts off, and turns on and off', () => {
 test('goToView takes the map to the view of an analysis, and changes only what the analysis asks for', () => {
 	goToView({ label: '', target: 'map', measure: 'education', year: 1991, code: 'TO' });
 	expect([store.measure, store.year, store.selectedCode, store.subtab]).toEqual(['education', 1991, 'TO', 'map']);
-	goToView({ label: '', target: 'regions', code: null });
-	expect(store.selectedCode).toBeNull();
+	goToView({ label: '', target: 'evolution', code: 'region:NE' });
+	expect(store.selectedCode).toBe('region:NE');
 	expect([store.measure, store.year]).toEqual(['education', 1991]);
-	expect(store.subtab).toBe('regions');
+	expect(store.subtab).toBe('evolution');
+});
+
+test('the comparison of regions and states opens with the five regions, from north to south', () => {
+	expect(Object.keys(store.compare)).toEqual(['region:N', 'region:NE', 'region:CO', 'region:SE', 'region:S']);
+});
+
+test('the comparison takes up to five lines besides Brazil, keeps the colors of the others, and its set is apart from the world one', () => {
+	expect(toggleCompare('MA')).toBe(false);
+	const northeastColor = store.compare['region:NE'];
+	const freed = store.compare['region:N'];
+	expect(toggleCompare('region:N')).toBe(true);
+	expect(toggleCompare('MA')).toBe(true);
+	expect(store.compare.MA).toBe(freed);
+	expect(store.compare['region:NE']).toBe(northeastColor);
+	expect(Object.keys(store.lines)).not.toContain('MA');
 });

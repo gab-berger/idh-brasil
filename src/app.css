@@ -12,6 +12,10 @@
 	--chart-blue: #0072b2;
 	--header-height: 40px;
 	--tabs-height: 52px;
+	/* Second row of the Brazil page, under the sub-tabs: the measure. */
+	--measures-height: 46px;
+	/* Height of the fixed rows under the header. The Brazil page makes it taller (see +page.svelte). */
+	--bars-height: var(--tabs-height);
 	--gutter: 16px;
 	--text-width: 720px;
 	/* Map and charts use more width on a computer; running text stays within --text-width. */
@@ -103,7 +107,13 @@ h2 {
 
 /* Whoever scrolls to an id (#states) stops below the fixed header and sub-tabs. */
 [id] {
-	scroll-margin-top: calc(var(--header-height) + var(--tabs-height) + 8px);
+	scroll-margin-top: calc(var(--header-height) + var(--bars-height) + 8px);
+}
+
+/* The header and the rows under it hide and show together. With the keyboard focus on any of them (the Tab key), all stay on the
+   screen. A mouse click leaves the focus on the button too, but that is not :focus-visible, so scrolling still hides them. */
+body:has(.header :focus-visible, .subtabs :focus-visible) :is(.header, .subtabs).hidden {
+	transform: none;
 }
 
 /* Centered highlight line: the Brazil indicator for the chosen year and measure. */

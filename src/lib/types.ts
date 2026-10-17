@@ -12,8 +12,8 @@ export type IdhmBand = 'very_low' | 'low' | 'medium' | 'high' | 'very_high';
 /** Bands of the global HDI (see scales.ts). */
 export type HdiBand = 'low' | 'medium' | 'high' | 'very_high';
 
-/** Sub-tabs of the Brazil tab: the map, the ranking, the regional evolution or the state. */
-export type SubTab = 'map' | 'ranking' | 'regions' | 'state';
+/** Sub-tabs of the Brazil tab: the map, the ranking, or the evolution of regions and states. */
+export type SubTab = 'map' | 'ranking' | 'evolution';
 
 /** One row of idhm_states.json: a state in a year ("BR" is Brazil). */
 export interface StateRow {
@@ -49,7 +49,7 @@ export interface Action {
 	target: SubTab;
 	measure?: Measure;
 	year?: number;
-	/** null clears the state; missing leaves it alone. */
+	/** The place in focus: a state code or a region key (see evolution.ts). null clears it; missing leaves it alone. */
 	code?: string | null;
 }
 

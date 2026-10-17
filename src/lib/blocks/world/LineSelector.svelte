@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Chip from '#lib/Chip.svelte';
 	import Notice from '#lib/Notice.svelte';
 	import { toggleLine, store } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
@@ -12,9 +13,7 @@
 </script>
 
 {#snippet chip(key: string)}
-	<button type="button" class="chip" aria-pressed={key in store.lines} onclick={() => toggle(key)}>
-		{labelOf(key)}
-	</button>
+	<Chip label={labelOf(key)} pressed={key in store.lines} onclick={() => toggle(key)} />
 {/snippet}
 
 <div class="selection" role="group" aria-label={t('world.selection.label')}>
@@ -61,31 +60,5 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 6px;
-	}
-
-	/* Same design as the sub-tabs and the measures: the chosen one is a blue block. The color of each line is at its end, in the chart. */
-	.chip {
-		position: relative;
-		min-height: 34px;
-		padding: 0 10px;
-		border: 1px solid var(--line);
-		border-radius: 6px;
-		background: var(--background);
-		color: var(--text);
-		font: inherit;
-		font-size: 0.875rem;
-	}
-
-	.chip::after {
-		content: '';
-		position: absolute;
-		inset: -5px 0;
-	}
-
-	.chip[aria-pressed='true'] {
-		border-color: var(--accent);
-		background: var(--accent);
-		color: var(--background);
-		font-weight: 600;
 	}
 </style>

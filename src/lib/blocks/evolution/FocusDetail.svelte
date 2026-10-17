@@ -1,15 +1,12 @@
 <script lang="ts">
 	import LineChart from '#lib/charts/LineChart.svelte';
-	import { DIMENSION_COLORS, idhmBand, VALUE_DOMAIN } from '#lib/scales';
-	import { num, position } from '#lib/format';
-	import { positions } from '#lib/ranking';
-	import { seriesOf } from '#lib/series';
+	import { BRAZIL_KEY, focusHighlight, historyOf, nameOf } from '#lib/evolution';
+	import { DIMENSION_COLORS, VALUE_DOMAIN, YEARS } from '#lib/scales';
 	import { store } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
-	import type { ChartSeries, Measure, StateRow } from '#lib/types';
+	import type { ChartSeries, Measure, RegionRow, StateRow } from '#lib/types';
 
-	// states: the state's rows in every year (for the chart); rows: those of the timeline year (for the highlight).
-	let { states, rows }: { states: StateRow[]; rows: StateRow[] } = $props();
+	let { states, regions }: { states: StateRow[]; regions: RegionRow[] } = $props();
 
 	// The four indicators. The IDHM is the black, thicker line; the components use the dimension colors.
 	const INDICATORS: Measure[] = ['idhm', 'longevity', 'education', 'income'];
@@ -19,13 +16,13 @@
 		education: DIMENSION_COLORS.education,
 		income: DIMENSION_COLORS.income
 	};
-	const DOMAIN_Y = VALUE_DOMAIN;
-	const YEAR_RANGE: [number, number] = [1991, 2024];
+	const YEAR_RANGE: [number, number] = [YEARS[0], YEARS[YEARS.length - 1]];
 	const X_LABELS = [1991, 2000, 2010, 2024];
 
-	const row = $derived(rows.find((r) => r.code === store.selectedCode));
-	const positionOf = $derived(positions(rows, 'idhm'));
-	const history = $derived(store.selectedCode ? seriesOf(states, 'code', store.selectedCode) : []);
+	// The place in focus: Brazil until one is chosen.
+	const key = $derived(store.selectedCode ?? BRAZIL_KEY);
+	const history = $derived(historyOf(key, states, regions));
+	const name = $derived(nameOf(key, states, regions));
 	const series = $derived(
 		INDICATORS.map(
 			(measure): ChartSeries => ({
@@ -37,33 +34,24 @@
 			})
 		)
 	);
-	const highlightText = $derived(
-		row
-			? t('state.highlight', {
-					value: num(row.idhm),
-					band: t(`band.${idhmBand(row.idhm)}`),
-					position: position(positionOf.get(row.code) ?? 0)
-				})
-			: ''
-	);
+	const last = $derived(history.find((r) => r.year === YEAR_RANGE[1]));
 </script>
 
-{#if row}
+{#if last}
 	<section class="detail" aria-labelledby="detail-title">
-		<h2 id="detail-title">{row.name}</h2>
-		<p class="highlight">{highlightText}</p>
+		<h2 id="detail-title">{name}</h2>
+		<p class="highlight">{focusHighlight(key, states, regions)}</p>
 		<LineChart
 			{series}
-			domainY={DOMAIN_Y}
+			domainY={VALUE_DOMAIN}
 			years={YEAR_RANGE}
 			xLabels={X_LABELS}
-			marker={store.year}
 			gapYear={2011}
-			description={t('detail.chart', { name: row.name })}
-			tableCaption={t('detail.table', { name: row.name })}
+			description={t('detail.chart', { name })}
+			tableCaption={t('detail.table', { name })}
 		/>
 		<p class="source">
-			{t('detail.source', { source: row.source === 'Censo' ? t('source.census') : t('source.pnad'), year: row.year })}
+			{t('detail.source', { source: last.year <= 2010 ? t('source.census') : t('source.pnad'), year: last.year })}
 		</p>
 	</section>
 {/if}

@@ -2,7 +2,8 @@ import { expect, test, type Page } from '@playwright/test';
 
 // Acceptance checks that can be run in the browser: the three pages; the map on the first screen; the header and the
 // sub-tabs that hide on scroll down; the chart choice stuck under the header; the order of the controls (sub-tabs,
-// title, measures, time); the highlight of Brazil; the state detail in its tab; the rotating analyses; the play
+// title, measures, time); the highlight of Brazil; the evolution tab (no time control, the comparison of regions and
+// states, the detail of the place in focus, and their order on a phone and on a wide screen); the rotating analyses; the play
 // button; the readout under the charts; the world tab (highlight, evolution, ranking with Brazil pinned to the
 // edge, year, observations, line limit); the questions on the information page; and the order at the end of the
 // Brazil tab. The text checked is the Portuguese copy on the screen.
@@ -21,6 +22,17 @@ for (const route of ['/', '/mundo', '/informacoes']) {
 			expect(overflow).toBeLessThanOrEqual(0);
 		});
 	}
+}
+
+for (const width of [360, 1280]) {
+	test(`no horizontal scroll: evolution tab at ${width} px`, async ({ page }) => {
+		await page.setViewportSize({ width, height: 800 });
+		await page.goto('/');
+		await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+		await expect(page.locator('#compare svg path.line').first()).toBeVisible();
+		const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+		expect(overflow).toBeLessThanOrEqual(0);
+	});
 }
 
 test('on a phone, the map starts on the first screen', async ({ page }) => {
@@ -78,16 +90,69 @@ test('the chart choice stays fixed right under the header; the title scrolls wit
 	expect(title!.y).toBeLessThan(menu);
 });
 
-test('the Brazil tab order: sub-tabs, title, measure choice, then time', async ({ page }) => {
+test('the Brazil tab order: sub-tabs, measure choice right under them, title, then time', async ({ page }) => {
 	await page.setViewportSize({ width: 1280, height: 800 });
 	await page.goto('/');
-	const subtabs = await page.locator('.subtabs').boundingBox();
+	const tabs = await page.locator('.subtabs .tabs').boundingBox();
+	const measure = await page.locator('.subtabs .selector').boundingBox();
 	const title = await page.locator('.site-title').boundingBox();
-	const measure = await page.locator('.selector').boundingBox();
 	const time = await page.locator('.time').boundingBox();
-	expect(subtabs!.y).toBeLessThan(title!.y);
-	expect(title!.y).toBeLessThan(measure!.y);
-	expect(measure!.y).toBeLessThan(time!.y);
+	expect(measure!.y).toBeGreaterThanOrEqual(tabs!.y + tabs!.height - 1);
+	expect(title!.y).toBeGreaterThan(measure!.y + measure!.height - 1);
+	expect(time!.y).toBeGreaterThan(title!.y);
+});
+
+for (const view of ['Mapa', 'Ranking', 'Evolução']) {
+	test(`${view}: the header, the sub-tabs and the measure leave and come back together`, async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/');
+		await page.getByRole('button', { name: view, exact: true }).click();
+		await expect(page.locator('.subtabs .selector')).toBeVisible();
+		const rows = async () => ({
+			header: await page.locator('header.header').evaluate((el) => el.getBoundingClientRect().bottom),
+			tabs: await page.locator('.subtabs .tabs').evaluate((el) => el.getBoundingClientRect().bottom),
+			measure: await page.locator('.subtabs .selector').evaluate((el) => el.getBoundingClientRect().bottom)
+		});
+		const shown = await rows();
+		expect(shown.header).toBeGreaterThan(0);
+		expect(shown.tabs).toBeGreaterThan(shown.header);
+		expect(shown.measure).toBeGreaterThan(shown.tabs);
+		await page.evaluate(() => window.scrollTo(0, 700));
+		await expect(page.locator('.subtabs')).toHaveClass(/hidden/);
+		await expect(page.locator('header.header')).toHaveClass(/hidden/);
+		await expect.poll(async () => Object.values(await rows()).every((bottom) => bottom <= 0)).toBe(true);
+		await page.evaluate(() => window.scrollBy(0, -200));
+		// They come back to the place they had, all three (the poll waits for the end of the 200 ms movement).
+		await expect
+			.poll(async () => {
+				const back = await rows();
+				return [Math.round(back.header), Math.round(back.tabs), Math.round(back.measure)];
+			})
+			.toEqual([Math.round(shown.header), Math.round(shown.tabs), Math.round(shown.measure)]);
+	});
+}
+
+test('with the keyboard focus on the header or the rows, all of them stay on the screen together', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/');
+	await page.waitForSelector('.map svg path');
+	await page.evaluate(() => window.scrollTo(0, 700));
+	await expect(page.locator('.subtabs')).toHaveClass(/hidden/);
+	await page.keyboard.press('Tab');
+	const bottom = (selector: string) => page.locator(selector).evaluate((el) => el.getBoundingClientRect().bottom);
+	await expect.poll(() => bottom('header.header')).toBeGreaterThan(0);
+	await expect.poll(() => bottom('.subtabs .selector')).toBeGreaterThan(0);
+});
+
+test('a mouse click on a button does not keep the header and the rows from hiding on scroll', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/');
+	await page.waitForSelector('.map svg path');
+	await page.locator('.subtabs .selector').getByRole('button', { name: 'Renda' }).click();
+	await page.evaluate(() => window.scrollTo(0, 700));
+	await expect(page.locator('.subtabs')).toHaveClass(/hidden/);
+	await expect.poll(() => page.locator('.subtabs .selector').evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(0);
+	await expect.poll(() => page.locator('header.header').evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(0);
 });
 
 test('the highlight shows the IDH of Brazil with its band', async ({ page }) => {
@@ -95,55 +160,172 @@ test('the highlight shows the IDH of Brazil with its band', async ({ page }) => 
 	await expect(page.getByText('IDH Brasil: 0,805 – muito alto')).toBeVisible();
 });
 
-test('choosing a state on the map leads to its detail in the State tab', async ({ page }) => {
+test('choosing a state on the map leads to its detail in the evolution tab', async ({ page }) => {
 	await page.goto('/');
 	await page.getByRole('button', { name: /^Maranhão, IDHM/ }).click();
 	await page.getByRole('button', { name: 'Ver detalhes' }).click();
-	await expect(page.getByRole('button', { name: 'Estado', exact: true })).toHaveAttribute('aria-pressed', 'true');
+	await expect(page.getByRole('button', { name: 'Evolução', exact: true })).toHaveAttribute('aria-pressed', 'true');
 	await expect(page.getByRole('heading', { name: 'Maranhão' })).toBeVisible();
-	await expect(page.getByText('0,745 – alto | 27º / 27 estados')).toBeVisible();
+	await expect(page.getByText('IDHM em 2024: 0,745 – alto | 27º / 27 estados')).toBeVisible();
 });
 
-test('the sub-tabs switch the view: ranking, regions, state, and back to the map', async ({ page }) => {
+test('the sub-tabs switch the view: ranking, evolution, and back to the map', async ({ page }) => {
 	await page.goto('/');
 	await page.getByRole('button', { name: 'Ranking', exact: true }).click();
 	await expect(page.locator('#states ol')).toBeVisible();
-	await page.getByRole('button', { name: 'Regiões', exact: true }).click();
-	await expect(page.getByRole('heading', { name: 'Como cada região do Brasil mudou?' })).toBeVisible();
-	await page.getByRole('button', { name: 'Estado', exact: true }).click();
-	await expect(page.getByText('Escolha um estado para ver os detalhes.')).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'Escolher estado' })).toBeVisible();
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	await expect(page.getByRole('heading', { name: 'Como as regiões e os estados mudaram?' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Escolher região ou estado' })).toBeVisible();
 	await page.getByRole('button', { name: 'Mapa', exact: true }).click();
 	await expect(page.locator('.map svg')).toBeVisible();
 });
 
 test('the line legend goes under the chart, and the reading under the legend', async ({ page }) => {
 	await page.goto('/');
-	await page.getByRole('button', { name: 'Regiões', exact: true }).click();
-	const chart = await page.locator('.area svg').boundingBox();
-	const legend = await page.locator('ul.legend').boundingBox();
-	const readout = await page.locator('.readout').boundingBox();
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	const chart = await page.locator('#compare .area svg').boundingBox();
+	const legend = await page.locator('#compare ul.legend').boundingBox();
+	const readout = await page.locator('#compare .readout').boundingBox();
 	expect(legend!.y).toBeGreaterThan(chart!.y + chart!.height);
 	expect(readout!.y).toBeGreaterThan(legend!.y);
 });
 
-test('the play button updates the readout of the regions chart, year by year', async ({ page }) => {
+test('the evolution tab has no time control and no animation', async ({ page }) => {
 	await page.goto('/');
-	await page.getByRole('button', { name: 'Regiões', exact: true }).click();
-	await page.getByRole('slider').focus();
-	await page.keyboard.press('Home');
-	await expect(page.getByText(/^Em 1991:/)).toBeVisible();
-	await page.locator('button.play').click();
-	await expect(page.getByText(/^Em 2000:/)).toBeVisible({ timeout: 5000 });
-	await page.locator('button.play').click();
+	await expect(page.locator('.time')).toHaveCount(1);
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	await expect(page.locator('#compare svg path.line').first()).toBeVisible();
+	await expect(page.locator('.time')).toHaveCount(0);
+	await expect(page.getByRole('slider')).toHaveCount(0);
+	await expect(page.locator('button.play')).toHaveCount(0);
 });
 
-test('the readout of the state chart follows the timeline', async ({ page }) => {
+test('the evolution tab opens with Brazil in focus, and both charts read 2024 until the pointer moves', async ({ page }) => {
 	await page.goto('/');
-	await page.getByRole('button', { name: /^Maranhão, IDHM/ }).click();
-	await page.getByRole('button', { name: 'Ver detalhes' }).click();
-	await page.locator('.time').getByRole('button', { name: '◀ Anterior' }).click();
-	await expect(page.getByText(/^Em 2023:/)).toBeVisible();
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	await expect(page.getByRole('heading', { name: 'Brasil', exact: true })).toBeVisible();
+	await expect(page.getByText('IDHM em 2024: 0,805 – muito alto')).toBeVisible();
+	await expect(page.locator('#compare .readout')).toContainText('Em 2024:');
+	await expect(page.locator('.detail .readout')).toContainText('Em 2024: IDHM 0,805');
+});
+
+test('the comparison opens with Brazil and the five regions; each line stops before 2011 and starts again after it', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	await expect(page.locator('#compare svg path.line')).toHaveCount(12);
+	const legend = page.locator('#compare ul.legend li');
+	await expect(legend).toHaveText(['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul']);
+});
+
+test('in the line selector, the regions are bold and the states are not', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	const weight = (text: RegExp) =>
+		page.locator('#compare button.chip', { hasText: text }).evaluate((el) => getComputedStyle(el).fontWeight);
+	for (const region of [/^Nordeste$/, /^Sul$/]) expect(await weight(region)).toBe('700');
+	expect(await weight(/^MA$/)).toBe('400');
+	// A region turned off is still bold; a state turned on is not as bold as a region.
+	await page.locator('#compare button.chip', { hasText: /^Sul$/ }).click();
+	expect(await weight(/^Sul$/)).toBe('700');
+	await page.locator('#compare button.chip', { hasText: /^MA$/ }).click();
+	expect(await weight(/^MA$/)).toBe('600');
+});
+
+test('the line selector: regions in alphabetical order, each followed by its states, only with the codes', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	const chips = page.locator('#compare button.chip');
+	await expect(chips).toHaveText([
+		'Centro-Oeste', 'DF', 'GO', 'MT', 'MS',
+		'Nordeste', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE',
+		'Norte', 'AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO',
+		'Sudeste', 'ES', 'MG', 'RJ', 'SP',
+		'Sul', 'PR', 'RS', 'SC'
+	]);
+	await expect(page.locator('#compare button.chip', { hasText: /^MA$/ })).toHaveAttribute('aria-label', 'Maranhão (MA)');
+});
+
+test('the comparison takes five lines besides Brazil, warns on the sixth, and a freed color goes to the new line', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	// The legend has one item for each line; the drawing has two paths for each, because of the gap in 2011.
+	const lines = page.locator('#compare ul.legend li');
+	await expect(lines).toHaveCount(6);
+	await page.locator('#compare button.chip', { hasText: /^MA$/ }).click();
+	await expect(page.getByRole('status')).toContainText('Até 5 linhas');
+	await expect(lines).toHaveCount(6);
+	await page.locator('#compare button.chip', { hasText: /^Sul$/ }).click();
+	await expect(lines).toHaveCount(5);
+	await page.locator('#compare button.chip', { hasText: /^MA$/ }).click();
+	await expect(lines).toHaveCount(6);
+	await expect(page.locator('#compare svg path.line')).toHaveCount(12);
+	await expect(page.locator('#compare ul.legend li').last()).toHaveText('MA');
+	await expect(page.locator('#compare button.chip', { hasText: /^MA$/ })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('the measure choice changes the comparison, not the detail, which shows the four indicators', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	await page.locator('.subtabs .selector').getByRole('button', { name: 'Educação' }).click();
+	await expect(page.locator('#compare .readout')).toContainText('Brasil 0,798');
+	await expect(page.locator('.detail ul.legend li')).toHaveText(['IDHM', 'Longevidade', 'Educação', 'Renda']);
+});
+
+test('choosing a region or a state in the focus changes the detail', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	const select = page.getByRole('combobox', { name: 'Escolher região ou estado' });
+	await select.selectOption({ label: 'Nordeste' });
+	await expect(page.getByRole('heading', { name: 'Nordeste', level: 2 })).toBeVisible();
+	await expect(page.getByText('IDHM em 2024: 0,761 – alto | 5º / 5 regiões')).toBeVisible();
+	await select.selectOption({ label: 'Sergipe' });
+	await expect(page.getByRole('heading', { name: 'Sergipe' })).toBeVisible();
+	await expect(page.locator('.detail .highlight')).toContainText('/ 27 estados');
+	await select.selectOption({ label: 'Brasil' });
+	await expect(page.getByText('IDHM em 2024: 0,805 – muito alto')).toBeVisible();
+});
+
+test('the first analysis leads to the evolution tab with the leading region in focus', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Ver as regiões' }).click();
+	await expect(page.getByRole('button', { name: 'Evolução', exact: true })).toHaveAttribute('aria-pressed', 'true');
+	await expect(page.getByRole('heading', { name: 'Nordeste', level: 2 })).toBeVisible();
+	await expect(page.getByRole('combobox', { name: 'Escolher região ou estado' })).toHaveValue('region:NE');
+});
+
+test('on a phone, the comparison chart comes first, and the detail comes under it', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	const compare = await page.locator('#compare .area svg').boundingBox();
+	const detail = await page.locator('.detail .area svg').boundingBox();
+	const choose = await page.getByRole('combobox', { name: 'Escolher região ou estado' }).boundingBox();
+	if (!compare || !detail || !choose) throw new Error('the charts are not visible');
+	expect(compare.y).toBeLessThan(844);
+	expect(compare.y).toBeLessThan(choose.y);
+	expect(choose.y).toBeLessThan(detail.y);
+	expect(detail.y).toBeGreaterThan(compare.y + compare.height);
+});
+
+test('on a wide screen, the comparison is fixed on the right half and the detail is on the left', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	const compare = page.locator('#compare');
+	await expect(compare.locator('svg path.line').first()).toBeVisible();
+	const detail = page.locator('.detail');
+	await expect(detail).toBeVisible();
+	const before = await compare.boundingBox();
+	const detailBox = await detail.boundingBox();
+	if (!before || !detailBox) throw new Error('the charts are not visible');
+	expect(before.x).toBeGreaterThan(640);
+	expect(detailBox.x + detailBox.width).toBeLessThan(660);
+	// The chart stays on the screen while the left half scrolls.
+	await page.evaluate(() => window.scrollTo(0, 300));
+	const chart = page.locator('#compare .area svg');
+	await expect.poll(async () => (await chart.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(0);
+	const after = await chart.boundingBox();
+	expect(after!.y + after!.height).toBeLessThanOrEqual(800);
 });
 
 test('the analyses rotate by hand: one at a time, in order', async ({ page }) => {
@@ -332,25 +514,25 @@ test('an address that does not exist shows the error page, in Portuguese', async
 	await expect(page.getByRole('link', { name: 'Voltar ao início' })).toBeVisible();
 });
 
-test('on a wide screen, the state chooser has its title and the select on the same line', async ({ page }) => {
+test('on a wide screen, the focus chooser has its title and the select on the same line', async ({ page }) => {
 	await page.setViewportSize({ width: 1280, height: 800 });
 	await page.goto('/');
-	await page.getByRole('button', { name: 'Estado', exact: true }).click();
-	const select = page.getByRole('combobox', { name: 'Escolher estado' });
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	const select = page.getByRole('combobox', { name: 'Escolher região ou estado' });
 	await expect(select).toBeVisible();
-	const title = await page.getByRole('heading', { name: 'Escolher estado' }).boundingBox();
+	const title = await page.getByRole('heading', { name: 'Escolher região ou estado' }).boundingBox();
 	const selectBox = await select.boundingBox();
 	if (!title || !selectBox) throw new Error('the chooser is not visible');
 	expect(Math.abs(title.y + title.height / 2 - (selectBox.y + selectBox.height / 2))).toBeLessThan(8);
 });
 
-test('on a 360 px phone, the state chooser has the select under its title', async ({ page }) => {
+test('on a 360 px phone, the focus chooser has the select under its title', async ({ page }) => {
 	await page.setViewportSize({ width: 360, height: 800 });
 	await page.goto('/');
-	await page.getByRole('button', { name: 'Estado', exact: true }).click();
-	const select = page.getByRole('combobox', { name: 'Escolher estado' });
+	await page.getByRole('button', { name: 'Evolução', exact: true }).click();
+	const select = page.getByRole('combobox', { name: 'Escolher região ou estado' });
 	await expect(select).toBeVisible();
-	const title = await page.getByRole('heading', { name: 'Escolher estado' }).boundingBox();
+	const title = await page.getByRole('heading', { name: 'Escolher região ou estado' }).boundingBox();
 	const selectBox = await select.boundingBox();
 	if (!title || !selectBox) throw new Error('the chooser is not visible');
 	expect(selectBox.y).toBeGreaterThan(title.y + title.height - 1);

@@ -6,17 +6,13 @@
 	import { summaryText } from '#lib/summary';
 	import { t } from '#lib/texts';
 	import type { MapTopology, StateRow } from '#lib/types';
-	import RegionsView from './Regions.svelte';
 	import TimeControl from './states/TimeControl.svelte';
-	import ChooseState from './states/ChooseState.svelte';
-	import StateDetail from './states/StateDetail.svelte';
 	import Legend from './states/Legend.svelte';
 	import MapView from './states/MapView.svelte';
 	import StateRanking from './states/StateRanking.svelte';
 	import StateSelection from './states/StateSelection.svelte';
-	import MeasureSelector from './states/MeasureSelector.svelte';
 
-	// The page draws this block in two places on a wide screen: 'start' has the text and the controls, 'visual' has the map, the list or the chart.
+	// The page draws this block in two places on a wide screen: 'start' has the controls, 'visual' has the map or the list.
 	let { part }: { part: 'start' | 'visual' } = $props();
 
 	let states: StateRow[] | null = $state.raw(null);
@@ -39,21 +35,13 @@
 
 {#if part === 'start'}
 	{#if states && topology}
-		{#if store.subtab !== 'state'}
-			<MeasureSelector />
-		{/if}
-
 		<TimeControl />
 
-		{#if brazilRow && store.subtab !== 'state'}
+		{#if brazilRow}
 			<p class="highlight">{summaryText(brazilRow, store.measure)}</p>
 		{/if}
 
-		{#if store.subtab === 'state'}
-			<ChooseState rows={rowsOfYear} />
-		{:else if store.subtab === 'map' || store.subtab === 'ranking'}
-			<StateSelection rows={rowsOfYear} />
-		{/if}
+		<StateSelection rows={rowsOfYear} />
 	{/if}
 {:else if error}
 	<p role="alert">{t('error.load')}</p>
@@ -62,18 +50,6 @@
 {:else if store.subtab === 'map'}
 	<MapView {topology} rows={rowsOfYear} />
 	<Legend />
-{:else if store.subtab === 'ranking'}
-	<StateRanking rows={rowsOfYear} brazil={brazilRow} />
-{:else if store.subtab === 'regions'}
-	<RegionsView />
-{:else if store.selectedCode}
-	<StateDetail states={states ?? []} rows={rowsOfYear} />
 {:else}
-	<p class="empty">{t('detail.empty')}</p>
+	<StateRanking rows={rowsOfYear} brazil={brazilRow} />
 {/if}
-
-<style>
-	.empty {
-		color: var(--text-soft);
-	}
-</style>

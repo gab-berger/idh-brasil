@@ -24,7 +24,7 @@ test('regions: the Northeast progressed the most, and the gap between the region
 	expect(analysis('regions').text).toBe(
 		'O Nordeste: a média dos seus estados foi de 0,393 em 1991 para 0,761 em 2024 (+0,368). A diferença entre a região mais alta e a mais baixa caiu de 0,140 para 0,063.'
 	);
-	expect(analysis('regions').action?.target).toBe('regions');
+	expect(analysis('regions').action).toMatchObject({ target: 'evolution', code: 'region:NE' });
 });
 
 test('states: the gap between the highest and the lowest fell from 0.259 to 0.121', () => {

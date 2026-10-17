@@ -3,6 +3,7 @@
  * comes out with the text even without JavaScript. Each number is checked in analysis.spec.ts.
  */
 import { delta, joinList, num } from './format';
+import { regionKey } from './evolution';
 import { required } from './required';
 import { stateRow, statesOfYear } from './series';
 import { t } from './texts';
@@ -30,7 +31,7 @@ function regionMostProgressed(regions: RegionRow[]): Analysis {
 	const gains = last
 		.map((r) => {
 			const before = required(first.find((x) => x.region === r.region), `${r.name} in ${START}`);
-			return { name: r.name, before: before.idhm, after: r.idhm, gain: round3(r.idhm - before.idhm) };
+			return { code: r.region, name: r.name, before: before.idhm, after: r.idhm, gain: round3(r.idhm - before.idhm) };
 		})
 		.sort((a, b) => b.gain - a.gain);
 	const best = required(gains[0], 'regions');
@@ -50,7 +51,7 @@ function regionMostProgressed(regions: RegionRow[]): Analysis {
 			gap_start: num(gapStart),
 			gap_end: num(gapEnd)
 		}),
-		action: { label: t('analysis.regions.action'), target: 'regions', measure: 'idhm' }
+		action: { label: t('analysis.regions.action'), target: 'evolution', measure: 'idhm', code: regionKey(best.code) }
 	};
 }
 

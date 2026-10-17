@@ -6,7 +6,7 @@
 
 	let { rows }: { rows: StateRow[] } = $props();
 
-	// State chosen on the map or in the ranking: the line leads to the state tab, where the details are.
+	// State chosen on the map or in the ranking: the line leads to the evolution tab, where its details are.
 	const row = $derived(rows.find((r) => r.code === store.selectedCode));
 </script>
 
@@ -19,7 +19,7 @@
 				value: num(row[store.measure])
 			})}
 		</p>
-		<button type="button" onclick={() => (store.subtab = 'state')}>{t('selection.see')}</button>
+		<button type="button" onclick={() => (store.subtab = 'evolution')}>{t('selection.see')}</button>
 	</div>
 {/if}
 

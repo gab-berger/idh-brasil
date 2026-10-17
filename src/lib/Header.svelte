@@ -39,13 +39,9 @@
 		transition: transform 200ms ease;
 	}
 
-	/* When the page scrolls down, the header leaves the screen; when it scrolls up, it comes back. With focus inside, it stays visible. */
+	/* When the page scrolls down, the header leaves the screen; when it scrolls up, it comes back. With the keyboard focus inside, app.css keeps it visible. */
 	.header.hidden {
 		transform: translateY(-100%);
-	}
-
-	.header.hidden:focus-within {
-		transform: none;
 	}
 
 	.content {

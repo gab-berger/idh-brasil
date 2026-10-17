@@ -3,7 +3,7 @@
  * data rules); nothing here is read from the data files.
  */
 import { interpolateRdYlBu, interpolateYlGnBu, scaleSequential } from 'd3';
-import type { Dimension, HdiBand, IdhmBand, Measure, RegionCode } from './types';
+import type { Dimension, HdiBand, IdhmBand, LineStyle, Measure, RegionCode } from './types';
 
 /** Years with data: census in 1991, 2000 and 2010; PNAD Contínua from 2012 to 2024. There is no 2011. */
 export const YEARS: number[] = [1991, 2000, 2010, ...Array.from({ length: 13 }, (_, i) => 2012 + i)];
@@ -69,20 +69,11 @@ export const LINE_COLORS: string[] = ['var(--chart-ink)', 'var(--chart-blue)', '
 /** Maximum lines on at the same time, besides Brazil. The fifth reuses a color and is dotted (D7). */
 export const MAX_LINES = 5;
 
-/** Order of the regions in lists and charts: from north to south. */
+/** Order of the regions where the lines start on: from north to south. */
 export const REGIONS: RegionCode[] = ['N', 'NE', 'CO', 'SE', 'S'];
 
-/**
- * Region colors in the line chart (D7): only the four colors that pass the contrast test,
- * so the fifth line repeats black, dotted. The label at the end of each line says which is which.
- */
-export const REGION_COLORS: Record<RegionCode, { color: string; dash?: string }> = {
-	N: { color: '#009E73' },
-	NE: { color: '#CC79A7' },
-	CO: { color: 'var(--chart-ink)', dash: '2 4' },
-	SE: { color: 'var(--chart-blue)' },
-	S: { color: 'var(--chart-ink)' }
-};
+/** Stroke patterns of the comparison lines: averages are dashed, and the fifth line is dotted (D7). */
+export const LINE_DASH: Record<LineStyle, string | undefined> = { solid: undefined, dashed: '8 5', dotted: '2 4' };
 
 /** Colors of the three components in the charts of the sub-indices. */
 export const DIMENSION_COLORS: Record<Dimension, string> = {

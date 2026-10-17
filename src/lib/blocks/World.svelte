@@ -2,17 +2,16 @@
 	import { onMount } from 'svelte';
 	import { load } from '#lib/data';
 	import LineChart from '#lib/charts/LineChart.svelte';
-	import { BRAZIL_COLOR } from '#lib/scales';
+	import { BRAZIL_COLOR, LINE_DASH } from '#lib/scales';
 	import { store } from '#lib/store.svelte';
 	import { t } from '#lib/texts';
 	import { labelOf, lineStyleOf, pointsOf } from '#lib/world';
-	import type { AverageRow, ChartSeries, CountryRow, LineStyle } from '#lib/types';
+	import type { AverageRow, ChartSeries, CountryRow } from '#lib/types';
 	import LineSelector from './world/LineSelector.svelte';
 
 	// The page draws this block in two places on a wide screen: 'start' has the title and the lines to choose, 'visual' has the chart.
 	let { part }: { part: 'start' | 'visual' } = $props();
 
-	const DASH: Record<LineStyle, string | undefined> = { solid: undefined, dashed: '8 5', dotted: '2 4' };
 	const DOMAIN_Y: [number, number] = [0.4, 0.95];
 	const YEAR_RANGE: [number, number] = [1990, 2023];
 
@@ -48,7 +47,7 @@
 				key,
 				label: labelOf(key),
 				color,
-				dash: DASH[lineStyleOf(key, index)],
+				dash: LINE_DASH[lineStyleOf(key, index)],
 				points: pointsOf(key, loadedCountries, loadedAverages)
 			})
 		);
